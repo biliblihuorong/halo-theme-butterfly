@@ -23,7 +23,7 @@
     </a>
     <a class="item" title="标签" href="/tags">
       <div class="headline">标签</div>
-      <div class="num" th:text="${stats.tag ?: tagFinder.list(1,1).total}"></div>
+      <div class="num" th:text="${tagFinder.list(1,1).total}"></div>
     </a>
   </div>
 
@@ -102,7 +102,7 @@
     </div>
     <div class="item">
       <span>总访问量：</span>
-      <span th:text="${stats.visit} + '人'"></span>
+      <span id="umami-visits" th:text="${stats.visit} + '人'"></span>
     </div>
   </div>
 </section>

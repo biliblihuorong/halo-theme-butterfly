@@ -90,7 +90,7 @@
       </a>
       <a class="item" title="标签" href="/tags">
         <h2 class="title">标签</h2>
-        <span class="num" th:text="${stats.tag ?: tagFinder.list(1,1).total}"></span>
+        <span class="num" th:text="${tagFinder.list(1,1).total}"></span>
       </a>
     </div>
     <hr/>
