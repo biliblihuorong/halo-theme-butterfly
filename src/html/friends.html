@@ -12,8 +12,8 @@
     <script id="pageScript" th:inline="javascript">
       Object.assign(window.MainApp.conf, {
         //第一屏
-        enable_above: /*[[${theme.config.index.enable_above}]]*/ '',
-        above_background: /*[[${theme.config.index.above_background}]]*/ '',
+        enable_above: /*[[${theme.config.friends?.enable_above ?: theme.config.index.enable_above}]]*/ '',
+        above_background: /*[[${theme.config.friends?.above_background ?: theme.config.index.above_background}]]*/ '',
         // 分页
         nextUrl: /*[[${friends?.nextUrl}]]*/ {},
         prevUrl: /*[[${friends?.prevUrl}]]*/ {},
@@ -29,12 +29,12 @@
 
   <!--/* header */-->
   <th:block th:fragment="header">
-    <header th:class="${not theme.config.index.enable_above ? 'header dp' : 'header'}">
+    <header th:class="${not (theme.config.friends?.enable_above ?: theme.config.index.enable_above) ? 'header dp' : 'header'}">
       <!--/* 导航栏 */-->
       <th:block th:replace="~{views/nav}"/>
 
       <!--第一屏内容-->
-      <section class="above" th:if="${theme.config.index.enable_above}">
+      <section class="above" th:if="${theme.config.friends?.enable_above ?: theme.config.index.enable_above}">
         <div class="above-info">
           <h1 class="above-title" th:text="${title ?: '朋友圈'}">朋友圈</h1>
         </div>
@@ -44,10 +44,10 @@
 
 
   <!--/* 內容 */-->
-  <th:block th:fragment="main">
+  <th:block th:fragment="main" th:with="friendLayout = ${theme.config.friends?.layout ?: 'single'}">
     <section class="content" th:with="friendData = ${friends?.items}">
       <th:block th:if="${friendData != null and not #lists.isEmpty(friendData)}">
-        <div class="friend-list">
+        <div th:class="'friend-list' + ${friendLayout == 'double' ? ' double' : ''}">
           <a class="friend-item card animate__animated animate__fadeIn"
              th:each="friend : ${friendData}"
              th:with="spec = ${friend.spec}"

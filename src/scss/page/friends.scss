@@ -10,10 +10,22 @@
 @use "../modules/components";
 
 .friends {
+  @include components.pagination;
+
   .friend-list {
     display: flex;
     flex-direction: column;
     gap: 16px;
+
+    // 双栏布局
+    &.double {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+
+      @include util.useResponsive(util.$w-md) {
+        grid-template-columns: 1fr;
+      }
+    }
   }
 
   .friend-item {
@@ -92,6 +104,17 @@
       opacity: 0.7;
       margin: 0;
       @include util.text-clamp(2);
+    }
+  }
+
+  // 双栏下的卡片调整
+  .friend-list.double .friend-item {
+    .friend-title {
+      @include util.text-clamp(1);
+    }
+
+    .friend-desc {
+      @include util.text-clamp(1);
     }
   }
 

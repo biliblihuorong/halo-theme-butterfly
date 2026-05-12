@@ -849,5 +849,35 @@ spec:
             - value: "xonokai"
               label: "xonokai"
             - value: "z-touch"
-              label: "z-touch"              
-                            
+              label: "z-touch"
+    #朋友圈设置
+    - group: friends
+      label: 朋友圈设置
+      formSchema:
+        - $formkit: radio
+          name: layout
+          label: 布局方式
+          help: 朋友圈页面的布局方式（单栏或双栏）
+          value: single
+          options:
+            - label: 单栏
+              value: single
+            - label: 双栏
+              value: double
+        - $formkit: radio
+          name: enable_above
+          label: 启用第一屏
+          help: 启用朋友圈页面第一屏
+          value: true
+          options:
+            - label: 启用
+              value: true
+            - label: 禁用
+              value: false
+        - $formkit: attachment
+          name: above_background
+          label: 第一屏背景图
+          placeholder: 请填写 第一屏背景图
+          value: 'https://unpkg.com/halo-theme-butterfly/docs/above.png'
+          help: 朋友圈页面的第一屏背景图
+          validation: required
