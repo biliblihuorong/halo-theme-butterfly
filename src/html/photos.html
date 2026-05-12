@@ -36,22 +36,22 @@
 
 
   <!--/* 內容 */-->
-  <th:block th:fragment="main">
+  <th:block th:fragment="main" th:with="photoGroups = ${groups ?: photoFinder.listGroups()}, photoData = ${photos ?: photoFinder.list(1, 999)}">
     <section class="content ">
-      <div class="head card" th:with="noData = ${not #lists.isEmpty(groups)}">
+      <div class="head card" th:with="noData = ${not #lists.isEmpty(photoGroups)}">
         <div class="title">图库分类</div>
         <div class="groups">
           <th:block th:if="${noData}">
             <a class="groups-item animate__animated " href="/photos">全部</a>
-            <a th:each="group : ${groups}" th:text="${group.spec.displayName}" th:href="${'/photos?group=' + group.metadata.name }" th:data-group="${group.metadata.name}" class="groups-item animate__animated "></a>
+            <a th:each="group : ${photoGroups}" th:text="${group.spec.displayName}" th:href="${'/photos?group=' + group.metadata.name }" th:data-group="${group.metadata.name}" class="groups-item animate__animated "></a>
           </th:block>
-          
+
           <th:block th:unless="${noData}" th:insert="~{views/components:: emptyData(false)}"></th:block>
         </div>
 
       </div>
       <div class="imgs">
-        <img class="img animate__animated animate__bounceIn" th:each="photo : ${photos.items}" th:src="${photo.spec.url}" th:alt="${photo.spec.displayName}">
+        <img class="img animate__animated animate__bounceIn" th:each="photo : ${photoData.items}" th:src="${photo.spec.url}" th:alt="${photo.spec.displayName}">
       </div>
     </section>
     <th:block th:replace="~{views/aside::common}"/>

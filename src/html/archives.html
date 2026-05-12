@@ -10,21 +10,21 @@
   <!--/* pin */-->
   <th:block th:fragment="pin">
     <script id="pageScript" th:inline="javascript">
-      window.MainApp.data =  /*[[${postFinder.archives(1,archives.total).items}]]*/ [];
+      window.MainApp.data =  /*[[${postFinder.archives(1, (archives?.total ?: 999)).items}]]*/ [];
 
       Object.assign(window.MainApp.conf, {
         //第一屏
         enable_above: /*[[${theme.config.archives.enable_above}]]*/ '',
         above_background: /*[[${theme.config.archives.above_background}]]*/ '',
         // 分页
-        nextUrl: /*[[${archives.nextUrl}]]*/ {},
-        prevUrl: /*[[${archives.prevUrl}]]*/ {},
-        page: /*[[${archives.page}]]*/ {},
-        size: /*[[${archives.size}]]*/ {},
-        total: /*[[${archives.total}]]*/ {},
-        totalPages: /*[[${archives.totalPages}]]*/ {},
-        hasPrevious: /*[[${archives.hasPrevious()}]]*/ {},
-        hasNext: /*[[${archives.hasNext()}]]*/ {},
+        nextUrl: /*[[${archives?.nextUrl}]]*/ {},
+        prevUrl: /*[[${archives?.prevUrl}]]*/ {},
+        page: /*[[${archives?.page}]]*/ {},
+        size: /*[[${archives?.size}]]*/ {},
+        total: /*[[${archives?.total}]]*/ {},
+        totalPages: /*[[${archives?.totalPages}]]*/ {},
+        hasPrevious: /*[[${archives != null ? archives.hasPrevious() : false}]]*/ {},
+        hasNext: /*[[${archives != null ? archives.hasNext() : false}]]*/ {},
       });
     </script>
   </th:block>
@@ -46,16 +46,16 @@
 
 
   <!--/* 內容 */-->
-  <th:block th:fragment="main">
-    <section class="content card" th:with="noData = ${not #lists.isEmpty(archives.items)}">
+  <th:block th:fragment="main" th:with="archiveData = ${archives ?: postFinder.archives(1, 999)}">
+    <section class="content card" th:with="noData = ${not #lists.isEmpty(archiveData.items)}">
 
       <th:block th:if="${noData}">
         <div class="chart"></div>
 
-        <div class="axis-title" th:text="'文章总览 - '+${archives.total}"></div>
+        <div class="axis-title" th:text="'文章总览 - '+${archiveData.total}"></div>
 
         <ul class="axis-list">
-          <th:block th:each="archive : ${archives.items}">
+          <th:block th:each="archive : ${archiveData.items}">
             <li class="axis-list--item  year">
               <span class="name" th:text="${archive.year}"></span>
             </li>

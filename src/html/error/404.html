@@ -1,0 +1,40 @@
+<layout
+  th:replace="~{views/layout :: layout (
+  page = 'error',
+  title = '404 - 页面未找到',
+  pin = ~{::pin},
+  header = ~{::header},
+  main = ~{::main}
+  )}"
+>
+  <th:block th:fragment="pin">
+    <script id="pageScript" th:inline="javascript">
+      Object.assign(window.MainApp.conf, {
+        enable_above: true,
+        above_background: /*[[${theme.config.index.above_background}]]*/ '',
+      });
+    </script>
+  </th:block>
+
+  <th:block th:fragment="header">
+    <header class="header">
+      <th:block th:replace="~{views/nav}"/>
+      <section class="above">
+        <div class="above-info">
+          <h1 class="above-title">404 - 页面去火星了</h1>
+        </div>
+      </section>
+    </header>
+  </th:block>
+
+  <th:block th:fragment="main">
+    <section class="content card animate__animated animate__fadeIn">
+      <div style="text-align: center; padding: 50px 20px;">
+        <h2 style="font-size: 5rem; color: var(--theme); margin: 0;">404</h2>
+        <p style="font-size: 1.2rem; color: var(--text-color); margin-bottom: 30px;">抱歉，您访问的页面不存在或已被删除。</p>
+        <a href="/" class="btn" style="display: inline-block; padding: 10px 20px; background: var(--theme); color: #fff; border-radius: 8px; text-decoration: none; margin-top: 20px;">返回首页</a>
+      </div>
+    </section>
+    <th:block th:replace="~{views/aside::common}"/>
+  </th:block>
+</layout>

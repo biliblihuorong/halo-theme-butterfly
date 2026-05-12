@@ -35,11 +35,11 @@
 
 
   <!--/* 內容 */-->
-  <th:block th:fragment="main">
+  <th:block th:fragment="main" th:with="momentData = ${moments ?: momentFinder.list(1, 999)}">
 
-    <section class="content card animate__animated animate__fadeIn" th:with="noData = ${not #lists.isEmpty(moments.items)}"  th:style="${ noData ?  '' : 'min-height: auto'}">
+    <section class="content card animate__animated animate__fadeIn" th:with="noData = ${not #lists.isEmpty(momentData.items)}"  th:style="${ noData ?  '' : 'min-height: auto'}">
       <ul class="list" th:if="${noData}">
-        <li class="item" th:each="moment : ${moments.items}" th:with="content=${moment.spec.content}">
+        <li class="item" th:each="moment : ${momentData.items}" th:with="content=${moment.spec.content}">
           <div class="h" th:if="${not #strings.isEmpty(content.html)}" th:utext="${content.html}"></div>
 
           <div class="medium">

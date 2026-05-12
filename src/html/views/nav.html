@@ -9,13 +9,13 @@
   <div class="nav-do">
     <!--/* 搜索 */-->
     <div class="controls" th:if="${pluginFinder.available('PluginSearchWidget')}">
-      <a class="link" href="javascript:SearchWidget.open()" title="搜索">
+      <a class="link" href="javascript:SearchWidget.open()" title="搜索" aria-label="搜索">
         <i class="icon fas fa-search fa-fw"></i>
         <span class="name">搜索</span>
       </a>
 
       <!--/* 移动侧边栏按钮 */-->
-      <a class="link bars" href="#">
+      <a class="link bars" href="#" aria-label="打开侧边栏">
         <i class="fas fa-bars fa-fw"></i>
       </a>
     </div>

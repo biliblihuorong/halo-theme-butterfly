@@ -89,12 +89,12 @@
 <header
   xmlns:th="https://www.thymeleaf.org"
   th:fragment="h(page)"
-  th:class="${not theme.config[page].enable_above ? 'header dp' : 'header'}"
+  th:class="${(theme.config[page] instanceof T(java.util.Map) and not theme.config[page].enable_above) ? 'header dp' : 'header'}"
 >
   <!--/* 导航栏 */-->
   <th:block th:replace="~{modules/nav}"/>
 
   <!--第一屏内容-->
-  <th:block th:if="${theme.config[page].enable_above}" th:insert="~{::${page}}"/>
+  <th:block th:if="${theme.config[page] instanceof T(java.util.Map) and theme.config[page].enable_above}" th:insert="~{::${page}}"/>
 </header>
 

@@ -1,0 +1,44 @@
+<layout
+  th:replace="~{views/layout :: layout (
+  page = 'error',
+  title = '500 - 服务器内部错误',
+  pin = ~{::pin},
+  header = ~{::header},
+  main = ~{::main}
+  )}"
+>
+  <th:block th:fragment="pin">
+    <script id="pageScript" th:inline="javascript">
+      Object.assign(window.MainApp.conf, {
+        enable_above: true,
+        above_background: /*[[${theme.config.index.above_background}]]*/ '',
+      });
+    </script>
+  </th:block>
+
+  <th:block th:fragment="header">
+    <header class="header">
+      <th:block th:replace="~{views/nav}"/>
+      <section class="above">
+        <div class="above-info">
+          <h1 class="above-title">500 - 服务器炸了</h1>
+        </div>
+      </section>
+    </header>
+  </th:block>
+
+  <th:block th:fragment="main">
+    <section class="content card animate__animated animate__fadeIn">
+      <div style="text-align: center; padding: 50px 20px;">
+        <h2 style="font-size: 5rem; color: #ff4757; margin: 0;">500</h2>
+        <p style="font-size: 1.2rem; color: var(--text-color); margin-bottom: 30px;">哎呀，服务器内部出了点小差错。</p>
+        <div style="text-align: left; background: #f1f2f6; padding: 15px; border-radius: 8px; font-family: monospace; overflow-x: auto;">
+          <p th:text="${error.title}"></p>
+          <p th:text="${error.detail}"></p>
+        </div>
+        <a href="/" class="btn" style="display: inline-block; padding: 10px 20px; background: var(--theme); color: #fff; border-radius: 8px; text-decoration: none; margin-top: 20px;">返回首页</a>
+      </div>
+    </section>
+    <th:block th:replace="~{views/aside::common}"/>
+  </th:block>
+</layout>

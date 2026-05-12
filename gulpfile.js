@@ -283,6 +283,6 @@ gulp.task(
 gulp.task(
   'default',
   gulp.series(
-    gulp.parallel('copy-folder', 'css', 'js', 'html'),
+    gulp.parallel('copy-folder', 'css', 'js', 'html', 'js-plugins-loading'),
   ),
 );
