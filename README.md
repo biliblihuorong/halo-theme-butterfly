@@ -1,91 +1,46 @@
-<p align="center">Index 主题 Halo 2.0</p>
+<p align="center">
+  <strong>Halo Theme Butterfly 🦋 (Shell's Mod)</strong>
+</p>
 
-> `Index` 是Hexo社区[hexo-theme-Index](https://github.com/jerryc127) 此次移植`pug`模板引擎调整为 `thymeleaf`，
-> 希望大家喜欢 ❤️ ！同时也要在此感谢原作者 [Jerry](https://github.com/jerryc127)
-> 欢迎大家加入 [halo-theme-Index 交流群：916571927](https://jq.qq.com/?_wv=1027&k=LfbGKBVG)
+> 基于 [dhjddcn/halo-theme-butterfly](https://github.com/dhjddcn/halo-theme-butterfly) 进行深度定制和修复的魔改版本。
+> 原主题由 [Jerry](https://github.com/jerryc127) 创作，感谢原作者们的无私奉献！❤️
 
-## 👀 [预览主题](https://dhjdd.cn)
+## 👀 预览主题
 
-**效果图** 👇
+- **演示站点**：[某科学的贝壳的博客 (blog.ning.moe)](https://blog.ning.moe/)
 
-![效果图](https://cdn.jsdelivr.net/npm/halo-theme-butterfly/docs/renderings.png)
+## 🚀 核心魔改特性 (v2.1.3+)
 
-## 🌈 安装
+在这个魔改版本中，进行了大量深度优化和 Bug 修复：
 
-- 主题仓库地址 `https://github.com/dhjddcn/halo-theme-butterfly.git`
-- 在 [Release](https://github.com/dhjddcn/halo-theme-butterfly/releases) 页面下载最新版本 `zip`
-  后，通过 `Halo Console` 安装上传即可。
+- **深度修复 Halo 2.0 兼容性**：彻底解决原主题在构建工具中由于 Thymeleaf 语法错误导致的页面奔溃（500）和完全空白问题。
+- **页面数据自修复 (Self-healing)**：增强了归档、相册、瞬间等页面的数据获取机制，即使路由未提供数据，前端也能自主获取。
+- **第三方插件无缝适配**：
+  - [x] **朋友圈插件 (`plugin-friends`)**：增加双栏/单栏切换支持，完美适配主题卡片 UI。
+  - [x] **Steam 插件 (`halo-plugin-steam`)**：原生集成个人主页、近两周游玩和游戏库展示。
+- **侧边栏深度优化**：移除多余的点赞统计，改为直观的**标签总数**和基于 **Umami** 的全站真实总访问量对接。
+- **更好的分页与路由**：完善的组件分页体验及 URL 状态同步。
 
-## ⚠️ 注意
+## 🌈 安装指南
 
-安装主题后，需要在 `Halo Console - 主题 - 基本 - metadata.name`
-中进行配置，否则主题无法正常使用。此处配置的名称可以在 `Halo Console - 用户 - 用户详情 - 用户名` 中获取。
+- 主题仓库地址：`https://github.com/biliblihuorong/halo-theme-butterfly.git`
+- 在 [Release](https://github.com/biliblihuorong/halo-theme-butterfly/releases) 页面下载最新的 `theme-butterfly-dist.zip`，进入 `Halo Console` -> `外观` -> `主题` 中上传安装即可。
 
-![效果图](https://cdn.jsdelivr.net/npm/halo-theme-butterfly/docs/user.png)
-![效果图](https://cdn.jsdelivr.net/npm/halo-theme-butterfly/docs/metadata.png)
+## ⚠️ 注意事项
 
-## 🌐 免费可用的 npm cdn
+安装主题后，需要在 `Halo Console - 外观 - 主题设置 - 基本设置 - 博主标识` (metadata.name) 中进行配置，填入你的**用户名**，否则侧边栏的博主资料将无法正常显示。
 
-- https://unpkg.com/halo-theme-butterfly/templates/assets/
-- https://cdn.jsdelivr.net/npm/halo-theme-butterfly/templates/assets/
-- https://jsd.onmicrosoft.cn/npm/halo-theme-butterfly/templates/assets/
-- https://fastly.jsdelivr.net/npm/halo-theme-butterfly@latest/templates/assets/
+## 📊 Umami 访问量对接说明
 
-## ⭐️ 主题功能
+由于 Halo 内部仅统计本系统产生的流量，本主题提供原生对接 Umami 统计的功能。
+1. 在 Umami 后台创建一个 **View Only** 的只读账号。
+2. 在主题设置的「Umami 统计」中，填入你的 Umami 链接、站点 ID 及其只读账号密码。
+3. 侧边栏的“总访问量”将自动并无感地读取你站点的全历史访问数据。
 
-- [x] 二维码打赏
-- [x] 预制主题字体
-- [x] 自定义背景图
-- [x] 页面顶部自定义图
-- [x] 文章列表（列表/平铺）
-- [x] 侧边栏 全局/单独控制
-- [x] 分类/标签页UI优化
-- [x] 社交账号配置
-- [x] 代码高亮 + 行号 + 复制 + 折叠
-- [x] 随机图片api配置
-- [x] 统计页面 总访问量
-- [x] 站点运行时间
-- [x] 主题模式（深色/浅色）
+## 🛡️ 许可证 (License)
 
-### 📃 TODO
+本主题遵循 [GPL-3.0 协议](LICENSE) 开源。
 
-> 目前仍有部分功能不完善，暂时没时间做，后面继续迭代。
-
-- 页面元数据控制
-  百度收录查询 + 主动推送
-- 全站 Pjax
-- 相册页开发
-- 多种布局切换
-- 页面动画效果优化
-- 自定义标签
-- 数学公式
-- 局部优化
-- 移动端侧边栏优化
-  <br>
-
-## 💡 如何自定义导航条菜单图标？
-
-> 主题本次移植使用的是 `fontawesome` 字体图标，你可以在 [fontawesome](https://fontawesome.com/search)
-> 上找到你想要的图标，然后复制图标的 `class` 名称，如下所示：<br/>
-> 如我站点首页图标为 `fa-home fa-solid fa-bolt-auto` ，则在 `菜单-图标` 填入 `fa-home fa-solid fa-bolt-auto` 即可<br>
-
-## 🛡️ 许可证
-
-[![license](https://img.shields.io/github/license/halo-dev/halo.svg?style=flat-square)](https://github.com/halo-dev/halo/blob/master/LICENSE)
-
-Halo 使用 GPL-v3.0 协议开源，请遵守开源协议。
-
-## 🍹 赞助
-
-如果你觉得这个主题不错，你可以帮作者买一杯果汁表示鼓励 🍹。（赞助的时候记得加上备注 😁）
-
-![赞助](https://cdn.jsdelivr.net/npm/halo-theme-butterfly/docs/sponsor.png)
-
-| 时间         | 小伙伴  | 平台     | 金额    | 备注 |
-|:-----------|:-----|:-------|:------|:---|
-| 2022-07-25 | 咕咕鸽  | QQ     | 50    | 🍹 |
-| 2023-03-14 | Cary | Alipay | 10    | 🍹 |
-| 2023-03-14 | *哦   | Wechat | 50    | 🍹 |
-| 2023-03-22 | 心底.  | Wechat | 28.88 | 🍹 |
-| 2023-03-22 | xx鹏  | Alipay | 3.33  | 🍹 |
-| 2024-06-23 | *!   | Wechat | 18.88 | 🍹 |
+在分发、修改和二次开发时，请务必保留原作者和本魔改版本的开源许可与版权声明。
+- 原作者: [小红 / dhjddcn](https://github.com/dhjddcn)
+- 魔改作者: [shell](https://github.com/biliblihuorong)

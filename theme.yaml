@@ -10,7 +10,7 @@ spec:
   description: "一个由 shell 定制优化的 Butterfly 🦋 主题"
   logo: "https://halo.run/logo"
   website: "https://blog.ning.moe"
-  repo: "https://github.com/shell/halo-theme-butterfly.git"
+  repo: "https://github.com/biliblihuorong/halo-theme-butterfly.git"
   settingName: theme-butterfly-setting
   configMapName: theme-butterfly-configMap
   version: 2.1.3

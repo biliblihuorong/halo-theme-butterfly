@@ -1,7 +1,7 @@
 {
   "name": "halo-theme-butterfly",
-  "version": "2.0.7",
-  "description": "一个Halo博客主题，Butterfly",
+  "version": "2.1.1",
+  "description": "一个由 shell 定制优化的 Butterfly 🦋 主题",
   "scripts": {
     "dev": "gulp watch",
     "clean": "gulp clean",
@@ -23,16 +23,19 @@
     "halo-theme",
     "halo-theme-butterfly"
   ],
-  "homepage": "https://github.com/dhjddcn/halo-theme-butterfly#readme",
+  "homepage": "https://github.com/biliblihuorong/halo-theme-butterfly#readme",
   "bugs": {
-    "url": "https://github.com/dhjddcn/halo-theme-butterfly/issues"
+    "url": "https://github.com/biliblihuorong/halo-theme-butterfly/issues"
   },
   "author": {
-    "name": "小红",
-    "url": "https://github.com/dhjddcn",
-    "email": "dhjddcn@qq.com"
+    "name": "shell",
+    "url": "https://github.com/shell"
   },
   "maintainers": [
+    {
+      "name": "shell",
+      "url": "https://github.com/biliblihuorong"
+    },
     {
       "name": "小红",
       "url": "https://github.com/dhjddcn",
@@ -41,7 +44,7 @@
   ],
   "license": "GPL-3.0",
   "repository": {
-    "url": "https://github.com/dhjddcn/halo-theme-butterfly",
+    "url": "https://github.com/biliblihuorong/halo-theme-butterfly",
     "type": "git"
   },
   "devDependencies": {
