@@ -20,6 +20,11 @@ spec:
           placeholder: 请填写 ICP 备案号信息
           help: ICP 备案信息将展示在页脚中，不填不展示（示例：蜀ICP备xx号）
         - $formkit: text
+          name: moe_icp
+          label: 萌国 ICP 备案号
+          placeholder: 请填写萌号
+          help: 什么是萌备？前往了解：https://icp.gov.moe 不填不展示（示例：2020021021）
+        - $formkit: text
           name: police
           label: 公网安备号
           placeholder: 请填写公网安备号信息
@@ -36,24 +41,24 @@ spec:
         - $formkit: select
           name: mode
           label: 主题模式
-          value: 'user'
+          value: "user"
           placeholder: 请填写主题颜色
-          help: '设置博客的主题模式（自动/用户/浅色/深色），默认为用户模式，仅在用户模式下页面才有主题切换按钮，自动模式下根据时间自动切换'
+          help: "设置博客的主题模式（自动/用户/浅色/深色），默认为用户模式，仅在用户模式下页面才有主题切换按钮，自动模式下根据时间自动切换"
           options:
-            - value: 'auto'
+            - value: "auto"
               label: 自动模式
-            - value: 'user'
+            - value: "user"
               label: 用户模式
-            - value: 'light'
+            - value: "light"
               label: 浅色模式
-            - value: 'dark'
+            - value: "dark"
               label: 深色模式
         - $formkit: select
           name: font_family
           label: 主题字体
-          value: 'CircularBody'
+          value: "CircularBody"
           options:
-            - value: 'null'
+            - value: "null"
               label: "游览器默认字体"
             - value: "CircularBody"
               label: "CircularBody"
@@ -63,7 +68,7 @@ spec:
           name: body_background
           label: 全局背景（浅色）
           placeholder: 请填写 全局背景
-          value: '#f7f9fe'
+          value: "#f7f9fe"
           help: 颜色值 默认值：#f7f9fe
           validation: required
     #加载设置
@@ -74,25 +79,25 @@ spec:
           name: type
           label: 页面加载（Loading）
           help: 内置多种加载样式
-          value: 'circle'
+          value: "circle"
           options:
-            - label: '转圈'
-              value: 'circle'
-            - label: '沙漏'
-              value: 'hourglass'
-            - label: '交叉线'
-              value: 'cross_line'
-            - label: '小圆点'
-              value: 'dot'
+            - label: "转圈"
+              value: "circle"
+            - label: "沙漏"
+              value: "hourglass"
+            - label: "交叉线"
+              value: "cross_line"
+            - label: "小圆点"
+              value: "dot"
           validation: required
         - $formkit: group
           label: 静态资源加载（js、css）
           name: source
           value:
-            custom: ''
+            custom: ""
             type: site
-            site: '/themes/theme-butterfly/assets/'
-            npm: 'https://unpkg.com/halo-theme-butterfly/templates/assets/'
+            site: "/themes/theme-butterfly/assets/"
+            npm: "https://unpkg.com/halo-theme-butterfly/templates/assets/"
           children:
             - $formkit: radio
               help: 从本站加载 npm-cdn 自定义链接 来加载静态文件（js、css）
@@ -125,38 +130,38 @@ spec:
               if: $get(_type).value == npm
               label: npm加速地址
               help: 免费可用的npmJs-cdn加速地址
-              value: 'https://unpkg.com/halo-theme-butterfly/templates/assets/'
+              value: "https://unpkg.com/halo-theme-butterfly/templates/assets/"
               options:
-                - label: 'unpkg.com'
-                  value: 'https://unpkg.com/halo-theme-butterfly/templates/assets/'
-                - label: 'cdn.jsdelivr.net'
-                  value: 'https://cdn.jsdelivr.net/npm/halo-theme-butterfly/templates/assets/'
-                - label: 'jsd.onmicrosoft.cn'
-                  value: 'https://jsd.onmicrosoft.cn/npm/halo-theme-butterfly/templates/assets/'
-                - label: 'fastly.jsdelivr.net'
-                  value: 'https://fastly.jsdelivr.net/npm/halo-theme-butterfly@latest/templates/assets/'
+                - label: "unpkg.com"
+                  value: "https://unpkg.com/halo-theme-butterfly/templates/assets/"
+                - label: "cdn.jsdelivr.net"
+                  value: "https://cdn.jsdelivr.net/npm/halo-theme-butterfly/templates/assets/"
+                - label: "jsd.onmicrosoft.cn"
+                  value: "https://jsd.onmicrosoft.cn/npm/halo-theme-butterfly/templates/assets/"
+                - label: "fastly.jsdelivr.net"
+                  value: "https://fastly.jsdelivr.net/npm/halo-theme-butterfly@latest/templates/assets/"
               validation: required
         - $formkit: group
           label: 图片加载
           name: img
           value:
-            preload: 'data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs='
-            err: 'data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs='
+            preload: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
+            err: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
             random_enable: true
-            random_link: 'https://api.yimian.xyz/img'
+            random_link: "https://api.yimian.xyz/img"
           children:
             - $formkit: attachment
               name: preload
               label: 预加载图
               placeholder: 请填写 预加载图片
-              value: 'data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs='
+              value: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
               help: 预加载图片，默认 data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=
               validation: required
             - $formkit: attachment
               name: err
               label: 加载失败图
               placeholder: 请填写 加载失败图片
-              value: 'data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs='
+              value: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
               help: 加载失败图片，默认 data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=
               validation: required
             - $formkit: radio
@@ -174,7 +179,7 @@ spec:
               name: random_link
               label: 随机图片链接
               placeholder: 请正确填写 随机图片链接
-              value: 'https://api.yimian.xyz/img'
+              value: "https://api.yimian.xyz/img"
               help: 自定义随机图API，用于填充没有设置封面的 ，免费 API 不会一直可用，请知悉
               validation: required|url
     #导航设置
@@ -341,7 +346,7 @@ spec:
               value: ""
               help: 默认值：rgb(54 50 50)
               validation: required
-    #侧边栏设置          
+    #侧边栏设置
     - group: aside
       label: 侧边栏设置
       formSchema:
@@ -369,8 +374,8 @@ spec:
           name: button
           label: 侧边栏按钮
           value:
-            name: '主题仓库'
-            link: 'https://github.com/dhjddcn/halo-theme-butterfly'
+            name: "主题仓库"
+            link: "https://github.com/biliblihuorong/halo-theme-butterfly"
           children:
             - $formkit: text
               name: name
@@ -389,9 +394,9 @@ spec:
           name: social
           label: 社交账号
           value:
-            - name: 'Github'
+            - name: "Github"
               icon: '<i class="fa-brands fa-github"></i>'
-              link: 'https://github.com/dhjddcn'
+              link: "https://github.com/biliblihuorong"
           children:
             - $formkit: text
               name: name
@@ -416,7 +421,7 @@ spec:
           name: notice
           label: 侧边栏公告
           placeholder: 请填写 侧边栏公告内容
-          value: '好博客，一定要 分享出去 呀~'
+          value: "好博客，一定要 分享出去 呀~"
           help: 侧边栏公告内容, 支持 html 代码片段
         - $formkit: radio
           name: enable_category
@@ -458,7 +463,7 @@ spec:
               value: true
             - label: 禁用
               value: false
-    #卡片设置              
+    #卡片设置
     - group: card
       label: 卡片设置
       formSchema:
@@ -494,7 +499,7 @@ spec:
           name: above_background
           label: 第一屏背景图
           placeholder: 请填写 第一屏背景图
-          value: 'https://unpkg.com/halo-theme-butterfly/docs/above.png'
+          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
           help: 如果全局背景图设置为图片链接，则此处背景图将不生效
           validation: required
         - $formkit: textarea
@@ -503,7 +508,7 @@ spec:
           label: 打字机文案
           placeholder: 请填写 打字机文案
           help: 首页第一屏打字机文案 (注：多个文案用 |&| 分割)
-          value: '欢迎使用Butterfly主题，一个简洁、优雅的主题~'
+          value: "欢迎使用Butterfly主题，一个简洁、优雅的主题~"
           validation: required
         - $formkit: radio
           name: enable_typewriter_random_text
@@ -519,12 +524,12 @@ spec:
           name: typewriter_random_api
           label: 随机文案链接（api）
           placeholder: 请正确填写 随机文案链接（api）
-          value: 'https://api.btstu.cn/yan/api.php'
+          value: "https://api.btstu.cn/yan/api.php"
           help: 自定义随机文案API(推荐使用一言,返回格式设置为TEXT格式，json需要配置取值格式)，免费 API 不会一直可用，请知悉
         - $formkit: text
           name: typewriter_api_value_format
           label: 随机文案api取值格式
-          value: ''
+          value: ""
           help: 如果使用的随机文案API返回格式不是TEXT格式，Json请自定义取值格式，如：data.content
         - $formkit: radio
           name: post_layout
@@ -550,7 +555,7 @@ spec:
               value: true
             - label: 禁用
               value: false
-    #归档设置          
+    #归档设置
     - group: archives
       label: 归档设置
       formSchema:
@@ -568,10 +573,10 @@ spec:
           name: above_background
           label: 第一屏背景图
           placeholder: 请填写 第一屏背景图
-          value: 'https://unpkg.com/halo-theme-butterfly/docs/above.png'
+          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
           help: 如果全局背景图设置为图片链接，则此处背景图将不生效
           validation: required
-    #标签设置          
+    #标签设置
     - group: tags
       label: 标签设置
       formSchema:
@@ -589,10 +594,10 @@ spec:
           name: above_background
           label: 第一屏背景图
           placeholder: 请填写 第一屏背景图
-          value: 'https://unpkg.com/halo-theme-butterfly/docs/above.png'
+          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
           help: 如果全局背景图设置为图片链接，则此处背景图将不生效
           validation: required
-    #分类设置          
+    #分类设置
     - group: categories
       label: 分类设置
       formSchema:
@@ -610,7 +615,7 @@ spec:
           name: above_background
           label: 第一屏背景图
           placeholder: 请填写 第一屏背景图
-          value: 'https://unpkg.com/halo-theme-butterfly/docs/above.png'
+          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
           help: 如果全局背景图设置为图片链接，则此处背景图将不生效
           validation: required
     #渲染设置
@@ -878,7 +883,7 @@ spec:
           name: above_background
           label: 第一屏背景图
           placeholder: 请填写 第一屏背景图
-          value: 'https://unpkg.com/halo-theme-butterfly/docs/above.png'
+          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
           help: 朋友圈页面的第一屏背景图
           validation: required
     #Umami 统计设置
@@ -925,4 +930,4 @@ spec:
           help: Token 和访问量数据的本地缓存时间，避免频繁请求
           value: 30
           min: 5
-          max: 1440
+          max: 1440
