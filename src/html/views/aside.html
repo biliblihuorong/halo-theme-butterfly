@@ -21,17 +21,17 @@
       <div class="headline">分类</div>
       <div class="num" th:text="${stats.category}"></div>
     </a>
-    <a class="item" title="评论" href="javascript:">
-      <div class="headline">点赞</div>
-      <div class="num" th:text="${stats.upvote}"></div>
+    <a class="item" title="标签" href="/tags">
+      <div class="headline">标签</div>
+      <div class="num" th:text="${stats.tag ?: tagFinder.list(1,1).total}"></div>
     </a>
   </div>
 
-  <a target="_blank" th:href="${theme.config.aside.button.link}">
+  <a th:if="${theme.config.aside.button instanceof T(java.util.Map) and theme.config.aside.button.link != null}" target="_blank" th:href="${theme.config.aside.button.link}">
     <button class="button" th:utext="${theme.config.aside.button.name}"></button>
   </a>
 
-  <div class="social" th:with="social = ${not #lists.isEmpty(theme.config.aside.social)}">
+  <div class="social" th:if="${theme.config.aside.social instanceof T(java.util.Collection) and not #lists.isEmpty(theme.config.aside.social)}">
     <a th:each="item : ${theme.config.aside.social}" class="link" target="_blank" th:title="${item.name}" th:href="${item.link}" th:utext="${item.icon}"></a>
   </div>
 </section>
@@ -95,10 +95,7 @@
       <span>文章数目：</span>
       <span th:text="${stats.post} + '章'"></span>
     </div>
-    <div class="item">
-      <span>文章点赞：</span>
-      <span th:text="${stats.upvote} + '赞'"></span>
-    </div>
+
     <div class="item" th:if="${not #strings.isEmpty(theme.config.base.site_birthday)}">
       <span>运行时间：</span>
       <span class="run-day" th:data-date="${theme.config.base.site_birthday}">... 天</span>
