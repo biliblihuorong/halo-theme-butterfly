@@ -880,4 +880,49 @@ spec:
           placeholder: 请填写 第一屏背景图
           value: 'https://unpkg.com/halo-theme-butterfly/docs/above.png'
           help: 朋友圈页面的第一屏背景图
-          validation: required
+          validation: required
+    #Umami 统计设置
+    - group: umami
+      label: Umami 统计
+      formSchema:
+        - $formkit: radio
+          name: enable
+          label: 启用 Umami 统计
+          help: 启用后将从 Umami 获取网站总访问量并显示在侧边栏
+          value: false
+          options:
+            - label: 启用
+              value: true
+            - label: 禁用
+              value: false
+        - $formkit: text
+          name: url
+          label: Umami 地址
+          placeholder: "https://your-umami.example.com"
+          help: Umami 实例的完整地址（不含末尾斜杠）
+          value: ""
+        - $formkit: text
+          name: website_id
+          label: 网站 ID
+          placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          help: 在 Umami 后台 Settings -> Websites 中查看
+          value: ""
+        - $formkit: text
+          name: username
+          label: 用户名
+          placeholder: "view-only-user"
+          help: 建议使用 View Only 权限的用户
+          value: ""
+        - $formkit: password
+          name: password
+          label: 密码
+          placeholder: "输入密码"
+          help: 上述用户的登录密码
+          value: ""
+        - $formkit: number
+          name: cache_minutes
+          label: 缓存时间（分钟）
+          help: Token 和访问量数据的本地缓存时间，避免频繁请求
+          value: 30
+          min: 5
+          max: 1440
