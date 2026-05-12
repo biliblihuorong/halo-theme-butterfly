@@ -1,0 +1,75 @@
+<layout
+  th:replace="~{views/layout :: layout (
+  page = 'friends',
+  title = ${site.title} + ' - ' + ${title ?: '朋友圈'},
+  pin = ~{::pin},
+  header = ~{::header},
+  main = ~{::main}
+  )}"
+>
+  <!--/* pin */-->
+  <th:block th:fragment="pin">
+    <script id="pageScript" th:inline="javascript">
+      Object.assign(window.MainApp.conf, {
+        //第一屏
+        enable_above: /*[[${theme.config.index.enable_above}]]*/ '',
+        above_background: /*[[${theme.config.index.above_background}]]*/ '',
+        // 分页
+        nextUrl: /*[[${friends?.nextUrl}]]*/ {},
+        prevUrl: /*[[${friends?.prevUrl}]]*/ {},
+        page: /*[[${friends?.page}]]*/ {},
+        size: /*[[${friends?.size}]]*/ {},
+        total: /*[[${friends?.total}]]*/ {},
+        totalPages: /*[[${friends?.totalPages}]]*/ {},
+        hasPrevious: /*[[${friends != null ? friends.hasPrevious() : false}]]*/ {},
+        hasNext: /*[[${friends != null ? friends.hasNext() : false}]]*/ {},
+      });
+    </script>
+  </th:block>
+
+  <!--/* header */-->
+  <th:block th:fragment="header">
+    <header th:class="${not theme.config.index.enable_above ? 'header dp' : 'header'}">
+      <!--/* 导航栏 */-->
+      <th:block th:replace="~{views/nav}"/>
+
+      <!--第一屏内容-->
+      <section class="above" th:if="${theme.config.index.enable_above}">
+        <div class="above-info">
+          <h1 class="above-title" th:text="${title ?: '朋友圈'}">朋友圈</h1>
+        </div>
+      </section>
+    </header>
+  </th:block>
+
+
+  <!--/* 內容 */-->
+  <th:block th:fragment="main">
+    <section class="content" th:with="friendData = ${friends?.items}">
+      <th:block th:if="${friendData != null and not #lists.isEmpty(friendData)}">
+        <div class="friend-list">
+          <a class="friend-item card animate__animated animate__fadeIn"
+             th:each="friend : ${friendData}"
+             th:with="spec = ${friend.spec}"
+             th:href="${spec.postLink}"
+             target="_blank">
+            <div class="friend-avatar">
+              <img th:replace="~{views/components:: lazyLoadImg(${spec.logo},${spec.author},'avatar',false,'')}"/>
+            </div>
+            <div class="friend-info">
+              <div class="friend-meta">
+                <span class="friend-author" th:text="${spec.author}">作者</span>
+                <time class="friend-date" th:if="${spec.pubDate != null}" th:text="${#temporals.format(spec.pubDate, 'yyyy-MM-dd')}">2024-01-01</time>
+              </div>
+              <h3 class="friend-title" th:text="${spec.title}">文章标题</h3>
+              <p class="friend-desc" th:if="${not #strings.isEmpty(spec.description)}" th:text="${spec.description}">描述</p>
+            </div>
+          </a>
+        </div>
+      </th:block>
+
+      <th:block th:if="${friendData == null or #lists.isEmpty(friendData)}" th:insert="~{views/components:: emptyData(false)}"></th:block>
+    </section>
+    <th:block th:replace="~{views/aside::common}"/>
+  </th:block>
+</layout>

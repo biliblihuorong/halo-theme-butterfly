@@ -1,0 +1,156 @@
+<layout
+  th:replace="~{views/layout :: layout (
+  page = 'steam',
+  title = ${site.title} + ' - ' + ${title ?: 'Steam'},
+  pin = ~{::pin},
+  header = ~{::header},
+  main = ~{::main}
+  )}"
+>
+  <!--/* pin */-->
+  <th:block th:fragment="pin">
+    <script id="pageScript" th:inline="javascript">
+      Object.assign(window.MainApp.conf, {
+        //第一屏
+        enable_above: /*[[${theme.config.index.enable_above}]]*/ '',
+        above_background: /*[[${theme.config.index.above_background}]]*/ '',
+        // 分页
+        nextUrl: /*[[${games?.nextUrl}]]*/ {},
+        prevUrl: /*[[${games?.prevUrl}]]*/ {},
+        page: /*[[${games?.page}]]*/ {},
+        size: /*[[${games?.size}]]*/ {},
+        total: /*[[${games?.total}]]*/ {},
+        totalPages: /*[[${games?.totalPages}]]*/ {},
+        hasPrevious: /*[[${games != null ? games.hasPrevious() : false}]]*/ {},
+        hasNext: /*[[${games != null ? games.hasNext() : false}]]*/ {},
+        // Steam 配置
+        enableGameLink: /*[[${enableGameLink}]]*/ false,
+      });
+    </script>
+  </th:block>
+
+  <!--/* header */-->
+  <th:block th:fragment="header">
+    <header th:class="${not theme.config.index.enable_above ? 'header dp' : 'header'}">
+      <!--/* 导航栏 */-->
+      <th:block th:replace="~{views/nav}"/>
+
+      <!--第一屏内容-->
+      <section class="above" th:if="${theme.config.index.enable_above}">
+        <div class="above-info">
+          <h1 class="above-title" th:text="${title ?: 'Steam'}">Steam</h1>
+        </div>
+      </section>
+    </header>
+  </th:block>
+
+
+  <!--/* 內容 */-->
+  <th:block th:fragment="main">
+    <section class="content">
+
+      <!--/* 用户资料卡片 + 统计面板 */-->
+      <th:block th:with="profile = ${steamFinder.getProfile()}, stats = ${steamFinder.getStats()}">
+        <div class="steam-profile card animate__animated animate__fadeIn" th:if="${profile != null}">
+          <div class="profile-main">
+            <div class="profile-avatar">
+              <img th:src="${profile.summary?.avatarFull}" th:alt="${profile.summary?.personaName}" class="avatar-img"/>
+              <span class="status-dot" th:classappend="${profile.playing ? 'playing' : (profile.summary?.personaState == 1 ? 'online' : 'offline')}"></span>
+            </div>
+            <div class="profile-info">
+              <h2 class="profile-name" th:text="${profile.summary?.personaName}">用户名</h2>
+              <div class="profile-status">
+                <span class="status-text" th:classappend="${profile.playing ? 'playing' : ''}" th:text="${profile.statusText}">在线</span>
+                <span class="profile-level" th:if="${profile.steamLevel != null}">
+                  <i class="fas fa-star"></i>
+                  <span>Lv.</span>
+                  <span th:text="${profile.steamLevel}">0</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!--/* 统计面板 */-->
+          <div class="steam-stats" th:if="${stats != null}">
+            <div class="stat-item">
+              <i class="fas fa-gamepad"></i>
+              <div class="stat-info">
+                <span class="stat-value" th:text="${stats.totalGames}">0</span>
+                <span class="stat-label">游戏</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-clock"></i>
+              <div class="stat-info">
+                <span class="stat-value" th:text="${stats.totalPlaytimeFormatted}">0 小时</span>
+                <span class="stat-label">总时长</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-fire"></i>
+              <div class="stat-info">
+                <span class="stat-value" th:text="${stats.recentPlaytimeFormatted}">0 小时</span>
+                <span class="stat-label">近两周</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </th:block>
+
+      <!--/* 最近游玩 */-->
+      <th:block th:with="recentGames = ${steamFinder.getRecentGames(recentGamesLimit ?: 5)}">
+        <div class="steam-section card animate__animated animate__fadeIn" th:if="${recentGames != null and not #lists.isEmpty(recentGames)}">
+          <h3 class="section-title"><i class="fas fa-history"></i> 最近在玩</h3>
+          <div class="recent-games">
+            <a th:each="game : ${recentGames}"
+               class="recent-game-item"
+               th:href="${enableGameLink ? 'https://store.steampowered.com/app/' + game.appId : 'javascript:void(0)'}"
+               th:target="${enableGameLink ? '_blank' : ''}"
+               th:title="${game.name}">
+              <div class="game-cover">
+                <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="game-img" loading="lazy"/>
+              </div>
+              <div class="game-info">
+                <span class="game-name" th:text="${game.name}">游戏名</span>
+                <div class="game-meta">
+                  <span class="playtime" th:text="'总计 ' + ${game.playtimeFormatted}">总计 0h</span>
+                  <span class="playtime-recent" th:if="${game.playtime2WeeksFormatted != null}" th:text="'近两周 ' + ${game.playtime2WeeksFormatted}">近两周 0h</span>
+                </div>
+                <div class="achievement" th:if="${game.hasAchievements() and not game.achievementsLocked}">
+                  <div class="achievement-bar">
+                    <div class="achievement-fill" th:style="'width:' + ${(game.achievedCount * 100 / game.totalAchievements)} + '%'"></div>
+                  </div>
+                  <span class="achievement-text" th:text="${game.achievementProgressText}">0/0</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </th:block>
+
+      <!--/* 游戏库 */-->
+      <div class="steam-section card animate__animated animate__fadeIn" th:if="${games != null and not #lists.isEmpty(games.items)}">
+        <h3 class="section-title"><i class="fas fa-th-large"></i> 游戏库</h3>
+        <div class="game-library">
+          <a th:each="game : ${games.items}"
+             class="library-game-item"
+             th:href="${enableGameLink ? 'https://store.steampowered.com/app/' + game.appId : 'javascript:void(0)'}"
+             th:target="${enableGameLink ? '_blank' : ''}"
+             th:title="${game.name}">
+            <div class="lib-cover">
+              <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="lib-img" loading="lazy"/>
+              <div class="lib-overlay">
+                <span class="lib-playtime" th:text="${game.playtimeFormatted}">0h</span>
+              </div>
+            </div>
+            <span class="lib-name" th:text="${game.name}">游戏名</span>
+          </a>
+        </div>
+      </div>
+
+      <th:block th:if="${games == null or #lists.isEmpty(games.items)}" th:insert="~{views/components:: emptyData(false)}"></th:block>
+
+    </section>
+    <th:block th:replace="~{views/aside::common}"/>
+  </th:block>
+</layout>
