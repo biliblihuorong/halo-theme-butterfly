@@ -1,0 +1,21 @@
+{
+  "features": [
+    {
+      "id": "lighthouse-opt",
+      "name": "Lighthouse Optimization",
+      "description": "Optimize Lighthouse score by adding defer to Prism.js and restoring viewport accessibility.",
+      "tasks": [
+        {
+          "id": "prism-defer",
+          "name": "Add defer to prism.min.js",
+          "passes": true
+        },
+        {
+          "id": "viewport-accessibility",
+          "name": "Restore viewport accessibility",
+          "passes": true
+        }
+      ]
+    }
+  ]
+}

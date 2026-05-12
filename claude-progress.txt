@@ -1,0 +1,10 @@
+Current Task: Lighthouse Optimization (COMPLETED)
+- Adding defer to prism.min.js in src/html/post.html [DONE]
+- Restoring viewport accessibility in src/html/views/layout.html [DONE]
+
+Key Decisions:
+- Add 'defer' attribute to the Prism.js script tag to prevent render-blocking.
+- Remove 'user-scalable=no' and 'maximum-scale' from viewport meta tag to improve accessibility and Lighthouse score.
+
+Next Steps:
+- None. Task completed.
