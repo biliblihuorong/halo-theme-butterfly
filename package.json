@@ -1,6 +1,6 @@
 {
   "name": "halo-theme-butterfly",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "一个由 shell 定制优化的 Butterfly 🦋 主题",
   "scripts": {
     "dev": "gulp watch",
