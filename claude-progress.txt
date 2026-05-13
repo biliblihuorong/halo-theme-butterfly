@@ -1,10 +1,12 @@
-Current Task: Lighthouse Optimization (COMPLETED)
-- Adding defer to prism.min.js in src/html/post.html [DONE]
-- Restoring viewport accessibility in src/html/views/layout.html [DONE]
+Current Task: Navigation & Mobile Menu Fixes (COMPLETED)
+- Fixed navigation layout breakage below 988px by adjusting breakpoints to 1024px. [DONE]
+- Prevented site title wrapping in the navigation bar. [DONE]
+- Fixed mobile sub-menu clickability by refining the toggle logic in common.js. [DONE]
+- Rebuilt and repackaged the theme (theme-butterfly-dist.zip). [DONE]
 
 Key Decisions:
-- Add 'defer' attribute to the Prism.js script tag to prevent render-blocking.
-- Remove 'user-scalable=no' and 'maximum-scale' from viewport meta tag to improve accessibility and Lighthouse score.
+- Increased mobile menu breakpoint to $w-lg (1024px) for better medium-screen support.
+- Limited mobile menu toggle trigger to the specific parent link to avoid interference with sub-item clicks.
 
 Next Steps:
-- None. Task completed.
+- None. All reported issues fixed and theme repackaged.

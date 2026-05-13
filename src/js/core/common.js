@@ -155,7 +155,10 @@ export default class Common {
     });
 
     //移动端侧边栏侧边菜单
-    $('menu.bar').on('click', 'li.child', (event) => event.currentTarget.classList.toggle('active'));
+    $('menu.bar').on('click', 'li.child > a.link', (e) => {
+      e.preventDefault();
+      $(e.currentTarget).parent().toggleClass('active');
+    });
   }
 
   //返回顶部
