@@ -4,7 +4,10 @@
   title = ${site.title} + ' - ' + '链接列表',
   pin = ~{::pin},
   header = ~{::header},
-  main = ~{::main}
+  main = ~{::main},
+  canonical = null,
+  description = null,
+  ogImage = null
   )}"
 >
   <!--/* css */-->
@@ -12,8 +15,8 @@
     <script id="pageScript" th:inline="javascript">
       Object.assign(window.MainApp.conf, {
         //第一屏
-        enable_above: /*[[${theme.config.index.enable_above}]]*/ '',
-        above_background: /*[[${theme.config.index.above_background}]]*/ '',
+        enable_above: /*[[${(theme.config.page_hero?.links?.enable_above ?: theme.config.index.enable_above) ?: false}]]*/ false,
+        above_background: /*[[${theme.config.page_hero?.links?.above_background ?: theme.config.index.above_background}]]*/ '',
       });
     </script>
   </th:block>
@@ -22,12 +25,12 @@
 
   <!--/* header */-->
   <th:block th:fragment="header">
-    <header th:class="${not theme.config.index.enable_above ? 'header dp' : 'header'}">
+    <header th:class="${not ((theme.config.page_hero?.links?.enable_above ?: theme.config.index.enable_above) ?: false) ? 'header dp' : 'header'}">
       <!--/* 导航栏 */-->
       <th:block th:replace="~{views/nav}"/>
 
       <!--第一屏内容-->
-      <section class="above" th:if="${theme.config.index.enable_above}">
+      <section class="above" th:if="${(theme.config.page_hero?.links?.enable_above ?: theme.config.index.enable_above) ?: false}">
         <div class="above-info">
           <h1 class="above-title">链接管理</h1>
         </div>
@@ -60,7 +63,72 @@
       </th:block>
 
       <th:block th:unless="${noData}" th:insert="~{views/components:: emptyData(false)}"></th:block>
+
+      <!-- 本站信息（供友链申请） -->
+      <div class="site-info" th:if="${theme.config.page_hero?.links?.enable_site_info ?: false}">
+        <h2 class="name">本站信息</h2>
+
+        <div class="me">
+          <img th:replace="~{views/components:: lazyLoadImg(${site.logo},${site.title},'logo',false,'')}"/>
+          <div class="info">
+            <p class="n" th:text="${site.title}"></p>
+            <p class="d" th:text="${site.subtitle}"></p>
+          </div>
+        </div>
+
+        <ul class="meta">
+          <li th:if="${not #strings.isEmpty(theme.config.base.site_birthday)}">已运行 <b class="site-run-day" th:data-date="${theme.config.base.site_birthday}">…</b></li>
+          <li>文章 <b th:text="${stats.post}"></b> 篇</li>
+          <li>分类 <b th:text="${stats.category}"></b> 个</li>
+          <li>访问 <b th:text="${stats.visit}"></b> 人次</li>
+        </ul>
+
+        <div class="apply">
+          <button type="button" class="copy-btn">复制</button>
+          <p>名称：<span th:text="${site.title}"></span></p>
+          <p>地址：<a th:href="${site.url}" th:text="${site.url}"></a></p>
+          <p>头像：<span th:text="${site.logo}"></span></p>
+          <p>描述：<span th:text="${site.subtitle}"></span></p>
+        </div>
+
+        <script type="text/javascript">
+          (function () {
+            var d = document.querySelector('.site-info .site-run-day');
+            if (d && d.getAttribute('data-date')) {
+              var t = new Date(d.getAttribute('data-date'));
+              if (t.toString() !== 'Invalid Date') d.textContent = Math.floor((Date.now() - t.getTime()) / 86400000) + ' 天';
+            }
+            var btn = document.querySelector('.site-info .copy-btn');
+            if (btn) btn.addEventListener('click', function () {
+              var text = Array.prototype.map.call(document.querySelectorAll('.site-info .apply p'), function (p) { return p.textContent.trim(); }).join('\n');
+              navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = '已复制';
+                setTimeout(function () { btn.textContent = '复制'; }, 1500);
+              });
+            });
+          })();
+        </script>
+      </div>
+
+      <!-- 自定义内容渲染 -->
+      <article class="render" th:if="${not #strings.isEmpty(theme.config.page_hero?.links?.footer_content)}" th:utext="${theme.config.page_hero?.links?.footer_content}"></article>
+      <article class="render" th:if="${singlePage != null && not #strings.isEmpty(singlePage.content.content)}" th:utext="${singlePage.content.content}"></article>
+      <halo:comment
+        th:if="${singlePage != null && pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'halo') == 'halo' && singlePage.spec.allowComment}"
+        group="content.halo.run"
+        kind="SinglePage"
+        th:attr="name=${singlePage.metadata.name}"
+      />
+      <th:block
+        th:if="${singlePage != null}"
+        th:replace="~{views/artalk :: comment(
+          ${singlePage.status.permalink},
+          ${singlePage.spec.title},
+          ${singlePage.spec.allowComment && (theme.config.comment?.artalk_enable_links ?: true)}
+        )}"
+      />
     </section>
+
     <th:block th:replace="~{views/aside::common}"/>
   </th:block>
 </layout>

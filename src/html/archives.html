@@ -4,7 +4,10 @@
   title = ${site.title} + ' - ' + '归档',
   pin = ~{::pin},
   header = ~{::header},
-  main = ~{::main}
+  main = ~{::main},
+  canonical = null,
+  description = null,
+  ogImage = null
   )}"
 >
   <!--/* pin */-->
@@ -14,8 +17,8 @@
 
       Object.assign(window.MainApp.conf, {
         //第一屏
-        enable_above: /*[[${theme.config.archives.enable_above}]]*/ '',
-        above_background: /*[[${theme.config.archives.above_background}]]*/ '',
+        enable_above: /*[[${(theme.config.page_hero?.archives?.enable_above ?: theme.config.index.enable_above) ?: false}]]*/ false,
+        above_background: /*[[${theme.config.page_hero?.archives?.above_background ?: theme.config.index.above_background}]]*/ '',
         // 分页
         nextUrl: /*[[${archives?.nextUrl}]]*/ {},
         prevUrl: /*[[${archives?.prevUrl}]]*/ {},
@@ -31,12 +34,12 @@
 
   <!--/* header */-->
   <th:block th:fragment="header">
-    <header th:class="${not theme.config.archives.enable_above ? 'header dp' : 'header'}">
+    <header th:class="${not ((theme.config.page_hero?.archives?.enable_above ?: theme.config.index.enable_above) ?: false) ? 'header dp' : 'header'}">
       <!--/* 导航栏 */-->
       <th:block th:replace="~{views/nav}"/>
 
       <!--第一屏内容-->
-      <section class="above" th:if="${theme.config.archives.enable_above}">
+      <section class="above" th:if="${(theme.config.page_hero?.archives?.enable_above ?: theme.config.index.enable_above) ?: false}">
         <div class="above-info">
           <h1 class="above-title">归档</h1>
         </div>

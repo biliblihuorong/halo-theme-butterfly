@@ -6,8 +6,9 @@
  */
 
 import App from '../core/App';
+import ArtalkComment from '../modules/ArtalkComment';
 
-@App([])
+@App([ArtalkComment])
 class Links {
 
 }

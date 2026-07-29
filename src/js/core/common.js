@@ -143,7 +143,7 @@ export default class Common {
   #createSingleAction() {
     //图片懒加载
     new LazyLoad({
-      elements_selector: 'img', threshold: 0, data_src: 'lazy-src',
+      elements_selector: 'img', threshold: 300, data_src: 'lazy-src',
     });
 
     //移动端侧边栏呼出图标
@@ -169,10 +169,12 @@ export default class Common {
   //第一屏图片预加载
   #loadAboveBackgroundImg() {
     const img = new Image();
+    img.decoding = 'async';
+    img.fetchPriority = 'high';
     img.src = window.MainApp.conf.above_background;
     img.onload = () => {
       const above = document.querySelector('.header > .above');
-      above.style.backgroundImage = `url(${img.src})`;
+      if(above) above.style.backgroundImage = `url(${img.src})`;
     };
     img.onerror = () => {
       console.error('第一屏图片预加载失败');

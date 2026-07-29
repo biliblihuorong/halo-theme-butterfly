@@ -4,7 +4,10 @@
   title = ${site.title} + ' - ' + '标签',
   pin = ~{::pin},
   header = ~{::header},
-  main = ~{::main}
+  main = ~{::main},
+  canonical = null,
+  description = null,
+  ogImage = null
   )}"
 >
   <!--/* pin */-->
@@ -12,8 +15,8 @@
     <script id="pageScript" th:inline="javascript">
       Object.assign(window.MainApp.conf, {
         //第一屏
-        enable_above: /*[[${theme.config.tags.enable_above}]]*/ '',
-        above_background: /*[[${theme.config.tags.above_background}]]*/ '',
+        enable_above: /*[[${(theme.config.page_hero?.tags?.enable_above ?: theme.config.index.enable_above) ?: false}]]*/ false,
+        above_background: /*[[${theme.config.page_hero?.tags?.above_background ?: theme.config.index.above_background}]]*/ '',
       });
     </script>
   </th:block>
@@ -21,12 +24,12 @@
 
   <!--/* header */-->
   <th:block th:fragment="header">
-    <header th:class="${not theme.config.tags.enable_above ? 'header dp' : 'header'}">
+    <header th:class="${not ((theme.config.page_hero?.tags?.enable_above ?: theme.config.index.enable_above) ?: false) ? 'header dp' : 'header'}">
       <!--/* 导航栏 */-->
       <th:block th:replace="~{views/nav}"/>
 
       <!--第一屏内容-->
-      <section class="above" th:if="${theme.config.tags.enable_above}">
+      <section class="above" th:if="${(theme.config.page_hero?.tags?.enable_above ?: theme.config.index.enable_above) ?: false}">
         <div class="above-info">
           <h1 class="above-title">标签</h1>
         </div>

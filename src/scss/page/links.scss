@@ -72,6 +72,89 @@
     }
 
   }
+
+  .site-info {
+    margin-top: 30px;
+
+    > .name {
+      font-size: 1.2rem;
+      margin: 15px 0;
+    }
+
+    .me {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+      }
+
+      .n {
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .d {
+        font-size: .85rem;
+        opacity: .75;
+        line-height: 1.4;
+      }
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      margin: 14px 0;
+      padding: 0;
+      list-style: none;
+      font-size: .9rem;
+
+      b {
+        color: var(--theme);
+      }
+    }
+
+    .apply {
+      position: relative;
+      padding: 12px 16px;
+      font-size: .9rem;
+      line-height: 1.7;
+      word-break: break-all;
+      border: 3px solid rgba(127, 127, 127, .15);
+      border-radius: 15px;
+
+      p {
+        margin: 2px 0;
+      }
+
+      a {
+        color: var(--theme);
+        text-decoration: none;
+      }
+
+      .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 12px;
+        font-size: .8rem;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--theme);
+        transition: opacity .3s;
+
+        &:hover {
+          opacity: .85;
+        }
+      }
+    }
+  }
 }
  
  

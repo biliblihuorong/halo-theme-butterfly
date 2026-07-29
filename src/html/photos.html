@@ -4,7 +4,10 @@
   title = '图库' ,
   pin = ~{::pin},
   header = ~{::header},
-  main = ~{::main}
+  main = ~{::main},
+  canonical = null,
+  description = null,
+  ogImage = null
   )}"
 >
   <!--/* pin */-->
@@ -51,7 +54,7 @@
 
       </div>
       <div class="imgs">
-        <img class="img animate__animated animate__bounceIn" th:each="photo : ${photoData.items}" th:src="${photo.spec.url}" th:alt="${photo.spec.displayName}">
+        <img class="img animate__animated animate__bounceIn" th:each="photo : ${photoData.items}" th:src="${photo.spec.url}" th:alt="${photo.spec.displayName}" loading="lazy" decoding="async">
       </div>
     </section>
     <th:block th:replace="~{views/aside::common}"/>

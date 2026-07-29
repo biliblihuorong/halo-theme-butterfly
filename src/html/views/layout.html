@@ -2,27 +2,29 @@
   xmlns:th="https://www.thymeleaf.org"
   th:with="
      assets_link = ${theme.config.loading.source instanceof T(java.util.Map) and theme.config.loading.source.type != null ? theme.config.loading.source[theme.config.loading.source.type] : '/themes/theme-butterfly/assets/'},
-     param_prefix = ${theme.config.loading.img != null and #strings.containsIgnoreCase(theme.config.loading.img.random_link,'?') ? '&' : '?'}
+     param_prefix = ${theme.config.loading.img != null and #strings.containsIgnoreCase(theme.config.loading.img.random_link,'?') ? '&' : '?'},
+     loading_enabled = ${theme.config.loading.type != null and theme.config.loading.type != 'null'},
+     loading_timeout = ${theme.config.loading.timeout ?: 3000}
   "
-  th:fragment="layout (page,title,pin,header,main)"
+  th:fragment="layout (page,title,pin,header,main,canonical,description,ogImage)"
 >
   <!DOCTYPE html>
-  <html lang="en" data-color-scheme="light" th:with="isDev = ${true ? #dates.createNow().time : ''} ">
+  <html lang="zh-CN" data-color-scheme="light">
   <head>
     <title th:text="${title}"></title>
-    <link rel="preload" th:href="@{/assets/font/CircularBody/CircularBody.woff}" as="font" type="font/woff" crossorigin="anonymous" />
-    <link rel="preload" th:href="@{/assets/font/CircularBody.min.css}" as="style" />
-    <link rel="preload" th:href="@{/assets/plugins/fontawesome/fontawesome.min.css}" as="style" />
-    <link rel="stylesheet" th:href="@{/assets/font/CircularBody.min.css}" media="all" />
-    <link rel="stylesheet" th:href="@{/assets/plugins/fontawesome/fontawesome.min.css}" media="all" />
+    <th:block th:each="line : ${#strings.listSplit(theme.config.performance.preconnect, '\n')}">
+      <link th:if="${not #strings.isEmpty(#strings.trim(line))}" rel="preconnect" th:href="${#strings.trim(line)}" crossorigin />
+    </th:block>
+    <th:block th:each="line : ${#strings.listSplit(theme.config.performance.dns_prefetch, '\n')}">
+      <link th:if="${not #strings.isEmpty(#strings.trim(line))}" rel="dns-prefetch" th:href="${#strings.trim(line)}" />
+    </th:block>
     <link rel="stylesheet" th:href="|${assets_link}css/index.min.css?v=${theme.spec.version}|" media="all">
-    <noscript><link rel="stylesheet" th:href="|${assets_link}css/index.min.css?v=${theme.spec.version}|"></noscript>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
     <meta name="author" th:content="${site.title}">
     <meta name="site" th:content="${site.url}">
-    <meta name="description" th:content="${site.subtitle}"/>
+    <meta name="description" th:content="${description != null ? description : site.subtitle}"/>
     <meta property="og:keywords" th:content="${site.seo.keywords}">
     <meta property="og:description" th:content="${site.subtitle}">
     <meta property="og:site_name" th:content="${site.title}">
@@ -30,14 +32,31 @@
     <meta property="og:title" th:content="${site.title}">
     <meta property="og:locale" content="zh_CN">
     <meta property="og:type" th:content="${page}" th:value="${page}">
-    <link rel="canonical" th:href="${site.url}">
+    <meta property="og:image" th:if="${ogImage != null}" th:content="${ogImage}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" th:content="${title}">
+    <meta name="twitter:description" th:content="${description != null ? description : site.subtitle}">
+    <meta name="twitter:image" th:if="${ogImage != null}" th:content="${ogImage}">
+    <link rel="canonical" th:href="${canonical != null ? canonical : site.url}">
     <th:block th:replace="~{views/config}"/>
     <th:block th:replace="${pin}"/>
-    <link rel="preload stylesheet" as="style" th:href="${assets_link + 'css/' + (page ?: 'index') + '.min.css?v=' + theme.spec.version}">
+    <link rel="preload" th:href="${assets_link + 'css/' + (page ?: 'index') + '.min.css?v=' + theme.spec.version}" as="style">
+    <link rel="stylesheet" th:href="${assets_link + 'css/' + (page ?: 'index') + '.min.css?v=' + theme.spec.version}" media="print" onload="this.media='all'">
   </head>
 
-  <body th:classappend="${theme.config.loading.type != 'null' ? 'loading' : ''}" th:with="stats = ${siteStatsFinder.getStats()},contributor = ${contributorFinder.getContributor(theme.config.base.metadata_name)}">
-  <script defer type="text/javascript" th:if="${theme.config.loading.type != 'null'}" th:src="${assets_link + 'plugins/loading/' + theme.config.loading.type + '.min.js?v=' + theme.spec.version}"></script>
+  <body th:classappend="${loading_enabled ? 'loading' : ''}" th:with="stats = ${siteStatsFinder.getStats()},contributor = ${contributorFinder.getContributor(theme.config.base.metadata_name)}">
+  <script th:if="${loading_enabled}" th:inline="javascript">
+    window.setTimeout(function() {
+      document.body.classList.remove('loading');
+    }, /*[[${loading_timeout}]]*/ 3000);
+  </script>
+  <script
+    defer
+    th:if="${loading_enabled}"
+    th:src="${assets_link + 'plugins/loading/' + theme.config.loading.type + '.min.js?v=' + theme.spec.version}"
+    th:data-timeout="${loading_timeout}"
+    onerror="document.body.classList.remove('loading')"
+  ></script>
 
   <div id="Butterfly" th:class="${page}">
     <th:block th:replace="${header}"></th:block>

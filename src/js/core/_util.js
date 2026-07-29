@@ -4,7 +4,6 @@
  * @fileName: Utils
  * @Description:工具
  */
-import * as echarts from 'echarts/core';
 import $ from 'jquery';
 
 /**
@@ -154,11 +153,25 @@ export function useDelay(time) {
 
 /**
  *  图表渲染 支持浅色暗色
+ *  ECharts 走动态 import,只有图表进入视口并且调用方完成组件注册后才加载并初始化。
  * @param dom
- * @param getOption
+ * @param register async (echartsCore) => options
  */
-export function useChart(dom, getOption) {
-  const options = getOption();
+export async function useChart(dom, register) {
+  // 视口外不加载,等图表滚到附近再动态 import echarts/core
+  await new Promise((resolve) => {
+    if (typeof IntersectionObserver === 'undefined') return resolve();
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        obs.disconnect();
+        resolve();
+      }
+    }, {rootMargin: '200px'});
+    obs.observe(dom);
+  });
+
+  const echarts = await import(/* webpackChunkName: "echarts" */ 'echarts/core');
+  const options = await register(echarts);
 
   let es = null;
 

@@ -39,12 +39,6 @@ gulp.task('css', function() {
   pipe(require('gulp-clean-css')({
     level: 2,
   })).
-  pipe(require('gulp-csso')()).
-  pipe(require('gulp-minify-css')({
-    compatibility: 'ie8',
-    keepSpecialComments: false,
-    restructuring: true,
-  })).
   pipe(autoPrefix({
     overrideBrowserslist: [
       '> 5%',
@@ -58,7 +52,6 @@ gulp.task('css', function() {
   pipe(gulp.dest('./templates/assets/css'));
 });
 
-const uglify = require('gulp-uglify');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack-stream');
 const zip = require('gulp-zip');
@@ -91,7 +84,7 @@ gulp.task('js', function() {
           include: resolve('src'),
           exclude: resolve('node_modules'),
           options: {
-            presets: ['@babel/preset-env'],
+            presets: [['@babel/preset-env', {modules: false}]],
             plugins: [
               ['@babel/plugin-proposal-decorators', {'legacy': true}],
               '@babel/plugin-transform-runtime',
@@ -120,6 +113,7 @@ gulp.task('js', function() {
     stats: 'errors-only',
     output: {
       filename: '[name].min.js',
+      chunkFilename: '[name].chunk.min.js',
     },
   })
   // .pipe(uglify())
@@ -197,6 +191,58 @@ gulp.task('js-plugins-loading', function() {
   ).pipe(gulp.dest(outputRoot));
 });
 
+gulp.task('js-plugins-artalk', function() {
+  const entryRoot = './src/plugins/artalk/';
+  const outputRoot = './templates/assets/plugins/artalk/';
+
+  return webpack({
+    mode: 'production',
+    entry: {
+      Artalk: resolve(`${entryRoot}Artalk.js`),
+    },
+    module: {
+      rules: [],
+    },
+    optimization: {
+      minimize: true,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            format: { comments: false },
+            compress: { passes: 2, ecma: 2017 },
+            mangle: { reserved: ['Artalk'] },
+          },
+          extractComments: false,
+        }),
+      ],
+    },
+    stats: 'errors-only',
+    output: {
+      filename: '[name].min.js',
+    },
+  })
+    .pipe(gulp.dest(outputRoot))
+    .pipe(
+      gzip({
+        threshold: '10kb',
+      }),
+    )
+    .pipe(gulp.dest(outputRoot));
+});
+
+gulp.task('css-plugins-artalk', function() {
+  return gulp.src('./src/plugins/artalk/Artalk.css')
+    .pipe(require('gulp-clean-css')({ level: 2 }))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(gulp.dest('./templates/assets/plugins/artalk/'))
+    .pipe(
+      gzip({
+        threshold: '10kb',
+      }),
+    )
+    .pipe(gulp.dest('./templates/assets/plugins/artalk/'));
+});
+
 const htmlMin = require('gulp-htmlmin');
 gulp.task('html', function() {
   return gulp.src('./src/html/**/*.html').pipe(htmlMin({
@@ -266,6 +312,9 @@ gulp.task('copy-folder', function() {
   return gulp.src([
     './src/font/**/*',
     './src/plugins/**/*',
+    '!./src/font/CircularBody/CircularBody.ttf',
+    '!./src/plugins/artalk/Artalk.js',
+    '!./src/plugins/artalk/Artalk.css',
   ], {base: 'src'}) // 设置基本路径为 'src'
   .pipe(gulp.dest('./templates/assets/'));
 });
@@ -276,13 +325,22 @@ gulp.task(
     gulp.watch(['./src/scss/**/*.scss'], gulp.series('css'));
     gulp.watch(['./src/js/**/**/*.js'], gulp.series('js'));
     gulp.watch(['./src/html/**/**/*.html'], gulp.series('html'));
-
+    gulp.watch(['./src/plugins/artalk/Artalk.js'], gulp.series('js-plugins-artalk'));
+    gulp.watch(['./src/plugins/artalk/Artalk.css'], gulp.series('css-plugins-artalk'));
   },
 );
 
 gulp.task(
   'default',
   gulp.series(
-    gulp.parallel('copy-folder', 'css', 'js', 'html', 'js-plugins-loading'),
+    gulp.parallel(
+      'copy-folder',
+      'css',
+      'js',
+      'html',
+      'js-plugins-loading',
+      'js-plugins-artalk',
+      'css-plugins-artalk',
+    ),
   ),
 );

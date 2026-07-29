@@ -4,7 +4,10 @@
   title = ${site.title} + ' - ' + ${title ?: 'Steam'},
   pin = ~{::pin},
   header = ~{::header},
-  main = ~{::main}
+  main = ~{::main},
+  canonical = null,
+  description = null,
+  ogImage = null
   )}"
 >
   <!--/* pin */-->
@@ -54,7 +57,7 @@
         <div class="steam-profile card animate__animated animate__fadeIn" th:if="${profile != null}">
           <div class="profile-main">
             <div class="profile-avatar">
-              <img th:src="${profile.summary?.avatarFull}" th:alt="${profile.summary?.personaName}" class="avatar-img"/>
+              <img th:src="${profile.summary?.avatarFull}" th:alt="${profile.summary?.personaName}" class="avatar-img" decoding="async"/>
               <span class="status-dot" th:classappend="${profile.playing ? 'playing' : (profile.summary?.personaState == 1 ? 'online' : 'offline')}"></span>
             </div>
             <div class="profile-info">
@@ -108,7 +111,7 @@
                th:target="${enableGameLink ? '_blank' : ''}"
                th:title="${game.name}">
               <div class="game-cover">
-                <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="game-img" loading="lazy"/>
+                <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="game-img" loading="lazy" decoding="async"/>
               </div>
               <div class="game-info">
                 <span class="game-name" th:text="${game.name}">游戏名</span>
@@ -138,7 +141,7 @@
              th:target="${enableGameLink ? '_blank' : ''}"
              th:title="${game.name}">
             <div class="lib-cover">
-              <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="lib-img" loading="lazy"/>
+              <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="lib-img" loading="lazy" decoding="async"/>
               <div class="lib-overlay">
                 <span class="lib-playtime" th:text="${game.playtimeFormatted}">0h</span>
               </div>

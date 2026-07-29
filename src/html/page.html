@@ -4,7 +4,10 @@
   title = ${singlePage.spec.title} ,
   pin = ~{::pin},
   header = ~{::header},
-  main = ~{::main}
+  main = ~{::main},
+  canonical = ${singlePage.status.permalink},
+  description = ${singlePage.spec.excerpt?.raw},
+  ogImage = ${singlePage.spec.cover}
   )}"
 >
   <!--/* pin */-->
@@ -14,6 +17,10 @@
         //第一屏
         enable_above: /*[[${theme.config.index.enable_above}]]*/ '',
         above_background: /*[[${above_background}]]*/ '',
+        // 评论
+        comment: {
+          provider: /*[[${theme.config.comment?.provider}]]*/ 'halo',
+        },
       });
     </script>
   </th:block>
@@ -40,11 +47,16 @@
     <section class="content card">
       <article class="render" th:utext="${singlePage.content.content}"></article>
       <halo:comment
-        th:if="${pluginFinder.available('PluginCommentWidget') && haloCommentEnabled && singlePage.spec.allowComment}"
+        th:if="${pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'halo') == 'halo' && singlePage.spec.allowComment}"
         group="content.halo.run"
         kind="SinglePage"
         th:attr="name=${singlePage.metadata.name}"
       />
+      <th:block th:replace="~{views/artalk :: comment(
+        ${singlePage.status.permalink},
+        ${singlePage.spec.title},
+        ${singlePage.spec.allowComment && (theme.config.comment?.artalk_enable_page ?: true)}
+      )}"/>
     </section>
     <th:block th:replace="~{views/aside::common}"/>
   </th:block>

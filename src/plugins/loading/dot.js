@@ -120,6 +120,25 @@ const Loading = new Dot();
 
 Loading.start();
 
-window.addEventListener('load', () => Loading.destroy());
+let finished = false;
+const finish = () => {
+  if(finished) return;
+  finished = true;
+  Loading.destroy();
+};
+const timeout = Number(document.currentScript?.dataset.timeout) || 3000;
+const timeoutId = window.setTimeout(finish, timeout);
+const ready = () => {
+  window.clearTimeout(timeoutId);
+  finish();
+};
+
+if(document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', ready, {once: true});
+}
+else {
+  ready();
+}
+window.addEventListener('load', ready, {once: true});
 
 

@@ -8,10 +8,10 @@
       assets_link: /*[[${assets_link}]]*/ true,
       umami: {
         enable: /*[[${theme.config.umami?.enable}]]*/ false,
-        url: /*[[${theme.config.umami?.url}]]*/ '',
-        websiteId: /*[[${theme.config.umami?.website_id}]]*/ '',
-        username: /*[[${theme.config.umami?.username}]]*/ '',
-        password: /*[[${theme.config.umami?.password}]]*/ '',
+        url: /*[[${theme.config.umami?.enable ? theme.config.umami?.url : null}]]*/ '',
+        websiteId: /*[[${theme.config.umami?.enable ? theme.config.umami?.website_id : null}]]*/ '',
+        username: /*[[${theme.config.umami?.enable ? theme.config.umami?.username : null}]]*/ '',
+        password: /*[[${theme.config.umami?.enable ? theme.config.umami?.password : null}]]*/ '',
         cacheMinutes: /*[[${theme.config.umami?.cache_minutes}]]*/ 30,
       },
     },
@@ -55,10 +55,22 @@
     --nav-dropdown-hover-font-color: /*[(${theme.config.nav.dropdown_hover_font_color.dark})]*/ transparent;
   }
 
-  .loading #Butterfly {
-    display: none;
+  body.loading {
+    overflow: hidden;
+  }
+
+  .loading-container {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: var(--body-background);
+  }
+
+  body:not(.loading) > .loading-container {
+    display: none !important;
   }
 </style>
-<link rel="preload stylesheet" as="style" th:if="${theme.config.style.font_family != 'null'}" th:href="${assets_link + 'font/' + theme.config.style.font_family + '.min.css'}">
-<link rel="preload stylesheet" as="style" th:href="${assets_link + 'plugins/fontawesome/fontawesome.min.css'}">
+<link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" th:if="${theme.config.style.font_family == 'CircularBody'}" th:href="${assets_link + 'font/CircularBody/CircularBody.woff2'}">
+<link rel="preload stylesheet" as="style" th:if="${theme.config.style.font_family != 'null'}" th:href="${assets_link + 'font/' + theme.config.style.font_family + '.min.css?v=' + theme.spec.version}">
+<link rel="preload stylesheet" as="style" th:href="${assets_link + 'plugins/fontawesome/fontawesome.min.css?v=' + theme.spec.version}">
 <link rel="preload stylesheet" as="style" th:href="${assets_link + 'plugins/cursor/' + 'simple' + '.min.css?v=' + theme.spec.version}">

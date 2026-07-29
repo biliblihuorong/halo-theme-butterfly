@@ -8,7 +8,7 @@
   </div>
   <div class="moe-icp" th:if="${not #strings.isEmpty(theme.config.base.moe_icp)}">
     <a th:href="'https://icp.gov.moe/?keyword=' + ${theme.config.base.moe_icp}" target="_blank">
-      <img src="https://img.ning.moe/i/1/23/01/30/63d75baf92f17.webp" width="18" height="18" alt="萌国ICP备案">
+      <img src="https://img.ning.moe/i/1/23/01/30/63d75baf92f17.webp" width="18" height="18" alt="萌国ICP备案" loading="lazy" decoding="async">
       <span th:text="'萌ICP备 ' + ${theme.config.base.moe_icp} + '号'"></span>
     </a>
   </div>

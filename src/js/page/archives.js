@@ -7,20 +7,6 @@
 import {useChart} from '../core/_util';
 import App from '../core/App';
 import pagination from '../modules/Pagination';
-import * as echarts from 'echarts';
-import {LineChart} from 'echarts/charts';
-import {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} from 'echarts/components';
-import {CanvasRenderer} from 'echarts/renderers';
-
-// 注册所需的组件和渲染器
-echarts.use([
-  LineChart,
-  TitleComponent,
-  TooltipComponent,
-  GridComponent,
-  DataZoomComponent,
-  CanvasRenderer,
-]);
 
 @App([pagination])
 class Archives {
@@ -32,7 +18,19 @@ class Archives {
 
     if(!chartDom) return;
 
-    useChart( chartDom, () => {
+    useChart(chartDom, async (echarts) => {
+      const {LineChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
+      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
+      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts" */ 'echarts/renderers');
+      echarts.use([
+        LineChart,
+        TitleComponent,
+        TooltipComponent,
+        GridComponent,
+        DataZoomComponent,
+        CanvasRenderer,
+      ]);
+
       const data = [];
 
       for (let year of MainApp.data) {

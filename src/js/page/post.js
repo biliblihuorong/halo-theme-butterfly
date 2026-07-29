@@ -9,8 +9,9 @@ import App from '../core/App';
 import codeBlock from '../modules/CodeBlock';
 import Render from '../modules/Render';
 import AmplifyImg from '../modules/AmplifyImg';
+import ArtalkComment from '../modules/ArtalkComment';
 
-@App([Render, codeBlock, AmplifyImg])
+@App([Render, codeBlock, AmplifyImg, ArtalkComment])
 class Post {
   run_meta() {
     const render = document.querySelector('article.render');

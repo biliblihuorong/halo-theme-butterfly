@@ -18,11 +18,44 @@ export default class codeBlock {
   #attrs = MainApp.attrs;
   
   constructor() {
-    if(this.#conf?.enable_code){
-      this.#addCss();
+    if(!this.#conf?.enable_code) return;
+    if(this.#renderDom.find('pre code').length === 0) return;
+    this.#addCss();
+    this.#loadPrism().then(() => {
       this.#code();
       this.#codeToolbar();
-    }
+    });
+  }
+
+  /**
+   * 动态加载 Prism:注入 3 个 CSS link 和 prism.min.js,只跑一次
+   */
+  #loadPrism() {
+    return new Promise((resolve) => {
+      const base = (this.#conf.assets_link || '/themes/theme-butterfly/assets/') + 'plugins/prism/';
+      const lightTheme = this.#conf.code_theme_light;
+      const darkTheme = this.#conf.code_theme_dark;
+
+      const injectLink = (id, href) => {
+        if(document.getElementById(id)) return;
+        const link = document.createElement('link');
+        link.id = id;
+        link.rel = 'stylesheet';
+        link.href = href;
+        document.head.appendChild(link);
+      };
+
+      injectLink('codeLight', base + 'themes/prism-' + lightTheme + '.css');
+      injectLink('codeDark', base + 'themes/prism-' + darkTheme + '.css');
+      injectLink('prism-base', base + 'prism.min.css');
+
+      if(window.Prism) return resolve();
+      const script = document.createElement('script');
+      script.src = base + 'prism.min.js';
+      script.onload = () => resolve();
+      script.onerror = () => resolve();
+      document.head.appendChild(script);
+    });
   }
 
   /**
@@ -57,11 +90,12 @@ export default class codeBlock {
    * @param mode
    */
   #codeTheme(mode) {
-    if(!codeLight || !codeDark) return;
+    const light = document.getElementById('codeLight');
+    const dark = document.getElementById('codeDark');
+    if(!light || !dark) return;
 
-    codeLight.disabled = mode === 'dark';
-
-    codeDark.disabled = mode === 'light';
+    light.disabled = mode === 'dark';
+    dark.disabled = mode === 'light';
   }
 
   /**

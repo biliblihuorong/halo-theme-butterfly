@@ -23,8 +23,8 @@
 
 ## 🌈 安装指南
 
-- 主题仓库地址：`https://github.com/biliblihuorong/halo-theme-butterfly.git`
-- 在 [Release](https://github.com/biliblihuorong/halo-theme-butterfly/releases) 页面下载最新的 `theme-butterfly-dist.zip`，进入 `Halo Console` -> `外观` -> `主题` 中上传安装即可。
+- 主题仓库地址：`https://git.shell.ac.cn/Shell/halo-theme-butterfly.git`
+- 在 [Release](https://git.shell.ac.cn/Shell/halo-theme-butterfly/releases) 页面下载最新的 `theme-butterfly-dist.zip`，进入 `Halo Console` -> `外观` -> `主题` 中上传安装即可。
 
 ## ⚠️ 注意事项
 
