@@ -13,8 +13,8 @@ spec:
   repo: "https://git.shell.ac.cn/Shell/halo-theme-butterfly.git"
   settingName: theme-butterfly-setting
   configMapName: theme-butterfly-configMap
-  version: 2.2.2
-  require: 2.0.0
+  version: 2.2.5
+  requires: ">=2.0.0"
   customTemplates:
     page:
       - name: "友情链接 (Links)"

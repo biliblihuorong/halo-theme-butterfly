@@ -114,7 +114,7 @@
       <article class="render" th:if="${not #strings.isEmpty(theme.config.page_hero?.links?.footer_content)}" th:utext="${theme.config.page_hero?.links?.footer_content}"></article>
       <article class="render" th:if="${singlePage != null && not #strings.isEmpty(singlePage.content.content)}" th:utext="${singlePage.content.content}"></article>
       <halo:comment
-        th:if="${singlePage != null && pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'halo') == 'halo' && singlePage.spec.allowComment}"
+        th:if="${singlePage != null && pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'none') == 'halo' && singlePage.spec.allowComment}"
         group="content.halo.run"
         kind="SinglePage"
         th:attr="name=${singlePage.metadata.name}"

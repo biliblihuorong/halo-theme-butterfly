@@ -5,13 +5,11 @@
 export default class ArtalkComment {
   name = 'artalkComment';
 
-  #conf = window.MainApp?.conf || {};
-
   #tryInit = (attempts = 0) => {
     const cfg = window.ArtalkConfig;
     const el = document.getElementById('artalk');
     if(!cfg || !el) return;
-    if(typeof window.Artalk !== 'function') {
+    if(!window.Artalk || typeof window.Artalk.init !== 'function') {
       if(attempts > 60) return;
       return setTimeout(() => this.#tryInit(attempts + 1), 200);
     }
@@ -27,15 +25,13 @@ export default class ArtalkComment {
       pageKey,
       pageTitle: cfg.pageTitle,
       locale: cfg.locale,
-      preferRemoteConf: cfg.preferRemoteConf,
+      useBackendConf: cfg.useBackendConf,
       darkMode: document.documentElement.dataset.colorScheme === 'dark',
     });
   };
 
   constructor() {
-    const provider = this.#conf.comment?.provider;
-    if(provider !== 'artalk') return;
-    if(!document.getElementById('artalk')) return;
+    if(!window.ArtalkConfig || !document.getElementById('artalk')) return;
     this.#tryInit();
   }
 }

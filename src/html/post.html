@@ -27,7 +27,7 @@
         above_background: /*[[${above_background}]]*/ '',
         // 评论
         comment: {
-          provider: /*[[${theme.config.comment?.provider}]]*/ 'halo',
+          provider: /*[[${theme.config.comment?.provider ?: 'none'}]]*/ 'none',
         },
         // 渲染
         enable_h_icon: /*[[${theme.config.render.enable_h_icon}]]*/ true,
@@ -160,7 +160,7 @@
       </div>
 
       <halo:comment
-        th:if="${pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'halo') == 'halo' && post.spec.allowComment}"
+        th:if="${pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'none') == 'halo' && post.spec.allowComment}"
         group="content.halo.run"
         kind="Post"
         th:attr="name=${post.metadata.name}"

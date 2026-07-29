@@ -19,7 +19,7 @@
         above_background: /*[[${above_background}]]*/ '',
         // 评论
         comment: {
-          provider: /*[[${theme.config.comment?.provider}]]*/ 'halo',
+          provider: /*[[${theme.config.comment?.provider ?: 'none'}]]*/ 'none',
         },
       });
     </script>
@@ -47,7 +47,7 @@
     <section class="content card">
       <article class="render" th:utext="${singlePage.content.content}"></article>
       <halo:comment
-        th:if="${pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'halo') == 'halo' && singlePage.spec.allowComment}"
+        th:if="${pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'none') == 'halo' && singlePage.spec.allowComment}"
         group="content.halo.run"
         kind="SinglePage"
         th:attr="name=${singlePage.metadata.name}"

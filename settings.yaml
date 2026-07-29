@@ -77,6 +77,8 @@ spec:
       formSchema:
         - $formkit: radio
           name: type
+          id: loading_type
+          key: loading-type
           label: 页面加载（Loading）
           help: 内置多种加载样式
           value: "circle"
@@ -101,7 +103,7 @@ spec:
           min: 1000
           max: 10000
           step: 500
-          if: $get(type).value != 'null'
+          if: "$get(loading_type).value != 'null'"
         - $formkit: group
           label: 静态资源加载（js、css）
           name: source
@@ -727,7 +729,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_title
-          if: $get(enable_code).value
+          key: enable-code-title
+          if: "$get(enable_code).value"
           label: 启用代码标题
           help: 启用代码块的标题，默认显示语言类型，也可自定义标题
           value: true
@@ -738,7 +741,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_hr
-          if: $get(enable_code).value
+          key: enable-code-hr
+          if: "$get(enable_code).value"
           label: 启用代码标题分割线
           help: 启用代码标题和内容之间的分割线，不展示时会更加简洁
           value: true
@@ -749,7 +753,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_line
-          if: $get(enable_code).value
+          key: enable-code-line
+          if: "$get(enable_code).value"
           label: 启用代码行号
           help: 启用代码块行号功能
           value: true
@@ -760,7 +765,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_copy
-          if: $get(enable_code).value
+          key: enable-code-copy
+          if: "$get(enable_code).value"
           label: 启用代码复制
           help: 启用代码块复制按钮
           value: true
@@ -771,7 +777,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_expander
-          if: $get(enable_code).value
+          key: enable-code-expander
+          if: "$get(enable_code).value"
           label: 启用代码折叠
           help: 启用代码折叠功能
           value: true
@@ -782,7 +789,8 @@ spec:
               value: false
         - $formkit: select
           name: code_theme_light
-          if: $get(enable_code).value
+          key: code-theme-light
+          if: "$get(enable_code).value"
           label: 代码块主题（浅色）随着系统主题变化
           value: one-light
           options:
@@ -860,7 +868,8 @@ spec:
               label: "z-touch"
         - $formkit: select
           name: code_theme_dark
-          if: $get(enable_code).value
+          key: code-theme-dark
+          if: "$get(enable_code).value"
           label: 代码块主题（深色）随着系统主题变化
           value: one-dark
           options:
@@ -987,8 +996,10 @@ spec:
       formSchema:
         - $formkit: radio
           name: provider
+          id: comment_provider
+          key: comment-provider
           label: 评论系统
-          value: "artalk"
+          value: "none"
           options:
             - label: 关闭
               value: "none"
@@ -1002,28 +1013,29 @@ spec:
           label: 在文章页启用 Artalk
           help: 文章自身还需要开启“允许评论”
           value: true
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
         - $formkit: switch
           key: artalk-enable-page
           name: artalk_enable_page
           label: 在普通页面启用 Artalk
           help: 独立页面自身还需要开启“允许评论”
           value: true
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
         - $formkit: switch
           key: artalk-enable-links
           name: artalk_enable_links
           label: 在友链页启用 Artalk
           help: 友链对应的独立页面还需要开启“允许评论”
           value: true
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
         - $formkit: switch
           key: artalk-enable-friends
           name: artalk_enable_friends
+          id: artalk_enable_friends
           label: 在朋友圈启用 Artalk
           help: 朋友圈不是 Halo 独立页面，将使用下方单独配置的 pageKey
           value: true
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
         - $formkit: text
           key: artalk-friends-page-key
           name: artalk_friends_page_key
@@ -1031,7 +1043,7 @@ spec:
           placeholder: "/friends"
           value: "/friends"
           help: 用于在 Artalk 中唯一标识朋友圈评论，修改后旧评论不会自动迁移
-          if: "$get(provider).value == 'artalk' && $get(artalk_enable_friends).value == true"
+          if: "$get(comment_provider).value == 'artalk' && $get(artalk_enable_friends).value == true"
           validation: required
         - $formkit: text
           key: artalk-friends-page-title
@@ -1040,7 +1052,7 @@ spec:
           placeholder: "朋友圈"
           value: "朋友圈"
           help: 显示在 Artalk 控制中心和通知中的页面名称
-          if: "$get(provider).value == 'artalk' && $get(artalk_enable_friends).value == true"
+          if: "$get(comment_provider).value == 'artalk' && $get(artalk_enable_friends).value == true"
           validation: required
         - $formkit: text
           key: artalk-server
@@ -1049,7 +1061,7 @@ spec:
           placeholder: "https://artalk.example.com"
           value: "https://artalk.ning.moe"
           help: Artalk 后端 API 地址，请填写浏览器能够访问的 HTTPS 地址，末尾不要带 /
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
           validation: required|url
         - $formkit: text
           key: artalk-site
@@ -1058,15 +1070,16 @@ spec:
           placeholder: "shell-blog"
           value: "shell-blog"
           help: 必须与 Artalk 控制中心中的站点名称完全一致，用于隔离不同站点的评论
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
           validation: required
         - $formkit: select
           key: artalk-asset-source
           name: artalk_asset_source
+          id: artalk_asset_source
           label: Artalk 客户端资源
           value: "local"
           help: 主题内置最稳定；服务端资源使用 Artalk 后端的 /dist/Artalk.js 和 Artalk.css；自定义可填写 CDN 地址
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
           options:
             - label: 主题内置
               value: "local"
@@ -1080,7 +1093,7 @@ spec:
           label: Artalk JS 地址
           placeholder: "https://cdn.example.com/Artalk.js"
           help: 仅在客户端资源选择“自定义地址”时使用
-          if: "$get(provider).value == 'artalk' && $get(artalk_asset_source).value == 'custom'"
+          if: "$get(comment_provider).value == 'artalk' && $get(artalk_asset_source).value == 'custom'"
           validation: url
         - $formkit: url
           key: artalk-custom-css
@@ -1088,7 +1101,7 @@ spec:
           label: Artalk CSS 地址
           placeholder: "https://cdn.example.com/Artalk.css"
           help: 仅在客户端资源选择“自定义地址”时使用
-          if: "$get(provider).value == 'artalk' && $get(artalk_asset_source).value == 'custom'"
+          if: "$get(comment_provider).value == 'artalk' && $get(artalk_asset_source).value == 'custom'"
           validation: url
         - $formkit: select
           key: artalk-locale
@@ -1096,7 +1109,7 @@ spec:
           label: Artalk 客户端语言
           value: "zh-CN"
           help: 只影响评论组件界面语言；选择自动时跟随访客浏览器
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
           options:
             - label: 简体中文
               value: "zh-CN"
@@ -1120,7 +1133,7 @@ spec:
           label: 优先使用远程界面配置
           help: 启用后优先采用 Artalk 控制中心中的界面配置；关闭时优先采用主题传入的客户端配置
           value: false
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
           options:
             - label: 启用
               value: true
@@ -1131,14 +1144,14 @@ spec:
           name: artalk_css
           label: 额外 CSS 覆盖（可选）
           help: 在 Artalk 基础样式之后加载，用于覆盖评论组件样式；留空则不加载
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
         - $formkit: radio
           key: artalk-pagekey-trailing-slash
           name: pagekey_trailing_slash
           label: pageKey 末尾追加 /
           help: 用于兼容旧评论数据；新部署请根据 Artalk 中已有的页面键格式选择
           value: true
-          if: $get(provider).value == 'artalk'
+          if: "$get(comment_provider).value == 'artalk'"
           options:
             - label: 启用
               value: true

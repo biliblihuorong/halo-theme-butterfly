@@ -1,7 +1,7 @@
 <th:block
   xmlns:th="https://www.thymeleaf.org"
   th:fragment="comment(pageKey,pageTitle,allowComment)"
-  th:if="${allowComment && (theme.config.comment?.provider ?: 'halo') == 'artalk'}"
+  th:if="${allowComment && (theme.config.comment?.provider ?: 'none') == 'artalk'}"
   th:with="
     assetSource = ${theme.config.comment?.artalk_asset_source ?: 'local'},
     artalkServer = ${theme.config.comment?.artalk_server},
@@ -33,7 +33,7 @@
       pageTitle: /*[[${pageTitle}]]*/ '',
       trailingSlash: /*[[${theme.config.comment?.pagekey_trailing_slash ?: false}]]*/ false,
       locale: /*[[${theme.config.comment?.artalk_locale ?: 'zh-CN'}]]*/ 'zh-CN',
-      preferRemoteConf: /*[[${theme.config.comment?.prefer_remote_conf ?: false}]]*/ false,
+      useBackendConf: /*[[${theme.config.comment?.prefer_remote_conf ?: false}]]*/ false,
     };
   </script>
 </th:block>
