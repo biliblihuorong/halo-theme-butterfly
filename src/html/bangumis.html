@@ -1,0 +1,119 @@
+<layout
+  th:replace="~{views/layout :: layout (
+  page = 'bangumis',
+  title = ${site.title} + ' - ' + '追番',
+  pin = ~{::pin},
+  header = ~{::header},
+  main = ~{::main},
+  canonical = null,
+  description = null,
+  ogImage = null
+  )}"
+>
+  <!--/* pin */-->
+  <th:block th:fragment="pin">
+    <script id="pageScript" th:inline="javascript">
+      Object.assign(window.MainApp.conf, {
+        //第一屏
+        enable_above: /*[[${(theme.config.page_hero?.bangumis?.enable_above ?: theme.config.index.enable_above) ?: false}]]*/ false,
+        above_background: /*[[${theme.config.page_hero?.bangumis?.above_background ?: theme.config.index.above_background}]]*/ '',
+      });
+    </script>
+  </th:block>
+
+  <!--/* header */-->
+  <th:block th:fragment="header">
+    <header th:class="${not ((theme.config.page_hero?.bangumis?.enable_above ?: theme.config.index.enable_above) ?: false) ? 'header dp' : 'header'}">
+      <!--/* 导航栏 */-->
+      <th:block th:replace="~{views/nav}"/>
+
+      <!--第一屏内容-->
+      <section class="above" th:if="${(theme.config.page_hero?.bangumis?.enable_above ?: theme.config.index.enable_above) ?: false}">
+        <div class="above-info">
+          <h1 class="above-title">追番</h1>
+        </div>
+      </section>
+    </header>
+  </th:block>
+
+  <!--/* 內容 */-->
+  <!--/* 数据由 plugin-bilibili-bangumi 提供（路由 /bangumis，模型变量 bangumis） */-->
+  <th:block th:fragment="main" th:with="tp = ${bangumis != null ? bangumis.typeNum : 1}, st = ${bangumis != null ? bangumis.status : 0}">
+    <section class="content">
+      <div data-partial-navigation>
+      <!--/* 筛选：类型（追番/追剧）与状态（全部/想看/在看/已看） */-->
+      <div class="bangumi-filter card">
+        <div class="filter-row">
+          <span class="filter-label">类型</span>
+          <span class="filter-items">
+            <a th:href="@{/bangumis(typeNum=1,status=${st})}" th:classappend="${tp == 1 ? 'active' : ''}">追番</a>
+            <a th:href="@{/bangumis(typeNum=2,status=${st})}" th:classappend="${tp == 2 ? 'active' : ''}">追剧</a>
+          </span>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">状态</span>
+          <span class="filter-items">
+            <a th:href="@{/bangumis(typeNum=${tp},status=0)}" th:classappend="${st == 0 ? 'active' : ''}">全部</a>
+            <a th:href="@{/bangumis(typeNum=${tp},status=1)}" th:classappend="${st == 1 ? 'active' : ''}">想看</a>
+            <a th:href="@{/bangumis(typeNum=${tp},status=2)}" th:classappend="${st == 2 ? 'active' : ''}">在看</a>
+            <a th:href="@{/bangumis(typeNum=${tp},status=3)}" th:classappend="${st == 3 ? 'active' : ''}">已看</a>
+          </span>
+        </div>
+      </div>
+
+      <!--/* 番剧列表 */-->
+      <ul class="bangumi-list" th:if="${not #lists.isEmpty(bangumis.items)}">
+        <li class="item card" th:each="b : ${bangumis.items}" th:with="spec = ${b.spec}">
+          <a class="cover" th:href="${spec.url}" target="_blank" rel="noopener" th:title="${spec.title}">
+            <!--/* B 站图床有 Referer 防盗链，必须 no-referrer 才能加载，故不走主题的懒加载占位方案 */-->
+            <img th:src="${spec.cover}" th:alt="${spec.title}" referrerpolicy="no-referrer" loading="lazy" decoding="async">
+            <span class="score" th:if="${not #strings.isEmpty(spec.score)}">
+              <i class="fa-solid fa-star"></i>
+              <span th:text="${spec.score}"></span>
+            </span>
+          </a>
+          <div class="info">
+            <a class="title" th:href="${spec.url}" target="_blank" rel="noopener" th:text="${spec.title}"></a>
+            <div class="meta">
+              <span class="wp total" th:if="${not #strings.isEmpty(spec.totalCount)}" th:text="${spec.totalCount}"></span>
+              <span class="wp area" th:if="${not #strings.isEmpty(spec.area)}" th:text="${spec.area}"></span>
+              <span class="wp" th:if="${not #strings.isEmpty(spec.view)}">
+                <i class="fa-solid fa-play"></i>
+                <span th:text="${spec.view}"></span>
+              </span>
+              <span class="wp" th:if="${not #strings.isEmpty(spec.danmaku)}">
+                <i class="fa-solid fa-comment-dots"></i>
+                <span th:text="${spec.danmaku}"></span>
+              </span>
+            </div>
+            <p class="des" th:if="${not #strings.isEmpty(spec.des)}" th:text="${spec.des}"></p>
+          </div>
+        </li>
+      </ul>
+
+      <th:block th:unless="${not #lists.isEmpty(bangumis.items)}" th:insert="~{views/components:: emptyData(false)}"></th:block>
+
+      <!--/* 分页：服务端渲染以保留 typeNum/status 筛选参数 */-->
+      <div class="pagination"
+           th:if="${bangumis != null and bangumis.totalPages > 1}"
+           th:with="
+             winStart = ${bangumis.totalPages <= 5 ? 1 : ((bangumis.page - 2 < 1) ? 1 : ((bangumis.page + 2 > bangumis.totalPages) ? bangumis.totalPages - 4 : bangumis.page - 2))},
+             winEnd = ${bangumis.totalPages <= 5 ? bangumis.totalPages : (winStart + 4 > bangumis.totalPages ? bangumis.totalPages : winStart + 4)}
+           ">
+        <a class="page prev" th:if="${bangumis.hasPrevious()}" th:href="@{/bangumis/page/{p}(p=${bangumis.page - 1},typeNum=${tp},status=${st})}" rel="prev" aria-label="prev">
+          <i class="fas fa-chevron-left fa-fw"></i>
+        </a>
+        <a th:each="p : ${#numbers.sequence(winStart, winEnd)}"
+           th:href="@{/bangumis/page/{n}(n=${p},typeNum=${tp},status=${st})}"
+           th:class="'page' + ${p == bangumis.page ? ' current' : ''}"
+           th:text="${p}"></a>
+        <a class="page next" th:if="${bangumis.hasNext()}" th:href="@{/bangumis/page/{p}(p=${bangumis.page + 1},typeNum=${tp},status=${st})}" rel="next" aria-label="next">
+          <i class="fas fa-chevron-right fa-fw"></i>
+        </a>
+      </div>
+      </div>
+    </section>
+
+    <th:block th:replace="~{views/aside::common}"/>
+  </th:block>
+</layout>
