@@ -1,7 +1,7 @@
 <th:block
   xmlns:th="https://www.thymeleaf.org"
   th:fragment="comment(pageKey,pageTitle,allowComment)"
-  th:if="${allowComment && (theme.config.comment?.provider ?: 'none') == 'artalk'}"
+  th:if="${(allowComment ?: true) && (theme.config.comment?.provider ?: 'none') == 'artalk'}"
   th:with="
     assetSource = ${theme.config.comment?.artalk_asset_source ?: 'local'},
     artalkServer = ${theme.config.comment?.artalk_server},

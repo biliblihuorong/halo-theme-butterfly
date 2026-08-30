@@ -23,7 +23,7 @@
     <script id="pageScript" th:inline="javascript" th:with="above_background = ${not #strings.isEmpty(post.spec.cover) ? post.spec.cover : (theme.config.loading.img.random_enable ? theme.config.loading.img.random_link  : ''  )}">
       Object.assign(window.MainApp.conf, {
         // 第一屏
-        enable_above: /*[[${(theme.config.post?.enable_above ?: theme.config.index.enable_above) ?: false}]]*/ false,
+        enable_above: /*[[${(theme.config.page_hero?.post?.enable_above ?: theme.config.index.enable_above) ?: false}]]*/ false,
         above_background: /*[[${above_background}]]*/ '',
         // 评论
         comment: {
@@ -72,12 +72,12 @@
   </th:block>
 
   <th:block th:fragment="header">
-    <header th:class="${not ((theme.config.post?.enable_above ?: theme.config.index.enable_above) ?: false) ? 'header dp' : 'header'}">
+    <header th:class="${not ((theme.config.page_hero?.post?.enable_above ?: theme.config.index.enable_above) ?: false) ? 'header dp' : 'header'}">
       <!--/* 导航栏 */-->
       <th:block th:replace="~{views/nav}"/>
 
       <!--第一屏内容-->
-      <section class="above" th:if="${(theme.config.post?.enable_above ?: theme.config.index.enable_above) ?: false}">
+      <section class="above" th:if="${(theme.config.page_hero?.post?.enable_above ?: theme.config.index.enable_above) ?: false}">
         <div class="above-info">
           <h1 class="post-title" th:text="${post.spec.title}"></h1>
           <ul class="post-meta">
@@ -90,7 +90,7 @@
                   </th:block>
                 </span>
             </span>
-              <span class="wp tag" th:if="${not #lists.isEmpty(post.categories)}">
+              <span class="wp tag" th:if="${not #lists.isEmpty(post.tags)}">
                <i class="fa-duotone fa-tags"></i>
                 <span class="cys">
                   <th:block th:each="cy : ${post.tags}">
@@ -112,15 +112,15 @@
               </span>
             </li>
 
-            <li class="row">
+            <li class="row" th:with="leg = ${#strings.length(#strings.trim(post.content.content))}">
               <span class="wp wordCount">
                 <i class="fa-solid fa-list-ol"></i>
-                <span>字数总计 -- 字</span>
+                <span th:text="'字数总计 '+${leg}+' 字'"></span>
               </span>
 
               <span class="wp clock">
                  <i class="fa-regular fa-clock"></i>
-                <span>阅读时长 -- 分钟</span>
+                <span th:text="'阅读时长 '+${leg/800 < 1 ? 1 : leg/800}+' 分钟'"></span>
               </span>
 
               <span class="wp visit">
@@ -159,16 +159,17 @@
         </div>
       </div>
 
+      <!--/* halo:comment 必须显式闭合：html-minifier 会吞掉自闭合斜杠，未闭合会吞掉后面的 Artalk 片段 */-->
       <halo:comment
-        th:if="${pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'none') == 'halo' && post.spec.allowComment}"
+        th:if="${pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'none') == 'halo' && (post.spec.allowComment ?: true)}"
         group="content.halo.run"
         kind="Post"
         th:attr="name=${post.metadata.name}"
-      />
+      ></halo:comment>
       <th:block th:replace="~{views/artalk :: comment(
         ${post.status.permalink},
         ${post.spec.title},
-        ${post.spec.allowComment && (theme.config.comment?.artalk_enable_post ?: true)}
+        ${(post.spec.allowComment ?: true) && (theme.config.comment?.artalk_enable_post ?: true)}
       )}"/>
     </section>
     <th:block th:replace="~{views/aside::post}"/>

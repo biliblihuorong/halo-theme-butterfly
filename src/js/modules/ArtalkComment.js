@@ -14,20 +14,26 @@ export default class ArtalkComment {
       return setTimeout(() => this.#tryInit(attempts + 1), 200);
     }
     if(el.dataset.artalkInited === '1') return;
-    const pageKey = cfg.trailingSlash && !cfg.pageKey.endsWith('/')
-      ? `${cfg.pageKey}/`
-      : cfg.pageKey;
+    //pageKey 缺失时回退到当前路径；必须兜住 null，否则 endsWith 抛错会炸掉 App 的模块注册循环
+    const rawKey = cfg.pageKey || location.pathname;
+    const pageKey = cfg.trailingSlash && !rawKey.endsWith('/') ? `${rawKey}/` : rawKey;
     el.dataset.artalkInited = '1';
-    window.Artalk.init({
-      el: '#artalk',
-      server: cfg.server,
-      site: cfg.site,
-      pageKey,
-      pageTitle: cfg.pageTitle,
-      locale: cfg.locale,
-      useBackendConf: cfg.useBackendConf,
-      darkMode: document.documentElement.dataset.colorScheme === 'dark',
-    });
+    try {
+      window.Artalk.init({
+        el: '#artalk',
+        server: cfg.server,
+        site: cfg.site,
+        pageKey,
+        pageTitle: cfg.pageTitle || document.title,
+        locale: cfg.locale,
+        useBackendConf: cfg.useBackendConf,
+        darkMode: document.documentElement.dataset.colorScheme === 'dark',
+      });
+    } catch(err) {
+      //初始化失败也不能中断模块注册循环
+      el.dataset.artalkInited = '';
+      console.warn('[Artalk] init failed:', err && err.message);
+    }
   };
 
   constructor() {

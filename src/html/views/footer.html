@@ -1,6 +1,6 @@
-<footer class="footer">
+<footer class="footer" th:with="nowYear=${#dates.format(#dates.createNow(), 'yyyy')},startYear=${not #strings.isEmpty(theme.config.base.site_birthday) and #strings.length(#strings.trim(theme.config.base.site_birthday)) >= 4 ? #strings.substring(#strings.trim(theme.config.base.site_birthday), 0, 4) : null}">
   <div class="copyright"
-       th:text="'© 2020 - '+${#dates.format(#dates.createNow(), 'yyyy')}+' By '+ ${site.title}"></div>
+       th:text="${startYear != null and startYear != nowYear ? '© ' + startYear + ' - ' + nowYear + ' By ' + site.title : '© ' + nowYear + ' By ' + site.title}"></div>
   <div class="icp" th:if="${not #strings.isEmpty(theme.config.base.icp)}">
     <a th:text="'备案号：'+${theme.config.base.icp}"
        href="https://beian.miit.gov.cn/">
@@ -8,7 +8,7 @@
   </div>
   <div class="moe-icp" th:if="${not #strings.isEmpty(theme.config.base.moe_icp)}">
     <a th:href="'https://icp.gov.moe/?keyword=' + ${theme.config.base.moe_icp}" target="_blank">
-      <img src="https://img.ning.moe/i/1/23/01/30/63d75baf92f17.webp" width="18" height="18" alt="萌国ICP备案" loading="lazy" decoding="async">
+      <img th:src="${assets_link + 'img/moe-icp.webp'}" width="18" height="18" alt="萌国ICP备案" loading="lazy" decoding="async">
       <span th:text="'萌ICP备 ' + ${theme.config.base.moe_icp} + '号'"></span>
     </a>
   </div>
@@ -31,5 +31,5 @@
        target="_blank"
        th:text="${theme.spec.author.name} + ' v' + ${theme.spec.version}"></a>
   </div>
-  <halo:footer/>
+  <halo:footer></halo:footer>
 </footer>

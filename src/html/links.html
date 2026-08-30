@@ -41,11 +41,11 @@
 
   <!--/* 內容 */-->
   <th:block th:fragment="main">
-    <section class="content card" th:with="noData = ${not #lists.isEmpty(groups)}">
+    <section class="content card" th:with="noData = ${not #lists.isEmpty(groups)}, footerContent = ${theme.config.page_hero?.links?.footer_content}, footerType = ${theme.config.page_hero?.links?.footer_content_type ?: 'markdown'}">
       <th:block th:if="${noData}">
         <div class="groups">
           <div class="item" th:each="group : ${groups}">
-            <h2 class="name" clas th:text="${group.spec.displayName}"></h2>
+            <h2 class="name" th:text="${group.spec.displayName}"></h2>
 
             <div class="list">
               <a class="link " th:each="link : ${group.links}" th:href="${link.spec.url}" target="_blank">
@@ -110,21 +110,21 @@
         </script>
       </div>
 
-      <!-- 自定义内容渲染 -->
-      <article class="render" th:if="${not #strings.isEmpty(theme.config.page_hero?.links?.footer_content)}" th:utext="${theme.config.page_hero?.links?.footer_content}"></article>
+      <!-- 自定义内容渲染：markdown 由前端 marked 渲染（links.js run_md），html 直接输出 -->
+      <article class="render md-content" th:if="${not #strings.isEmpty(footerContent) && footerType == 'markdown'}" th:text="${footerContent}" hidden></article>
+      <article class="render" th:if="${not #strings.isEmpty(footerContent) && footerType != 'markdown'}" th:utext="${footerContent}"></article>
       <article class="render" th:if="${singlePage != null && not #strings.isEmpty(singlePage.content.content)}" th:utext="${singlePage.content.content}"></article>
       <halo:comment
-        th:if="${singlePage != null && pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'none') == 'halo' && singlePage.spec.allowComment}"
+        th:if="${singlePage != null && pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'none') == 'halo' && (singlePage.spec.allowComment ?: true)}"
         group="content.halo.run"
         kind="SinglePage"
         th:attr="name=${singlePage.metadata.name}"
-      />
+      ></halo:comment>
       <th:block
-        th:if="${singlePage != null}"
         th:replace="~{views/artalk :: comment(
-          ${singlePage.status.permalink},
-          ${singlePage.spec.title},
-          ${singlePage.spec.allowComment && (theme.config.comment?.artalk_enable_links ?: true)}
+          ${singlePage != null and singlePage.status != null and not #strings.isEmpty(singlePage.status.permalink) ? singlePage.status.permalink : '/links'},
+          ${singlePage != null and singlePage.spec != null and not #strings.isEmpty(singlePage.spec.title) ? singlePage.spec.title : '链接列表'},
+          ${singlePage != null and singlePage.spec != null ? (singlePage.spec.allowComment ?: true) : true}
         )}"
       />
     </section>

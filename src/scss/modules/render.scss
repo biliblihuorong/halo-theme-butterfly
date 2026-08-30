@@ -188,7 +188,10 @@
 
   table {
     width: 100%;
-    display: table;
+    //宽表在窄屏下内部横向滚动，而不是撑破卡片
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
     empty-cells: show;
     border-radius: 4px !important;
     margin-bottom: 15px;

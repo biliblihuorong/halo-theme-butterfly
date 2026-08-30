@@ -57,13 +57,22 @@ spec:
           name: font_family
           label: 主题字体
           value: "CircularBody"
+          help: 新增字体均已本地化；来源、版本和许可证见主题 assets/font/THIRD_PARTY_NOTICES.md
           options:
             - value: "null"
-              label: "游览器默认字体"
+              label: "浏览器默认字体"
             - value: "CircularBody"
               label: "CircularBody"
             - value: "HarmonyOS_Regular"
               label: "HarmonyOS_Regular"
+            - value: "NotoSansSC"
+              label: "Noto Sans SC（简体中文）"
+            - value: "ManropeNotoSansSC"
+              label: "Manrope + Noto Sans SC"
+            - value: "ResourceHanRoundedCN"
+              label: "Resource Han Rounded CN（简体圆体）"
+            - value: "GenSenRoundedTW"
+              label: "GenSen Rounded TW（繁体圆体）"
         - $formkit: text
           name: body_background
           label: 全局背景（浅色）
@@ -71,9 +80,23 @@ spec:
           value: "#f7f9fe"
           help: 颜色值 默认值：#f7f9fe
           validation: required
+        - $formkit: text
+          name: radius
+          label: 卡片圆角
+          placeholder: 请填写 卡片圆角
+          value: 15px
+          help: 卡片圆角，像素或百分比，默认值： 15px
+          validation: required
+        - $formkit: text
+          name: shadow
+          label: 卡片阴影
+          placeholder: 请填写 卡片阴影
+          value: 0 3px 8px 6px rgba(7,17,27,0.05)
+          help: 卡片阴影，默认值： 0 3px 8px 6px rgba(7,17,27,0.05)
+          validation: required
     #加载设置
     - group: loading
-      label: 加载设置
+      label: 加载与资源
       formSchema:
         - $formkit: radio
           name: type
@@ -198,7 +221,7 @@ spec:
               validation: required|url
     #导航设置
     - group: nav
-      label: 导航设置
+      label: 导航栏颜色
       formSchema:
         - $formkit: group
           name: font_color
@@ -458,16 +481,6 @@ spec:
             - label: 禁用
               value: false
         - $formkit: radio
-          name: enable_custom
-          label: 启用侧边栏自定义模块
-          help: 是否启用自定义模块
-          value: false
-          options:
-            - label: 启用
-              value: true
-            - label: 禁用
-              value: false
-        - $formkit: radio
           name: enable_webInfo
           label: 启用侧边栏网站资讯
           help: 是否启用侧边栏网站资讯
@@ -477,24 +490,6 @@ spec:
               value: true
             - label: 禁用
               value: false
-    #卡片设置
-    - group: card
-      label: 卡片设置
-      formSchema:
-        - $formkit: text
-          name: radius
-          label: 卡片圆角
-          placeholder: 请填写 卡片圆角
-          value: 15px
-          help: 卡片圆角，像素或百分比，默认值： 15px
-          validation: required
-        - $formkit: text
-          name: shadow
-          label: 卡片阴影
-          placeholder: 请填写 卡片阴影
-          value: 0 3px 8px 6px rgba(7,17,27,0.05)
-          help: 卡片阴影，默认值： 0 3px 8px 6px rgba(7,17,27,0.05)
-          validation: required
     #首页设置
     - group: index
       label: 首页设置
@@ -555,23 +550,9 @@ spec:
               value: list
             - label: 平铺
               value: tile
-    #文章设置
-    - group: post
-      label: 文章设置
-      formSchema:
-        - $formkit: radio
-          name: enable_above
-          label: 启用第一屏
-          help: 启用首页第一屏
-          value: true
-          options:
-            - label: 启用
-              value: true
-            - label: 禁用
-              value: false
-    #归档设置
+    #页面首屏
     - group: page_hero
-      label: 页面首屏
+      label: 页面设置
       formSchema:
         - $formkit: group
           name: archives
@@ -695,12 +676,112 @@ spec:
                   value: true
                 - label: 禁用
                   value: false
+            - $formkit: radio
+              name: footer_content_type
+              label: 底部内容格式
+              help: Markdown 会在前端渲染（支持表格、代码块、引用等 GFM 语法）；HTML 则原样输出
+              value: markdown
+              options:
+                - label: Markdown
+                  value: markdown
+                - label: HTML
+                  value: html
             - $formkit: textarea
               name: footer_content
               label: 友链底部内容
               placeholder: 请填写 友链底部内容
-              help: 在友链展示的最下面和评论中间插入的内容，支持 HTML 代码
-              rows: 10
+              help: 在友链展示的最下面和评论中间插入的内容，格式跟随上方「底部内容格式」设置
+              rows: 18
+              value: |
+                欢迎交换签订契约（友链）（ˊᗜˋ）
+
+                有以下注意事项：
+
+                1. 请确保网站启用 `https`，友联仅添加双向友联。
+
+                2. 请确保网站内容符合中国大陆法律法规
+
+                3. 交换友链我会收集以下关键信息并保存
+
+                   - 站长昵称
+
+                   - 站点名字
+
+                   - 站点 URL
+
+                   - 站点头像
+
+                   - 站点简述
+
+                   - 以及您的邮箱地址，有了它我可以更快的联系到您，以及博客的评论回复才正常运行
+
+                   具体详细跳转到：[隐私政策](/privacy-policy/ "隐私政策")
+
+                4. 友联会在 T+7 完成（如站长繁忙可能会延期添加）。
+
+                5. 我会不定时去访问，请确保您的网站一直稳定，长时间无法访问就会被我解除契约哦。
+
+                6. 在友联列表的站点如果被清理，我会在下方的表格里面写出来，并且如果站点本身已经打不开会附带上互联网档案馆的快照链接。
+
+                7. 希望交换友链时，请保留我的头像，有可能本站图片会开启防盗链。
+
+                ★名称：某科学的贝壳
+
+                ★简述：Get busy living or get busy dying.
+
+                ★URL：https://blog.ning.moe
+
+                ★ico头像：https://img.ning.moe/i/1/23/01/30/63d755db9649a.ico
+
+                ★webp头像：https://img.ning.moe/i/1/23/01/30/63d7559a451ec.webp （推荐）
+
+                以下已经被解除契约的列表
+
+                | 网站名字           | 解除时间   | 理由             | 互联网档案馆链接 or 原站链接                                 |
+                | ------------------ | ---------- | ---------------- | ------------------------------------------------------------ |
+                | NekoX              | 2024-06-05 | 网站404          | https://web.archive.org/web/20210612142421/https://nekox.cn/ |
+                | WhatZ的小窝        | 2024-06-05 | 网站404          | https://web.archive.org/web/20201024011103/https://b.cupmoexpz.tk/ |
+                | OvORizhi           | 2024-06-05 | 网站404          | https://web.archive.org/web/20230724082931/https://ovorizhi.com/ |
+                | Leo's Blog         | 2024-06-05 | 网站404          | https://web.archive.org/web/20230401101904/https://leo.moe/  |
+                | MisakaNo の 小破站 | 2024-06-05 | 网站404          | https://web.archive.org/web/20240330024643/https://blog.misaka.rest/ |
+                | 随便的Website      | 2024-06-05 | 没有本站友联链接 | https://blog.mzkira.com/                                     |
+                | 泠风寒声の小站     | 2024-09-06 | 网站404          | https://web.archive.org/web/20231207231302/https://blog.lfhsheng.com/ |
+        - $formkit: group
+          name: bangumis
+          label: 追番页
+          help: 数据由 plugin-bilibili-bangumi 插件提供，请先安装并配置该插件
+          children:
+            - $formkit: radio
+              name: enable_above
+              label: 启用第一屏
+              help: 启用追番页面第一屏
+              value: true
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
+            - $formkit: attachment
+              name: above_background
+              label: 第一屏背景图
+              placeholder: 请填写 第一屏背景图
+              value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
+              help: 追番页面的第一屏背景图
+              validation: required
+        - $formkit: group
+          name: post
+          label: 文章页
+          children:
+            - $formkit: radio
+              name: enable_above
+              label: 启用第一屏
+              help: 启用文章页第一屏，背景图使用文章封面
+              value: true
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
     #渲染设置
     - group: render
       label: 渲染设置
@@ -966,27 +1047,15 @@ spec:
           help: Umami 实例的完整地址（不含末尾斜杠）
           value: ""
         - $formkit: text
-          name: website_id
-          label: 网站 ID
-          placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-          help: 在 Umami 后台 Settings -> Websites 中查看
-          value: ""
-        - $formkit: text
-          name: username
-          label: 用户名
-          placeholder: "view-only-user"
-          help: 建议使用 View Only 权限的用户
-          value: ""
-        - $formkit: password
-          name: password
-          label: 密码
-          placeholder: "输入密码"
-          help: 上述用户的登录密码
+          name: share_id
+          label: 分享链接 ID
+          placeholder: "ICj6V0LQbbZ4XjTe"
+          help: 在 Umami 后台 网站设置 -> 分享链接（Share URL）中开启后，复制链接 /share/ 后面的 ID。使用公开 API 获取访问量，无需账号密码，凭据不会暴露给访客
           value: ""
         - $formkit: number
           name: cache_minutes
           label: 缓存时间（分钟）
-          help: Token 和访问量数据的本地缓存时间，避免频繁请求
+          help: 访问量数据的本地缓存时间，避免频繁请求
           value: 30
           min: 5
           max: 1440
@@ -1166,9 +1235,8 @@ spec:
           label: 预连接 (preconnect)
           help: 每行一个 URL(含 https://),会插入 <link rel="preconnect"> 提前建立 TCP/TLS。建议 2~4 个,过多会适得其反。
           value: |
-            https://api.yimian.xyz
-            https://unpkg.com
             https://img.ning.moe
+            https://analytic.ning.moe
           rows: 6
         - $formkit: textarea
           name: dns_prefetch
