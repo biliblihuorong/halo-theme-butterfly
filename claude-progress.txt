@@ -1,12 +1,21 @@
-Current Task: Navigation & Mobile Menu Fixes (COMPLETED)
-- Fixed navigation layout breakage below 988px by adjusting breakpoints to 1024px. [DONE]
-- Prevented site title wrapping in the navigation bar. [DONE]
-- Fixed mobile sub-menu clickability by refining the toggle logic in common.js. [DONE]
-- Rebuilt and repackaged the theme (theme-butterfly-dist.zip). [DONE]
+Current Task: Performance Optimization & Font Loading Fixes (COMPLETED)
+- Removed duplicate font/FontAwesome loading between layout.html and config.html (was double-downloading CircularBody ~1.3MB). [DONE]
+- Converted CircularBody to WOFF2 (978KiB vs 1280KiB woff), woff kept as fallback; preload only when the font is selected. [DONE]
+- FontAwesome font-display: block -> swap (fixes Lighthouse font-display warnings, ~350-520ms per font). [DONE]
+- Removed unused isDev variable (#dates.createNow() per render) and redundant noscript CSS link in layout.html. [DONE]
+- Excluded unreferenced CircularBody.ttf (2.2MB) from dist; removed dead gulp-uglify require. [DONE]
+- Guarded Umami username/password so they are only rendered to the page when Umami is enabled. [DONE]
+- Version bumped to 2.2.2 (cache busting), rebuilt and repackaged theme-butterfly-dist.zip. [DONE]
 
 Key Decisions:
-- Increased mobile menu breakpoint to $w-lg (1024px) for better medium-screen support.
-- Limited mobile menu toggle trigger to the specific parent link to avoid interference with sub-item clicks.
+- Font loading consolidated in views/config.html (respects assets_link CDN setting); layout.html no longer hardcodes fonts via @{}.
+- Font preload URL exactly matches the @font-face-derived URL (no query string) to avoid the double-download seen on live (woff vs woff?v=2.1.5).
+
+Known remaining (not theme-fixable or needs decision):
+- bf-cache blocked by Cache-Control: no-store on main document (Halo/server side).
+- Umami credentials still reach the client when enabled (by design of client-side token fetch; use a view-only account).
+- FontAwesome Pro CSS ~79KiB unused rules (subsetting risky, icons user-configurable).
+- Sass @import deprecation warnings during build (cosmetic).
 
 Next Steps:
-- None. All reported issues fixed and theme repackaged.
+- Upload theme-butterfly-dist.zip to Console on blog-test.ning.moe and re-run Lighthouse to confirm gains.
