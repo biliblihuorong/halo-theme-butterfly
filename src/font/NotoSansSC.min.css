@@ -1,0 +1,11 @@
+@font-face {
+  font-family: "Noto Sans SC";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("NotoSansSC/NotoSansSC-Regular.woff2") format("woff2");
+}
+
+:root {
+  --theme-font-family: "Noto Sans SC";
+}

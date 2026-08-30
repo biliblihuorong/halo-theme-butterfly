@@ -4,13 +4,12 @@
  * @fileName: naveScroll
  * @Description: 滚动触发导航侧边的一些事件
  */
-import $ from 'jquery';
 import {useThrottle} from './_util';
 
 export default class Scroll {
   #CHANGE_FN = null; // 回调
-  #sideBtnDom = $('#Butterfly > .side-btn');
-  #navDom = $('.header > .nav');
+  #sideBtnDom = document.querySelector('#Butterfly > .side-btn');
+  #navDom = document.querySelector('.header > .nav');
   #max = 56; // 最大值
   #num = 0; // 上一次滚动值
 
@@ -32,27 +31,33 @@ export default class Scroll {
 
   // 激活头部导航栏
   #activeNav(scrollTop) {
+    const nav = this.#navDom;
+    if(!nav) return;
+
     if(scrollTop > this.#max) {
-      this.#navDom.addClass('style');
+      nav.classList.add('style');
       if(this.#num <= scrollTop) {
-        this.#navDom.removeClass('active');
+        nav.classList.remove('active');
       }
       else {
-        this.#navDom.addClass('active');
+        nav.classList.add('active');
       }
     }
     else {
-      if(scrollTop === 0) this.#navDom.removeClass('active style');
+      if(scrollTop === 0) nav.classList.remove('active', 'style');
     }
   }
 
   // 激活侧边按钮
   #activeBtn(scrollTop) {
+    const btn = this.#sideBtnDom;
+    if(!btn) return;
+
     // 滚动到顶部取消按钮
-    if(scrollTop < this.#max && scrollTop <= 2) this.#sideBtnDom.removeClass('active');
+    if(scrollTop < this.#max && scrollTop <= 2) btn.classList.remove('active');
 
     // 向下滚动激活侧边按钮
-    if(scrollTop > this.#max && this.#num <= scrollTop) this.#sideBtnDom.addClass('active');
+    if(scrollTop > this.#max && this.#num <= scrollTop) btn.classList.add('active');
   }
 
 
@@ -64,6 +69,3 @@ export default class Scroll {
   }
 
 }
- 
- 
-

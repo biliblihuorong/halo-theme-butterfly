@@ -99,6 +99,16 @@ gulp.task('js', function() {
     },
     optimization: {
       minimize: true,
+      // 提取各页面共同依赖（jQuery 等）为 common chunk，跨页面可缓存；
+      // minChunks:2 保证页面专属代码仍留在各自 bundle 中
+      splitChunks: {
+        chunks: 'initial',
+        minChunks: 2,
+        name: 'common',
+      },
+      runtimeChunk: {
+        name: 'common',
+      },
       minimizer: [
         new TerserPlugin({
           terserOptions: {
@@ -312,9 +322,13 @@ gulp.task('copy-folder', function() {
   return gulp.src([
     './src/font/**/*',
     './src/plugins/**/*',
+    './src/img/**/*',
     '!./src/font/CircularBody/CircularBody.ttf',
     '!./src/plugins/artalk/Artalk.js',
     '!./src/plugins/artalk/Artalk.css',
+    // Font Awesome 子集化:全量字体与原始 CSS 只作生成输入,不进入构建产物
+    '!./src/plugins/fontawesome/fonts-source/**',
+    '!./src/plugins/fontawesome/fontawesome.full.min.css',
   ], {base: 'src'}) // 设置基本路径为 'src'
   .pipe(gulp.dest('./templates/assets/'));
 });

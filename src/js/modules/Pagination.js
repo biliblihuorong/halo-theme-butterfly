@@ -5,7 +5,6 @@
  * @Description:页码
  */
 
-import $ from 'jquery';
 
 export default class Pagination {
   name = 'Pagination';
@@ -77,6 +76,6 @@ export default class Pagination {
   }
 
   #createPage() {
-    $('main.main  section.content').append(`<div class="pagination">${this.#getPrevUrl()}${this.#getPage()}${this.#getNextUrl()}</div>`);
+    document.querySelector('main.main  section.content')?.insertAdjacentHTML('beforeend', `<div class="pagination">${this.#getPrevUrl()}${this.#getPage()}${this.#getNextUrl()}</div>`);
   }
 }

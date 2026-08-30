@@ -37,7 +37,8 @@ class Archives {
         for (let months of year['months']) {
           data.push([
             `${year['year']}-${months['month']}`,
-            months['posts'].length,
+            //模板投影输出 {month, count}（Thymeleaf 内联 Map 字面量会被 SpEL 拒绝，见 archives.html）
+            months['count'],
           ]);
         }
       }

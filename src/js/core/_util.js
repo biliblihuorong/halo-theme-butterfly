@@ -4,7 +4,6 @@
  * @fileName: Utils
  * @Description:工具
  */
-import $ from 'jquery';
 
 /**
  * 防抖
@@ -98,22 +97,33 @@ export function useIsDaytime() {
 }
 
 /**
- * 遮罩层
+ * 遮罩层（淡入显示，点击后淡出并回调）
  * @param close
  */
 export function useMask(close) {
-  let dom = $('#Butterfly >  .mask');
-  if(dom.length === 0) dom = $('<div class="mask"></div>').appendTo('#Butterfly');
+  let dom = document.querySelector('#Butterfly > .mask');
+  if(!dom) {
+    dom = document.createElement('div');
+    dom.className = 'mask';
+    document.getElementById('Butterfly')?.appendChild(dom);
+  }
 
-  dom.fadeIn(400);
+  // 淡入：先以透明态显示，再过渡到不透明（双 rAF 确保初始值先生效）
+  dom.style.transition = 'opacity 0.4s ease';
+  dom.style.opacity = '0';
+  dom.style.display = 'block';
+  requestAnimationFrame(() => requestAnimationFrame(() => { dom.style.opacity = '1'; }));
 
   useDisableScroll(true);
 
-  dom.click(() => {
+  const onClick = () => {
+    dom.removeEventListener('click', onClick);
     useDisableScroll(false);
-    dom.off('click').fadeOut(400);
+    dom.style.opacity = '0';
+    setTimeout(() => { dom.style.display = 'none'; }, 400);
     close();
-  });
+  };
+  dom.addEventListener('click', onClick);
 }
 
 /**

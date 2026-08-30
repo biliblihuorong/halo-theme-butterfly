@@ -1,0 +1,11 @@
+@font-face {
+  font-family: "GenSen Rounded TW";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("GenSenRoundedTW/GenSenRoundedTW-Regular.woff2") format("woff2");
+}
+
+:root {
+  --theme-font-family: "GenSen Rounded TW";
+}

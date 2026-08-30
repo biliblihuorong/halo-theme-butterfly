@@ -1,6 +1,6 @@
 {
   "name": "halo-theme-butterfly",
-  "version": "2.2.5",
+  "version": "2.2.8",
   "description": "一个由 shell 定制优化的 Butterfly 🦋 主题",
   "scripts": {
     "dev": "gulp watch",
@@ -13,9 +13,10 @@
     "build-artalk-css": "gulp css-plugins-artalk",
     "sync-artalk": "node scripts/sync-artalk.js",
     "migrate-page-hero": "node scripts/migrate-page-hero.js",
+    "subset:fa": "node scripts/subset-fontawesome.mjs",
     "copy-folder": "gulp copy-folder",
-    "build-zip": "npm run clean && gulp && npm run zip",
-    "build": "npm run clean && gulp && gulp js-plugins-loading && gulp js-plugins-artalk && gulp css-plugins-artalk",
+    "build-zip": "npm run clean && npm run subset:fa && gulp && npm run zip",
+    "build": "npm run clean && npm run subset:fa && gulp && gulp js-plugins-loading && gulp js-plugins-artalk && gulp css-plugins-artalk",
     "release": "gulp release"
   },
   "files": [
@@ -75,9 +76,10 @@
     "gulp-sass": "^5.1.0",
     "gulp-zip": "^5.1.0",
     "inquirer": "^7.3.3",
-    "jquery": "^3.7.1",
+    "js-yaml": "^5.4.1",
     "postcss-import": "^16.1.0",
     "sass": "^1.63.6",
+    "subset-font": "^2.6.0",
     "terser-webpack-plugin": "^5.3.10",
     "tocbot": "^4.25.0",
     "typed.js": "^2.1.0",
@@ -85,5 +87,8 @@
     "webpack": "^5.68.0",
     "webpack-stream": "^7.0.0",
     "yamljs": "^0.3.0"
+  },
+  "dependencies": {
+    "marked": "^18.0.11"
   }
 }

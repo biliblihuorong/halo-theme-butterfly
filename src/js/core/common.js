@@ -4,14 +4,13 @@
  * @fileName: _aside
  * @Description:common
  */
-import $ from 'jquery';
 import {useMask} from './_util';
 import LazyLoad from './_lazyLoad';
 
 export default class Common {
 
   constructor() {
-    if(window.MainApp.conf.enable_above && window.MainApp.conf.above_background) this.#loadAboveBackgroundImg(); //第一屏图片预加载 
+    if(window.MainApp.conf.enable_above && window.MainApp.conf.above_background) this.#loadAboveBackgroundImg(); //第一屏图片预加载
 
     this.#createSingleAction(); //创建单一行为事件
 
@@ -23,11 +22,11 @@ export default class Common {
 
   // 站点运行时间
   #runDay() {
-    const dom = $('.main > .aside .aside-webInfo .run-day');
+    const dom = document.querySelector('.main > .aside .aside-webInfo .run-day');
 
-    if(!dom.length) return;
+    if(!dom) return;
 
-    const siteDate = new Date(dom.attr('data-date'));
+    const siteDate = new Date(dom.getAttribute('data-date'));
 
     if(siteDate.toString() === 'Invalid Date') return;
 
@@ -37,16 +36,17 @@ export default class Common {
 
     const day = parseInt((date / (1000 * 24 * 60 * 60)).toString());
 
-    dom.html(day + ' 天');
+    dom.textContent = day + ' 天';
   }
 
   /**
-   * Umami 访问量获取
-   * 流程: 检查缓存 → 登录获取 token → 调用 stats API → 更新 DOM
+   * Umami 访问量获取（分享链接公开 API，无需凭据）
+   * 流程: 检查缓存 → 调用 share stats API → 更新 DOM
+   * 兼容 v2（/api/share/{id}/stats）与 v3（两步：share 换 token → websites stats + 双请求头）
    */
   async #fetchUmamiVisits() {
     const conf = MainApp.conf.umami;
-    if(!conf.url || !conf.websiteId || !conf.username || !conf.password) return;
+    if(!conf.url || !conf.shareId) return;
 
     const cacheKey = 'butterfly-umami-data';
     const cacheMs = (conf.cacheMinutes || 30) * 60 * 1000;
@@ -61,20 +61,34 @@ export default class Common {
     } catch(e) { /* 缓存无效则继续 */ }
 
     try {
-      // 获取 token
-      const token = await this.#getUmamiToken(conf);
-      if(!token) return;
-
-      // 调用 stats API（从网站创建至今）
-      const startAt = 0;
       const endAt = Date.now();
-      const res = await fetch(`${conf.url}/api/websites/${conf.websiteId}/stats?startAt=${startAt}&endAt=${endAt}`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      let data = null;
 
-      if(!res.ok) return;
+      // Umami v3：/api/share/{id} 返回 {token, websiteId}，再带双请求头查网站统计
+      try {
+        const shareRes = await fetch(`${conf.url}/api/share/${conf.shareId}`);
+        if(shareRes.ok) {
+          const share = await shareRes.json();
+          if(share && share.token && share.websiteId) {
+            const statsRes = await fetch(`${conf.url}/api/websites/${share.websiteId}/stats?startAt=0&endAt=${endAt}`, {
+              headers: {
+                'x-umami-share-token': share.token,
+                'x-umami-share-context': '1',
+              },
+            });
+            if(statsRes.ok) data = await statsRes.json();
+          }
+        }
+      } catch(e) { /* v3 流程失败则尝试 v2 */ }
 
-      const data = await res.json();
+      // Umami v2 回退：旧的 share stats 端点
+      if(!data) {
+        const res = await fetch(`${conf.url}/api/share/${conf.shareId}/stats?startAt=0&endAt=${endAt}`);
+        if(res.ok) data = await res.json();
+      }
+
+      if(!data) return;
+
       const pageviews = data.pageviews?.value ?? data.pageviews ?? 0;
 
       // 缓存结果
@@ -84,40 +98,6 @@ export default class Common {
     } catch(e) {
       console.warn('Umami 统计获取失败:', e.message);
     }
-  }
-
-  /**
-   * 获取 Umami Token（带缓存）
-   */
-  async #getUmamiToken(conf) {
-    const tokenKey = 'butterfly-umami-token';
-    const cacheMs = (conf.cacheMinutes || 30) * 60 * 1000;
-
-    // 检查 token 缓存
-    try {
-      const cached = JSON.parse(localStorage.getItem(tokenKey));
-      if(cached && Date.now() - cached.time < cacheMs) {
-        return cached.token;
-      }
-    } catch(e) { /* 缓存无效 */ }
-
-    // 登录获取新 token
-    const res = await fetch(`${conf.url}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: conf.username, password: conf.password }),
-    });
-
-    if(!res.ok) return null;
-
-    const data = await res.json();
-    const token = data.token;
-
-    if(token) {
-      localStorage.setItem(tokenKey, JSON.stringify({ token, time: Date.now() }));
-    }
-
-    return token;
   }
 
   /**
@@ -147,23 +127,25 @@ export default class Common {
     });
 
     //移动端侧边栏呼出图标
-    const sideBar = $('.side-bar');
-    $('.nav a.bars').click((e) => {
+    const sideBar = document.querySelector('.side-bar');
+    document.querySelector('.nav a.bars')?.addEventListener('click', (e) => {
       e.preventDefault();
-      sideBar.addClass('active');
-      useMask(() => sideBar.removeClass('active'));
+      sideBar?.classList.add('active');
+      useMask(() => sideBar?.classList.remove('active'));
     });
 
-    //移动端侧边栏侧边菜单
-    $('menu.bar').on('click', 'li.child > a.link', (e) => {
+    //移动端侧边栏侧边菜单（事件委托：点击子菜单链接切换父级展开状态）
+    document.querySelector('menu.bar')?.addEventListener('click', (e) => {
+      const link = e.target.closest('li.child > a.link');
+      if(!link) return;
       e.preventDefault();
-      $(e.currentTarget).parent().toggleClass('active');
+      link.parentElement.classList.toggle('active');
     });
   }
 
   //返回顶部
   backTop() {
-    $('html,body').animate({scrollTop: 0}, 300);
+    window.scrollTo({top: 0, behavior: 'smooth'});
   }
 
   //第一屏图片预加载
@@ -181,4 +163,3 @@ export default class Common {
     };
   }
 }
-
