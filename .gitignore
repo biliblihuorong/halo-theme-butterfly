@@ -28,3 +28,8 @@ dist-ssr
 build
 pnpm-lock.yaml
 templates
+
+# Local agent/runtime state
+.claude/
+.reasonix/
+pnpm-workspace.yaml
