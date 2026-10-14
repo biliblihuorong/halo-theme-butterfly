@@ -184,7 +184,7 @@ spec:
           value:
             preload: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
             err: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
-            random_enable: true
+            random_enable: false
             random_link: "https://api.yimian.xyz/img"
           children:
             - $formkit: attachment
@@ -412,7 +412,7 @@ spec:
           label: 侧边栏按钮
           value:
             name: "主题仓库"
-            link: "https://git.shell.ac.cn/Shell/halo-theme-butterfly"
+            link: "https://github.com/biliblihuorong/halo-theme-butterfly"
           children:
             - $formkit: text
               name: name
@@ -508,7 +508,7 @@ spec:
           name: above_background
           label: 第一屏背景图
           placeholder: 请填写 第一屏背景图
-          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
+          value: "/themes/theme-butterfly/assets/img/default-banner.png"
           help: 如果全局背景图设置为图片链接，则此处背景图将不生效
           validation: required
         - $formkit: textarea
@@ -571,7 +571,7 @@ spec:
               name: above_background
               label: 第一屏背景图
               placeholder: 请填写 第一屏背景图
-              value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
               help: 如果全局背景图设置为图片链接，则此处背景图将不生效
               validation: required
         - $formkit: group
@@ -591,7 +591,7 @@ spec:
               name: above_background
               label: 第一屏背景图
               placeholder: 请填写 第一屏背景图
-              value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
               help: 如果全局背景图设置为图片链接，则此处背景图将不生效
               validation: required
         - $formkit: group
@@ -611,7 +611,7 @@ spec:
               name: above_background
               label: 第一屏背景图
               placeholder: 请填写 第一屏背景图
-              value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
               help: 如果全局背景图设置为图片链接，则此处背景图将不生效
               validation: required
         - $formkit: group
@@ -642,7 +642,7 @@ spec:
               name: above_background
               label: 第一屏背景图
               placeholder: 请填写 第一屏背景图
-              value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
               help: 朋友圈页面的第一屏背景图
               validation: required
         - $formkit: group
@@ -663,7 +663,7 @@ spec:
               name: above_background
               label: 第一屏背景图
               placeholder: 请填写 第一屏背景图
-              value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
               help: 友链页面的第一屏背景图
               validation: required
             - $formkit: radio
@@ -678,7 +678,7 @@ spec:
                   value: false
             - $formkit: radio
               name: footer_content_type
-              label: 底部内容格式
+              label: 申请说明格式
               help: Markdown 会在前端渲染（支持表格、代码块、引用等 GFM 语法）；HTML 则原样输出
               value: markdown
               options:
@@ -688,9 +688,9 @@ spec:
                   value: html
             - $formkit: textarea
               name: footer_content
-              label: 友链底部内容
-              placeholder: 请填写 友链底部内容
-              help: 在友链展示的最下面和评论中间插入的内容，格式跟随上方「底部内容格式」设置
+              label: 友链申请说明
+              placeholder: 请填写申请要求、本站信息或移出友链的记录
+              help: 显示在友链列表与评论之间，支持申请规则、本站信息和移出记录；格式跟随上方「申请说明格式」设置
               rows: 18
               value: |
                 欢迎交换签订契约（友链）（ˊᗜˋ）
@@ -765,7 +765,7 @@ spec:
               name: above_background
               label: 第一屏背景图
               placeholder: 请填写 第一屏背景图
-              value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
               help: 追番页面的第一屏背景图
               validation: required
         - $formkit: group
@@ -1128,7 +1128,7 @@ spec:
           name: artalk_server
           label: Artalk 服务端
           placeholder: "https://artalk.example.com"
-          value: "https://artalk.ning.moe"
+          value: "https://artalk.example.com"
           help: Artalk 后端 API 地址，请填写浏览器能够访问的 HTTPS 地址，末尾不要带 /
           if: "$get(comment_provider).value == 'artalk'"
           validation: required|url
@@ -1136,8 +1136,8 @@ spec:
           key: artalk-site
           name: artalk_site
           label: Artalk 站点名
-          placeholder: "shell-blog"
-          value: "shell-blog"
+          placeholder: "my-site"
+          value: "my-site"
           help: 必须与 Artalk 控制中心中的站点名称完全一致，用于隔离不同站点的评论
           if: "$get(comment_provider).value == 'artalk'"
           validation: required
@@ -1234,9 +1234,7 @@ spec:
           name: preconnect
           label: 预连接 (preconnect)
           help: 每行一个 URL(含 https://),会插入 <link rel="preconnect"> 提前建立 TCP/TLS。建议 2~4 个,过多会适得其反。
-          value: |
-            https://img.ning.moe
-            https://analytic.ning.moe
+          value: ""
           rows: 6
         - $formkit: textarea
           name: dns_prefetch

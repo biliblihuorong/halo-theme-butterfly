@@ -1,6 +1,10 @@
 {
   "name": "halo-theme-butterfly",
-  "version": "2.2.8",
+  "version": "2.2.9",
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "description": "一个由 shell 定制优化的 Butterfly 🦋 主题",
   "scripts": {
     "dev": "gulp watch",
@@ -15,9 +19,11 @@
     "migrate-page-hero": "node scripts/migrate-page-hero.js",
     "subset:fa": "node scripts/subset-fontawesome.mjs",
     "copy-folder": "gulp copy-folder",
-    "build-zip": "npm run clean && npm run subset:fa && gulp && npm run zip",
-    "build": "npm run clean && npm run subset:fa && gulp && gulp js-plugins-loading && gulp js-plugins-artalk && gulp css-plugins-artalk",
-    "release": "gulp release"
+    "build-zip": "npm run build && npm run zip && npm run verify-release",
+    "build": "npm run clean && npm run subset:fa && gulp",
+    "verify-release": "node scripts/verify-release.cjs",
+    "release": "gulp release",
+    "test": "node --test"
   },
   "files": [
     "templates/assets/",
@@ -28,13 +34,13 @@
     "halo-theme",
     "halo-theme-butterfly"
   ],
-  "homepage": "https://git.shell.ac.cn/Shell/halo-theme-butterfly",
+  "homepage": "https://github.com/biliblihuorong/halo-theme-butterfly",
   "bugs": {
-    "url": "https://git.shell.ac.cn/Shell/halo-theme-butterfly/issues"
+    "url": "https://github.com/biliblihuorong/halo-theme-butterfly/issues"
   },
   "author": {
     "name": "shell",
-    "url": "https://github.com/shell"
+    "url": "https://github.com/biliblihuorong"
   },
   "maintainers": [
     {
@@ -49,7 +55,7 @@
   ],
   "license": "GPL-3.0",
   "repository": {
-    "url": "https://git.shell.ac.cn/Shell/halo-theme-butterfly.git",
+    "url": "https://github.com/biliblihuorong/halo-theme-butterfly.git",
     "type": "git"
   },
   "devDependencies": {
@@ -59,6 +65,7 @@
     "@babel/preset-env": "^7.15.6",
     "@babel/runtime": "^7.20.7",
     "@fancyapps/ui": "^5.0.35",
+    "@fortawesome/fontawesome-free": "6.6.0",
     "animate.css": "^4.1.1",
     "babel-loader": "^8.2.3",
     "clipboard": "^2.0.11",

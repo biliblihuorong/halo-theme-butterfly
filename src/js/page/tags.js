@@ -47,21 +47,23 @@ class Tags {
     source = source.length >= 10 ? source.slice(0, 10) : source;
 
     useChart(chartDom, async (echarts) => {
-      const {LineChart, GaugeChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
-      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
+      const {BarChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
+      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent, DatasetComponent, TransformComponent, MarkPointComponent, MarkLineComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
       const {CanvasRenderer} = await import(/* webpackChunkName: "echarts" */ 'echarts/renderers');
       echarts.use([
-        LineChart,
+        BarChart,
         TitleComponent,
         TooltipComponent,
         GridComponent,
         DataZoomComponent,
         CanvasRenderer,
-        GaugeChart,
+        DatasetComponent,
+        TransformComponent,
+        MarkPointComponent,
+        MarkLineComponent,
       ]);
 
       return {
-        color: 'null',
         backgroundColor: '',
         grid: {
           left: '5%', // 调整左边距

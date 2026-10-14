@@ -1,13 +1,10 @@
 <layout
   th:replace="~{views/layout :: layout (
   page = 'links',
-  title = ${site.title} + ' - ' + '链接列表',
+  title = ${site.title + ' - ' + (linksTitle ?: '友情链接')},
   pin = ~{::pin},
   header = ~{::header},
-  main = ~{::main},
-  canonical = null,
-  description = null,
-  ogImage = null
+  main = ~{::main}
   )}"
 >
   <!--/* css */-->
@@ -32,7 +29,7 @@
       <!--第一屏内容-->
       <section class="above" th:if="${(theme.config.page_hero?.links?.enable_above ?: theme.config.index.enable_above) ?: false}">
         <div class="above-info">
-          <h1 class="above-title">链接管理</h1>
+          <h1 class="above-title" th:text="${linksTitle ?: '友情链接'}">友情链接</h1>
         </div>
       </section>
     </header>
@@ -123,8 +120,8 @@
       <th:block
         th:replace="~{views/artalk :: comment(
           ${singlePage != null and singlePage.status != null and not #strings.isEmpty(singlePage.status.permalink) ? singlePage.status.permalink : '/links'},
-          ${singlePage != null and singlePage.spec != null and not #strings.isEmpty(singlePage.spec.title) ? singlePage.spec.title : '链接列表'},
-          ${singlePage != null and singlePage.spec != null ? (singlePage.spec.allowComment ?: true) : true}
+          ${singlePage != null and singlePage.spec != null and not #strings.isEmpty(singlePage.spec.title) ? singlePage.spec.title : (linksTitle ?: '友情链接')},
+          ${(theme.config.comment?.artalk_enable_links ?: true) && (singlePage != null and singlePage.spec != null ? (singlePage.spec.allowComment ?: true) : true)}
         )}"
       />
     </section>

@@ -14,6 +14,8 @@ class Categories {
    * 图表
    */
   run_chart() {
+    const chartDom = document.querySelector('section.content > .chart');
+    if(!chartDom || !Array.isArray(MainApp.data)) return;
 
     const data = [];
 
@@ -24,11 +26,9 @@ class Categories {
       data.push({value: item.postCount, name: item.spec.displayName});
     }
 
-    const chartDom = document.querySelector('section.content > .chart');
-
     useChart(chartDom, async (echarts) => {
       const {PieChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
-      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
+      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent, LegendComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
       const {CanvasRenderer} = await import(/* webpackChunkName: "echarts" */ 'echarts/renderers');
       echarts.use([
         PieChart,
@@ -36,6 +36,7 @@ class Categories {
         TooltipComponent,
         GridComponent,
         DataZoomComponent,
+        LegendComponent,
         CanvasRenderer,
       ]);
 

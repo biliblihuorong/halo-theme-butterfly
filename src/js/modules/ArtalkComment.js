@@ -19,7 +19,7 @@ export default class ArtalkComment {
     const pageKey = cfg.trailingSlash && !rawKey.endsWith('/') ? `${rawKey}/` : rawKey;
     el.dataset.artalkInited = '1';
     try {
-      window.Artalk.init({
+      const artalk = window.Artalk.init({
         el: '#artalk',
         server: cfg.server,
         site: cfg.site,
@@ -29,6 +29,7 @@ export default class ArtalkComment {
         useBackendConf: cfg.useBackendConf,
         darkMode: document.documentElement.dataset.colorScheme === 'dark',
       });
+      MainApp.useTheme.change((mode) => artalk.setDarkMode(mode === 'dark'));
     } catch(err) {
       //初始化失败也不能中断模块注册循环
       el.dataset.artalkInited = '';

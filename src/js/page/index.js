@@ -50,13 +50,13 @@ class Index {
             return useTyped([response]);
           }
 
-          if(typewriter_api_value_format) {
+          if(!typewriter_api_value_format) {
             return useTyped(['随机文案API返回数据格式为JSON，请配置取值格式！']);
           }
 
           //json 情况
-          const text = typewriter_api_value_format.split('.').reduce((o, i) => o[i], response);
-          useTyped([text]);
+          const text = typewriter_api_value_format.split('.').reduce((o, i) => o?.[i], response);
+          useTyped([typeof text === 'string' && text ? text : '随机文案取值失败，请检查取值格式是否正确！']);
         })
         .catch(() => {
           useTyped(['获取随机文案失败，请检查API是否正常！']);

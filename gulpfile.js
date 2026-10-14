@@ -4,9 +4,11 @@ const path = require('path');
 const fs = require('fs');
 const clean = require('gulp-clean');
 const exec = require('child_process').exec;
-const yaml = require('yamljs');
+const runCommand = require('util').promisify(exec);
 const inquirer = require('inquirer');
 const resolve = (name) => path.resolve(__dirname, name);
+const {Transform} = require('stream');
+const {versionFontUrls} = require('./scripts/cache-assets.cjs');
 
 gulp.task('clean', () => {
   return gulp.src([
@@ -123,7 +125,7 @@ gulp.task('js', function() {
     stats: 'errors-only',
     output: {
       filename: '[name].min.js',
-      chunkFilename: '[name].chunk.min.js',
+      chunkFilename: '[name].[contenthash:12].chunk.min.js',
     },
   })
   // .pipe(uglify())
@@ -229,6 +231,8 @@ gulp.task('js-plugins-artalk', function() {
     stats: 'errors-only',
     output: {
       filename: '[name].min.js',
+      library: {name: 'Artalk', type: 'umd'},
+      globalObject: 'globalThis',
     },
   })
     .pipe(gulp.dest(outputRoot))
@@ -272,19 +276,17 @@ gulp.task('html', function() {
   })).pipe(gulp.dest('./templates'));
 });
 
-gulp.task('zip', done => {
-  gulp.src([
+gulp.task('zip', () => {
+  return gulp.src([
     './templates/**/*.*',
     './settings.yaml',
     './annotation-setting.yaml',
     './theme.yaml',
+    './LICENSE',
   ], {base: '.'}).pipe(zip('theme-butterfly-dist.zip')).pipe(gulp.dest('./'));
-  done();
-  console.log(
-    '\x1B[32m打包完成,生产文件在根目录下的 theme-butterfly-dist.zip\x1B[0m');
 });
 
-gulp.task('release', async done => {
+gulp.task('release', async () => {
   const {value} = await inquirer.prompt([
     {
       type: 'list', // 交互类型 -- 单选（无序）
@@ -298,23 +300,11 @@ gulp.task('release', async done => {
     },
   ]);
 
-  await exec(`npm version ${value} --no-git-tag-version`,
-    async (error, stdout, stderr) => {
-      if(error) {
-        console.error(`执行出错: ${error}`);
-        return;
-      }
-      const version = stdout.replace('v', '').replace('\n', '');
-
-      const themeYaml = yaml.load('./theme.yaml');
-
-      themeYaml.spec.version = version;
-
-      await fs.writeFileSync('./theme.yaml',
-        yaml.dump(themeYaml, './theme.yaml'), 'utf8');
-    });
-
-  done();
+  if(!['patch', 'minor', 'major'].includes(value)) throw new Error('Invalid release type');
+  const {stdout} = await runCommand(`npm version ${value} --no-git-tag-version`);
+  const version = stdout.trim().replace(/^v/, '');
+  const themeYaml = fs.readFileSync('./theme.yaml', 'utf8');
+  fs.writeFileSync('./theme.yaml', themeYaml.replace(/^  version: .*$/m, `  version: ${version}`), 'utf8');
 });
 
 // 复制文件夹 font plugins
@@ -330,6 +320,15 @@ gulp.task('copy-folder', function() {
     '!./src/plugins/fontawesome/fonts-source/**',
     '!./src/plugins/fontawesome/fontawesome.full.min.css',
   ], {base: 'src'}) // 设置基本路径为 'src'
+  .pipe(new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if(file.isBuffer() && path.extname(file.path) === '.css') {
+        file.contents = Buffer.from(versionFontUrls(file.contents.toString(), require('./package.json').version));
+      }
+      callback(null, file);
+    },
+  }))
   .pipe(gulp.dest('./templates/assets/'));
 });
 

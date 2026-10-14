@@ -13,7 +13,7 @@ const https = require('https');
 const { URL } = require('url');
 
 function parseArgs() {
-  const args = { server: 'https://artalk.ning.moe' };
+  const args = { server: 'https://artalk.example.com' };
   for (let i = 2; i < process.argv.length; i++) {
     if (process.argv[i] === '--server' && process.argv[i + 1]) {
       args.server = process.argv[i + 1].replace(/\/$/, '');

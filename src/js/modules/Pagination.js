@@ -12,7 +12,7 @@ export default class Pagination {
   #conf = MainApp.conf;
 
   constructor() {
-    if(!MainApp.conf.total) return;
+    if(!MainApp.conf.total || this.#conf.totalPages <= 1) return;
 
     if(this.#conf.page > this.#conf.totalPages) return;
 
@@ -30,20 +30,20 @@ export default class Pagination {
   }
 
   // 获取路径
-  #getPath() {
-    const regex = /.*?(?=\/\d+)\//;
-
-    if(this.#conf.nextUrl.includes('/page/')) return this.#conf.nextUrl.match(regex)?.[0];
-
-    if(this.#conf.prevUrl.includes('/page/')) return this.#conf.prevUrl.match(regex)?.[0];
-
-    return '/';
+  #getPageUrl(page) {
+    const suffix = /\/page\/\d+\/?$/;
+    const candidate = [this.#conf.nextUrl, this.#conf.prevUrl].find((value) => {
+      return typeof value === 'string' && suffix.test(new URL(value, window.location.href).pathname);
+    });
+    const url = new URL(candidate || window.location.href, window.location.href);
+    const base = url.pathname.replace(suffix, '').replace(/\/$/, '');
+    url.pathname = page === 1 ? (base || '/') : `${base}/page/${page}`;
+    return url.pathname + url.search + url.hash;
   }
 
   // 获取页码
   #getPage() {
     const {totalPages, page} = this.#conf;
-    const path = this.#getPath();
     const maxPagesToShow = 5; // 可见的最大页码数
     const halfMaxPagesToShow = Math.floor(maxPagesToShow / 2);
     let startPage, endPage;
@@ -69,7 +69,7 @@ export default class Pagination {
     let html = '';
 
     for (let i = startPage; i <= endPage; i++) {
-      html += `<a class="page${i === page ? ' current' : ''}"  href="${path}${i}">${i}</a>`;
+      html += `<a class="page${i === page ? ' current' : ''}"  href="${this.#getPageUrl(i)}">${i}</a>`;
     }
 
     return html;

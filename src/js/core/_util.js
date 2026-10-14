@@ -168,6 +168,7 @@ export function useDelay(time) {
  * @param register async (echartsCore) => options
  */
 export async function useChart(dom, register) {
+  if(!dom) return;
   // 视口外不加载,等图表滚到附近再动态 import echarts/core
   await new Promise((resolve) => {
     if (typeof IntersectionObserver === 'undefined') return resolve();
@@ -205,7 +206,7 @@ export async function useChart(dom, register) {
   });
 
   window.addEventListener('resize', useThrottle(() => {
-    es.resize();
+    es?.resize();
   }, 500));
 }
 

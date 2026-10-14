@@ -4,15 +4,14 @@
 </p>
 
 <p align="center">
-  <a href="https://blog.ning.moe/">在线预览</a> ·
-  <a href="https://git.shell.ac.cn/Shell/halo-theme-butterfly">主题仓库</a> ·
+  <a href="https://github.com/biliblihuorong/halo-theme-butterfly">主题仓库</a> ·
   <a href="https://butterfly.js.org/">Butterfly 原版文档</a> ·
   <a href="https://docs.halo.run/guide/use/themes">Halo 主题文档</a>
 </p>
 
 ![主题预览](docs/renderings.png)
 
-> 当前文档对应主题 `2.2.7`。本项目基于 [dhjddcn/halo-theme-butterfly](https://github.com/dhjddcn/halo-theme-butterfly) 深度定制，视觉与交互灵感来自 Jerry 的 [Hexo Butterfly](https://github.com/jerryc127/hexo-theme-butterfly)。原版文档中的 Hexo 命令、`_config.yml`、Front-matter 和标签外挂不能直接用于本主题，实际能力以本仓库代码和本文档为准。
+> 当前文档对应主题 `2.2.9`。本项目基于 [dhjddcn/halo-theme-butterfly](https://github.com/dhjddcn/halo-theme-butterfly) 深度定制，视觉与交互灵感来自 Jerry 的 [Hexo Butterfly](https://github.com/jerryc127/hexo-theme-butterfly)。原版文档中的 Hexo 命令、`_config.yml`、Front-matter 和标签外挂不能直接用于本主题，实际能力以本仓库代码和本文档为准。
 
 ## 目录
 
@@ -49,7 +48,7 @@
 | --- | --- |
 | Halo | `theme.yaml` 声明 `>= 2.0.0` |
 | 浏览器 | 支持 `IntersectionObserver`、`ResizeObserver`、CSS 自定义变量的现代浏览器 |
-| 本地开发 | Node.js、npm；构建工具为 Gulp 4 + Webpack 5 + Sass |
+| 本地开发 | Node.js >=22.13、pnpm 11.20.0；构建工具为 Gulp 4 + Webpack 5 + Sass |
 | Steam 页面 | 当前 `halo-plugin-steam` 自身要求 Halo `>= 2.22.1` |
 
 所有插件均为可选项；未安装插件时，不要在菜单中添加相应插件路由。搜索和 Halo 评论入口会在插件不可用时自动隐藏。
@@ -198,11 +197,13 @@ Halo 中的归档、分类和标签路由前缀可在系统设置中修改。主
 | `page_hero.tags` | 标签集合与标签归档页首屏开关和背景 |
 | `page_hero.categories` | 分类集合与分类归档页首屏开关和背景 |
 | `page_hero.friends` | 朋友圈首屏、背景和单栏/双栏布局 |
-| `page_hero.links` | 友链首屏、本站信息卡片、底部 Markdown/HTML 内容 |
+| `page_hero.links` | 友链首屏、本站信息卡片、申请说明及移出记录（Markdown/HTML） |
 | `page_hero.bangumis` | 追番页首屏开关和背景 |
 | `page_hero.post` | 文章首屏开关；背景优先使用文章封面 |
 
 瞬间、图库、Steam 和普通独立页面目前复用首页首屏配置。
+
+友链交换规则、本站信息和移出记录的编辑入口为 **主题设置 → 页面设置 → 友链页 → 友链申请说明**，格式由上方“申请说明格式”选择。原入口名为“友链底部内容”，保存字段仍是 `page_hero.links.footer_content`，已有内容会继续使用。这个入口属于主题，链接管理插件负责维护友链条目；页面标题会跟随插件设置中的“页面标题”，插件未提供标题时使用“友情链接”。升级后若看不到这些设置，请在主题详情页的 `···` 菜单执行“重载主题配置”。
 
 ### 正文与代码块 `render`
 
@@ -271,7 +272,7 @@ Halo 中的归档、分类和标签路由前缀可在系统设置中修改。主
 ```text
 fa-solid fa-house
 fa-brands fa-github
-fa-duotone fa-images
+fa-solid fa-images
 ```
 
 主题最多渲染两级菜单。三级及更深层级不会出现在当前导航结构中。
@@ -302,6 +303,8 @@ fa-duotone fa-images
 - 朋友圈：当前模板只集成 Artalk。
 - 瞬间、图库、Steam、追番：当前主题模板未放置评论区域。
 
+本次完整修复和升级步骤见 [v2.2.9 发布说明](docs/releases/v2.2.9.md)。发行包同时附带 ZIP SHA-256 与逐文件 manifest，版本号、提交和资源可互相核对。
+
 ## 升级与配置迁移
 
 1. 升级前备份 Halo 数据库和主题配置。
@@ -309,16 +312,16 @@ fa-duotone fa-images
 3. 检查新增设置的默认值、静态资源来源和浏览器缓存。
 4. 逐页检查首页、文章、归档、分类、标签及已安装插件页面。
 
-旧版本曾把 `archives`、`tags`、`categories`、`friends`、`links` 作为顶层配置组；现在统一在 `page_hero` 下。仓库提供幂等迁移脚本：
+旧版本曾把 `post`、`archives`、`tags`、`categories`、`friends`、`links`、`bangumis` 作为顶层配置组；现在统一在 `page_hero` 下，旧 `card` 样式迁入 `style`。迁移支持部分已迁移的配置、保留已有新值，并兼容分组 JSON 与旧 `data.default`：
 
 ```bash
-npm run migrate-page-hero -- theme-butterfly-setting.backup.yaml -o migrated.yaml
+npm run migrate-page-hero -- theme-butterfly-configMap.backup.yaml -o migrated.yaml
 ```
 
 原地修改备份文件：
 
 ```bash
-npm run migrate-page-hero -- theme-butterfly-setting.backup.yaml --in-place
+npm run migrate-page-hero -- theme-butterfly-configMap.backup.yaml --in-place
 ```
 
 先对备份执行并检查输出，再把迁移后的 ConfigMap 导入实际环境。
@@ -335,7 +338,7 @@ halo-theme-butterfly/
 ├─ src/scss/                核心、组件和页面样式
 ├─ src/js/                  核心逻辑、模块和页面入口
 ├─ src/plugins/             Prism、Artalk、Font Awesome、Loading 等资源
-│  └─ fontawesome/fonts-source/  Font Awesome 全量字体（子集化输入，不进入构建产物）
+│  └─ fontawesome/            子集化产物（webfonts/CSS），全量字体由 npm 依赖提供
 ├─ templates/               构建产物；被 Git 忽略
 ├─ theme.yaml               主题元信息与自定义模板
 ├─ settings.yaml            Console 主题设置表单
@@ -347,7 +350,7 @@ halo-theme-butterfly/
 ### 常用命令
 
 ```bash
-npm install
+pnpm install --frozen-lockfile
 
 # 监听 HTML/SCSS/JS 源码变化
 npm run dev
@@ -371,7 +374,7 @@ npm run build-js
 
 ### Font Awesome 图标子集化
 
-主题内置 Font Awesome Pro 6.1.0，但通过子集化只分发实际用到的图标：字体从约 957KiB 压缩到 9KiB 左右，CSS 从 93KiB 精简到 23KiB。`npm run build` / `build-zip` 会自动执行子集化，无需手动关注。
+主题使用 Font Awesome Free 6.6.0（npm 包 `@fortawesome/fontawesome-free`，字体 SIL OFL 1.1 / 图标 CC BY 4.0 / 代码 MIT），通过子集化只分发实际用到的图标：solid 字体从约 154KiB 压缩到 4KiB 左右，CSS 精简到约 11KiB。仓库只保留 Free 子集字体，不提交 FA 全量字体二进制（Pro 许可不允许再分发，Free 全量资源随 npm 安装）。`npm run build` / `build-zip` 会自动执行子集化，无需手动关注。
 
 生效的图标 = 自动扫描（`src/html`、`src/js`、`settings.yaml` 中出现的图标类）+ 白名单（`scripts/fontawesome-whitelist.txt`）。新增图标分两种情况：
 
@@ -383,7 +386,7 @@ npm run build-js
 npm run subset:fa
 ```
 
-注意：白名单里写的图标必须存在于 FA 6.1.0（`fa-x-twitter` 是 6.4 才加入的，`fa-netease-cloud-music` 不在 FA 图标集内，写了会被脚本告警并忽略）。全量原始字体保存在 `src/plugins/fontawesome/fonts-source/`，仅作为子集化输入，不会进入构建产物。
+注意：白名单里写的图标必须存在于 Font Awesome Free（`fa-x-twitter` 在 6.4.2+ 可用；`fa-netease-cloud-music` 不在 FA 图标集内，写了会被脚本告警并忽略）。Pro 专属样式（light/thin/duotone/sharp）不可用，请统一按 `fa-solid` 使用。全量字体与完整 CSS 由 npm 依赖提供，升级 FA 版本前请先确认子集化脚本兼容新版的 CSS 格式。
 
 ### 依赖说明
 
@@ -435,12 +438,10 @@ npm run subset:fa
 ## 已知边界
 
 - 当前界面文案和 `<html lang>` 固定为简体中文，仓库没有 i18n 资源。
-- 首页随机文案对纯文本响应最稳定；`index.typewriter_api_value_format` 的 JSON 路径逻辑在当前前端实现中尚不可靠。
-- 设置中存在 `comment.artalk_enable_links`，但当前 `links.html` 尚未读取该开关；选择 Artalk 后，直接访问 `/links` 仍会渲染评论。
-- `aside.enable` 会关闭通用侧边栏，但 `post.html` 当前仍直接插入文章目录侧栏，尚未完全服从全局开关。
+- 首页随机文案对纯文本响应最稳定；JSON 响应需正确配置 `index.typewriter_api_value_format` 取值路径，取值失败时前端会显示提示文案。
 - 普通页面、瞬间、图库和 Steam 没有独立首屏设置，当前复用首页配置。
 - 原版 Hexo Butterfly 的标签外挂、数学、播放器、聊天、各类第三方评论等功能不会自动出现在本 Halo 移植版中。
-- 主题未提供 `author.html`，也没有自动化测试套件；发布前的最低验证是完整构建并人工检查主要页面。
+- 主题未提供 `author.html`。测试已覆盖评论/主题同步、存储、目录、分页、脚注、配置迁移、高亮失败及图表；发布仍需完整构建与浏览器回归。
 
 ## 许可证与致谢
 

@@ -5,8 +5,7 @@
  *      同时把 CSS 精简为仅保留用到的图标规则,并把 @font-face 改为 woff2 单一来源。
  *
  * 输入:
- *   src/plugins/fontawesome/fonts-source/       全量原始字体(ttf/woff2,不进入构建产物)
- *   src/plugins/fontawesome/fontawesome.full.min.css  原始完整 CSS
+ *   node_modules/@fortawesome/fontawesome-free/  全量原始字体与完整 CSS(Font Awesome Free,勿直接提交二进制)
  *   scripts/fontawesome-whitelist.txt           人工白名单(供后台可配置图标/未来新增)
  *   src/html、src/js、settings.yaml             自动扫描模板与脚本中的图标
  *
@@ -15,31 +14,36 @@
  *   src/plugins/fontawesome/fontawesome.min.css 精简 CSS
  *
  * 用法:pnpm subset:fa(已接入 npm run build,日常无需单独执行)
+ *
+ * 注意:脚本依赖 all.min.css 的 `content:"\...` 码点格式(6.6.x 及更早),
+ *      6.7.0+ 改为 --fa 自定义属性格式会导致解析为空,升级 FA 前请先验证。
  */
-import { readFile, writeFile, readdir } from 'node:fs/promises';
+import { readFile, writeFile, readdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import subsetFont from 'subset-font';
 
 const THEME_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FA_DIR = path.join(THEME_ROOT, 'src/plugins/fontawesome');
-const FONT_SOURCE = path.join(FA_DIR, 'fonts-source');
+const FA_PKG = path.dirname(createRequire(import.meta.url).resolve('@fortawesome/fontawesome-free/package.json'));
+const FONT_SOURCE = path.join(FA_PKG, 'webfonts');
+const FULL_CSS = path.join(FA_PKG, 'css', 'all.min.css');
 const FONT_OUT = path.join(FA_DIR, 'webfonts');
 
-// 样式族 class → 字体文件名(woff2/ttf 同名)
+// 样式族 class → 字体文件名(woff2/ttf 同名)。Free 版仅含 solid/regular/brands 三族。
 const FAMILY_FILES = {
   solid: 'fa-solid-900',
   regular: 'fa-regular-400',
-  light: 'fa-light-300',
-  thin: 'fa-thin-100',
-  duotone: 'fa-duotone-900',
   brands: 'fa-brands-400',
 };
+// Pro 专属样式(light/thin/duotone/sharp)统一按 solid 处理,
+// 保证旧配置/文档里残留的这类写法仍能命中 solid 子集。
 const FAMILY_ALIASES = {
-  fas: 'solid', far: 'regular', fal: 'light', fat: 'thin', fad: 'duotone', fab: 'brands',
-  'fa-solid': 'solid', 'fa-regular': 'regular', 'fa-light': 'light',
-  'fa-thin': 'thin', 'fa-duotone': 'duotone', 'fa-brands': 'brands',
+  fas: 'solid', far: 'regular', fal: 'solid', fat: 'solid', fad: 'solid', fab: 'brands',
+  'fa-solid': 'solid', 'fa-regular': 'regular', 'fa-light': 'solid',
+  'fa-thin': 'solid', 'fa-duotone': 'solid', 'fa-brands': 'brands',
 };
 
 /** 递归收集目录下指定后缀的文件 */
@@ -105,7 +109,9 @@ async function parseWhitelist() {
  * - 结构性规则(族声明、尺寸、动画等)全保留
  */
 async function buildCss(keepPairs, allFamilyNames) {
-  let css = await readFile(path.join(FA_DIR, 'fontawesome.full.min.css'), 'utf8');
+  let css = await readFile(FULL_CSS, 'utf8');
+  // npm 包内 @font-face 相对路径是 ../webfonts/,主题内 CSS 与字体同目录,统一改写
+  css = css.replace(/\.\.\/webfonts\//g, 'webfonts/');
   const atBlocks = [];
   css = css.replace(/@(?:-webkit-)?(?:keyframes|media)[^{]*\{(?:[^{}]*\{[^}]*\})*[^{}]*\}/g, (m) => { atBlocks.push(m); return ''; });
 
@@ -157,7 +163,7 @@ async function main() {
   const unknown = [...new Set([...keepPairs].map((p) => p.split(':')[1]))].filter((n) => !known.has(n));
   if (unknown.length) console.warn(`      ⚠ 未在 Font Awesome 中找到: ${unknown.join(', ')}(请检查拼写或从白名单移除)`);
 
-  // @font-face 只保留 woff2 来源,且仅保留实际有图标的族
+  // @font-face 只保留 woff2 来源(woff2 在前、ttf 在后),且仅保留实际有图标的族
   const usedFamilies = new Set([...keepPairs].map((p) => p.split(':')[0]));
   let finalCss = css;
   for (const [family, file] of Object.entries(FAMILY_FILES)) {
@@ -166,8 +172,8 @@ async function main() {
       continue;
     }
     finalCss = finalCss.replace(
-      new RegExp(`(@font-face\\{[^}]*?)url\\(webfonts/${file}\\.ttf\\) format\\("truetype"\\),?`, 'g'),
-      '$1',
+      new RegExp(`,?url\\(webfonts/${file}\\.ttf\\) format\\("truetype"\\)`, 'g'),
+      '',
     );
   }
   // v4 兼容字体未使用,移除其 @font-face
@@ -177,6 +183,13 @@ async function main() {
   console.log(`      fontawesome.min.css: 生成 ${(finalCss.length / 1024).toFixed(1)}KiB`);
 
   console.log('[4/4] 生成子集字体 ...');
+  // 清理历史构建遗留、不属于当前字体族的产物(如迁移前生成的 Pro 族子集)
+  for (const entry of await readdir(FONT_OUT)) {
+    if (entry.endsWith('.woff2') && !Object.values(FAMILY_FILES).includes(entry.replace(/\.woff2$/, ''))) {
+      await rm(path.join(FONT_OUT, entry));
+      console.log(`      ${entry} 已移除(非当前字体族产物)`);
+    }
+  }
   for (const [family, file] of Object.entries(FAMILY_FILES)) {
     const familyNames = [...keepPairs].filter((p) => p.startsWith(`${family}:`)).map((p) => p.split(':')[1]);
     const src = path.join(FONT_SOURCE, `${file}.woff2`);

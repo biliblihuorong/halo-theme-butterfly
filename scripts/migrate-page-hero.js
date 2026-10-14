@@ -28,7 +28,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const OLD_KEYS = ['archives', 'tags', 'categories', 'friends', 'links'];
+const OLD_KEYS = ['archives', 'tags', 'categories', 'friends', 'links', 'bangumis', 'post'];
 
 function parseArgs() {
   const args = {
@@ -64,32 +64,76 @@ function isPlainObject(v) {
   return v && typeof v === 'object' && !Array.isArray(v);
 }
 
+function fillMissing(current, legacy) {
+  const result = {...legacy, ...current};
+  for (const key of Object.keys(legacy)) {
+    if (isPlainObject(current[key]) && isPlainObject(legacy[key])) {
+      result[key] = fillMissing(current[key], legacy[key]);
+    }
+  }
+  return result;
+}
+
 function migrateConfig(defaultObj) {
   if (!isPlainObject(defaultObj)) {
     return { config: defaultObj, movedKeys: [], skipped: true };
   }
 
-  // 已经在新结构:什么都不做
-  if (isPlainObject(defaultObj.page_hero)) {
-    return { config: defaultObj, movedKeys: [], skipped: true };
-  }
-
+  const config = {...defaultObj};
   const movedKeys = [];
-  const pageHero = {};
+  if (config.page_hero != null && !isPlainObject(config.page_hero)) {
+    throw new Error('page_hero 必须是对象，未覆盖原配置。');
+  }
+  const pageHero = {...config.page_hero};
 
   for (const key of OLD_KEYS) {
     if (isPlainObject(defaultObj[key])) {
-      pageHero[key] = defaultObj[key];
-      delete defaultObj[key];
+      if (pageHero[key] != null && !isPlainObject(pageHero[key])) {
+        throw new Error(`page_hero.${key} 必须是对象，未覆盖原配置。`);
+      }
+      pageHero[key] = fillMissing(pageHero[key] || {}, defaultObj[key]);
+      delete config[key];
       movedKeys.push(key);
     }
   }
 
   if (movedKeys.length > 0) {
-    defaultObj.page_hero = pageHero;
+    config.page_hero = pageHero;
   }
 
-  return { config: defaultObj, movedKeys, skipped: false };
+  if (isPlainObject(config.card)) {
+    if (config.style != null && !isPlainObject(config.style)) {
+      throw new Error('style 必须是对象，未覆盖原配置。');
+    }
+    config.style = fillMissing(config.style || {}, config.card);
+    delete config.card;
+    movedKeys.push('card');
+  }
+  return {config, movedKeys, skipped: movedKeys.length === 0};
+}
+
+function migrateDocument(doc) {
+  if (!doc || doc.kind !== 'ConfigMap' || !isPlainObject(doc.data)) {
+    throw new Error('输入必须是包含 data 的主题 ConfigMap。');
+  }
+  const data = {...doc.data};
+  if (typeof data.default === 'string') {
+    const result = migrateConfig(JSON.parse(data.default));
+    data.default = JSON.stringify(result.config);
+    return {doc: {...doc, data}, movedKeys: result.movedKeys};
+  }
+  // Halo 按配置组保存 JSON；同时兼容旧版 data.default 的单 JSON 结构。
+  const affected = [...OLD_KEYS, 'page_hero', 'card', 'style'];
+  const groups = {};
+  for (const key of affected) {
+    if (Object.hasOwn(data, key)) groups[key] = JSON.parse(data[key]);
+  }
+  const result = migrateConfig(groups);
+  for (const key of affected) {
+    if (Object.hasOwn(result.config, key)) data[key] = JSON.stringify(result.config[key]);
+    else delete data[key];
+  }
+  return {doc: {...doc, data}, movedKeys: result.movedKeys};
 }
 
 function main() {
@@ -106,58 +150,29 @@ function main() {
   const inputPath = path.resolve(args.input);
   const raw = fs.readFileSync(inputPath, 'utf8');
   const yaml = loadYamdok();
-  const doc = yaml.parse(raw);
-
-  if (!doc || doc.kind !== 'ConfigMap') {
-    console.error(`警告:输入文件 kind 是 ${doc?.kind ?? '?'} 而非 ConfigMap,继续尝试处理 data.default 字段。`);
-  }
-
-  const data = doc?.data;
-  if (!data || typeof data.default !== 'string') {
-    console.error('未找到 data.default JSON 字段,无需迁移。');
-    process.exit(0);
-  }
-
-  let defaultObj;
-  try {
-    defaultObj = JSON.parse(data.default);
-  } catch (e) {
-    console.error(`data.default 解析失败:${e.message}`);
-    process.exit(1);
-  }
-
-  const { config, movedKeys, skipped } = migrateConfig(defaultObj);
-
-  if (skipped) {
-    console.log('未发现旧字段(page_hero 已存在或无 archives/tags/categories/friends/links 顶层键),无需迁移。');
-    process.exit(0);
-  }
-  if (movedKeys.length === 0) {
-    console.log('未发现需要迁移的字段。');
-    process.exit(0);
-  }
-
-  doc.data.default = JSON.stringify(config);
-
+  const {doc, movedKeys} = migrateDocument(yaml.parse(raw));
   const out = yaml.dump(doc, 4, 2);
 
   if (args.inPlace) {
     fs.writeFileSync(inputPath, out, 'utf8');
-    console.log(`已就地更新 ${inputPath}`);
+    console.error(`已就地更新 ${inputPath}`);
   } else if (args.output) {
     const outPath = path.resolve(args.output);
     fs.writeFileSync(outPath, out, 'utf8');
-    console.log(`已写入 ${outPath}`);
+    console.error(`已写入 ${outPath}`);
   } else {
     process.stdout.write(out);
   }
 
-  console.error(`已迁移分组:${movedKeys.join(', ')}`);
+  console.error(movedKeys.length ? `已迁移分组:${movedKeys.join(', ')}` : '无需迁移，输出仍为完整 ConfigMap。');
 }
 
-try {
-  main();
-} catch (e) {
-  console.error(e.message);
-  process.exit(1);
+module.exports = {migrateConfig, migrateDocument};
+if (require.main === module) {
+  try {
+    main();
+  } catch (e) {
+    console.error(e.message);
+    process.exitCode = 1;
+  }
 }

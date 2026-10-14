@@ -10,8 +10,11 @@
 # 场景:在后台"主题设置"里新增了社交图标、或改了可配置的图标项之后,
 #       把新图标名加进来,然后运行 pnpm subset:fa 重新生成,再重新构建主题。
 #
-# 注意:本主题内置 Font Awesome Pro 6.1.0。fa-x-twitter(6.4+)与
-#       fa-netease-cloud-music(不在 FA 图标集内)在该版本中不存在,勿添加。
+# 注意:本主题使用 Font Awesome Free 6.6.0(npm 包 @fortawesome/fontawesome-free,
+#       字体 SIL OFL 1.1 / 图标 CC BY 4.0,随 npm 安装,仓库不放字体二进制)。
+#       fa-x-twitter(6.4.2+)可用;fa-netease-cloud-music 不在 FA 图标集内,勿添加。
+#       Pro 专属样式(light/thin/duotone/sharp)不可用:fa-list-tree 已用 fa-list-ul 替代,
+#       其余按 fa-solid 使用;子集化脚本会把 light/thin/duotone 统一按 solid 处理。
 
 # ---- 模板/JS 当前在用(由扫描自动覆盖,此处留档便于查阅) ----
 fa-solid fa-adjust
@@ -31,21 +34,19 @@ fa-solid fa-history
 fa-solid fa-inbox
 fa-solid fa-layer-group
 fa-solid fa-list-ol
-fa-solid fa-list-tree
+fa-solid fa-list-ul
 fa-solid fa-play
 fa-solid fa-search
 fa-solid fa-star
 fa-solid fa-th-large
 fa-solid fa-thumbs-up
-fa-solid fa-up
 fa-regular fa-calendar-alt
 fa-regular fa-clock
 fa-regular fa-eye
-fa-duotone fa-bullhorn
-fa-duotone fa-chart-simple
-fa-duotone fa-layer-group
-fa-duotone fa-loader
-fa-duotone fa-tags
+fa-solid fa-bullhorn
+fa-solid fa-chart-simple
+fa-solid fa-layer-group
+fa-solid fa-tags
 fa-brands fa-github
 
 # ---- 常用社交图标预留(按需增删) ----
@@ -72,3 +73,8 @@ fa-solid fa-pen
 fa-solid fa-book
 fa-solid fa-moon
 fa-solid fa-sun
+
+# ---- SCSS 裸码点图标(扫描器扫不到,需手动保留) ----
+fa-solid fa-code
+fa-solid fa-heading
+fa-solid fa-snowflake

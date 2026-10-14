@@ -6,7 +6,7 @@
      loading_enabled = ${theme.config.loading.type != null and theme.config.loading.type != 'null'},
      loading_timeout = ${theme.config.loading.timeout ?: 3000}
   "
-  th:fragment="layout (page,title,pin,header,main,canonical,description,ogImage)"
+  th:fragment="layout (page,title,pin,header,main)"
 >
   <!DOCTYPE html>
   <html lang="zh-CN" data-color-scheme="light">
@@ -14,32 +14,18 @@
     <meta charset="UTF-8"/>
     <title th:text="${title}"></title>
     <!--/* Halo 的受限 SpEL 禁止 T(java.lang.System)；&#10; 会在模板解析阶段解码为真实换行符，用于按行拆分。 */-->
-    <th:block th:each="line : ${#strings.listSplit(theme.config.performance.preconnect, '&#10;')}">
+    <th:block th:each="line : ${#strings.listSplit(theme.config.performance?.preconnect, '&#10;')}">
       <link th:if="${not #strings.isEmpty(#strings.trim(line))}" rel="preconnect" th:href="${#strings.trim(line)}" crossorigin />
     </th:block>
-    <th:block th:each="line : ${#strings.listSplit(theme.config.performance.dns_prefetch, '&#10;')}">
-      <link th:if="${not #strings.isEmpty(#strings.trim(line))}" rel="dns-prefetch" th:href="${#strings.trim(line)}" />
+    <th:block th:each="line : ${#strings.listSplit(theme.config.performance?.dns_prefetch, '&#10;')}">
+      <link th:if="${not #strings.isEmpty(#strings.trim(line))}" rel="dns-prefetch" th:href="${#strings.startsWith(#strings.trim(line), '//') or #strings.contains(#strings.trim(line), '://') ? #strings.trim(line) : '//' + #strings.trim(line)}" />
     </th:block>
     <link rel="stylesheet" th:href="|${assets_link}css/index.min.css?v=${theme.spec.version}|" media="all">
     <!--/* TemplateHeadProcessor 会自动处理标准 head；halo:head 会让浏览器提前结束 head。 */-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
-    <meta name="author" th:content="${contributor != null ? contributor.displayName : site.title}">
     <meta name="site" th:content="${site.url}">
-    <meta name="description" th:content="${description != null ? description : site.subtitle}"/>
-    <meta property="og:keywords" th:content="${site.seo.keywords}">
-    <meta property="og:description" th:content="${description != null ? description : site.subtitle}">
-    <meta property="og:site_name" th:content="${site.title}">
-    <meta property="og:url" th:content="${canonical != null ? canonical : site.url}">
-    <meta property="og:title" th:content="${title}">
-    <meta property="og:locale" content="zh_CN">
-    <meta property="og:type" th:content="${page}" th:value="${page}">
-    <meta property="og:image" th:if="${ogImage != null}" th:content="${ogImage}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" th:content="${title}">
-    <meta name="twitter:description" th:content="${description != null ? description : site.subtitle}">
-    <meta name="twitter:image" th:if="${ogImage != null}" th:content="${ogImage}">
-    <link rel="canonical" th:href="${canonical != null ? canonical : site.url}">
+    <!--/* canonical、Open Graph、Twitter Card 和描述统一由 Halo 的 HeadProcessor 注入。 */-->
     <th:block th:replace="~{views/config}"/>
     <th:block th:replace="${pin}"/>
     <!--/* index 页的 page css 与上方 index.min.css 相同，跳过避免重复声明 */-->
@@ -73,7 +59,7 @@
     <th:block th:replace="~{views/components::side}"/>
   </div>
 
-  <!--/* common.min.js 为各页面共享依赖（jQuery 等）的公共 chunk，须在页面脚本之前加载 */-->
+  <!--/* common.min.js 为各页面共享依赖，须在页面脚本之前加载 */-->
   <script defer th:src="${assets_link + 'js/common.min.js?v=' + theme.spec.version }"></script>
   <script defer th:src="${assets_link + 'js/' + (page ?: 'index') + '.min.js?v=' + theme.spec.version }"></script>
   </body>

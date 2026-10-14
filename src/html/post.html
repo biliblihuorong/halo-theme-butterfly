@@ -5,10 +5,7 @@
   title = ${post.spec.title},
   pin = ~{::pin},
   header = ~{::header},
-  main = ~{::main},
-  canonical = ${post.status.permalink},
-  description = ${post.spec.excerpt?.raw},
-  ogImage = ${post.spec.cover}
+  main = ~{::main}
   )}"
 >
   <!--/* pin */-->
@@ -29,23 +26,9 @@
         comment: {
           provider: /*[[${theme.config.comment?.provider ?: 'none'}]]*/ 'none',
         },
-        // 渲染
-        enable_h_icon: /*[[${theme.config.render.enable_h_icon}]]*/ true,
-        // 代码块
-        enable_code: /*[[${theme.config.render.enable_code}]]*/ true,
-        enable_code_copy: /*[[${theme.config.render.enable_code_copy}]]*/ true,
-        enable_code_expander: /*[[${theme.config.render.enable_code_expander}]]*/ true,
-        enable_code_title: /*[[${theme.config.render.enable_code_title}]]*/ true,
-        enable_code_hr: /*[[${theme.config.render.enable_code_hr}]]*/ true,
-        enable_code_line: /*[[${theme.config.render.enable_code_line}]]*/ true,
-        code_theme_light: /*[[${theme.config.render.code_theme_light}]]*/ '',
-        code_theme_dark: /*[[${theme.config.render.code_theme_dark}]]*/ '',
-      });
-      // 文章页面 自定义元数据
-      Object.assign(window.MainApp.attrs, {
-        enable_code_copy: /*[[${#annotations.getOrDefault(post, 'enable_code_copy','true')}]]*/ true,
       });
     </script>
+    <th:block th:replace="~{views/render-config :: config(${post})}"/>
     <script type="application/ld+json" th:inline="javascript">
       {
         "@context": "https://schema.org",
@@ -91,7 +74,7 @@
                 </span>
             </span>
               <span class="wp tag" th:if="${not #lists.isEmpty(post.tags)}">
-               <i class="fa-duotone fa-tags"></i>
+               <i class="fa-solid fa-tags"></i>
                 <span class="cys">
                   <th:block th:each="cy : ${post.tags}">
                     <a class="lk" th:href="${cy.status.permalink}" th:text="${cy.spec.displayName}"></a>
@@ -137,6 +120,7 @@
   <!--/* 內容 */-->
   <th:block th:fragment="main">
     <section class="content card">
+      <h1 class="content-title" th:unless="${(theme.config.page_hero?.post?.enable_above ?: theme.config.index.enable_above) ?: false}" th:text="${post.spec.title}"></h1>
       <article class="render" th:utext="${post.content.content}"></article>
 
       <div class="copy-right">

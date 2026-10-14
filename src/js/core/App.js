@@ -21,14 +21,22 @@ export default function App(modules = []) {
       useTheme: new Theme(), //主题
       useCommon: new Common(), // 公用逻辑
       useScroll: new Scroll(), //滚动导航侧边
-      useMessage: new Message(), //滚动导航侧边
+      useMessage: new Message(), //消息提示
     });
 
     const ins = new target();
 
     const fns = Reflect.ownKeys(target.prototype);
 
-    for (let i = 0; i < fns.length; i++) fns[i].startsWith('run_') && ins[fns[i]]();
+    // 单个 run_* 异常只记录自身,不中断后续初始化与模块注册
+    for (let i = 0; i < fns.length; i++) {
+      if(!fns[i].startsWith('run_')) continue;
+      try {
+        ins[fns[i]]();
+      } catch(e) {
+        console.error(`[${target.name}] ${fns[i]}() 执行失败:`, e);
+      }
+    }
 
     for (let i = 0; i < modules.length; i++) {
       const mods = new modules[i]();

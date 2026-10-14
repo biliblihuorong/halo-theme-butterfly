@@ -40,6 +40,13 @@
     align-self: flex-start;
     padding: 1.5rem;
 
+    > .content-title {
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
     @include util.useResponsive($width: util.$w-md) {
       padding: 1.2rem .8rem;
     }
