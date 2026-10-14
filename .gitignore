@@ -34,4 +34,3 @@ templates
 .claude/
 .reasonix/
 .release-checks/
-pnpm-workspace.yaml
