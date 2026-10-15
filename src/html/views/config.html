@@ -8,6 +8,8 @@
       enable_aside: /*[[${theme.config.aside.enable}]]*/ true,
       enable_webInfo: /*[[${theme.config.aside.enable_webInfo}]]*/ true,
       assets_link: /*[[${assets_link}]]*/ true,
+      // routes 自 Halo 2.22 提供；序列化公开站点模型，避免旧版访问不存在的属性。
+      site: /*[[${site}]]*/ {},
       umami: {
         enable: /*[[${theme.config.umami?.enable}]]*/ false,
         url: /*[[${theme.config.umami?.enable ? theme.config.umami?.url : null}]]*/ '',
