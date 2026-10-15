@@ -1,5 +1,6 @@
 <!--/* 基础配置 */-->
-<script id="baseScript" th:inline="javascript">
+<!--/* data-cfasync：首屏配置脚本不能被 Cloudflare Rocket Loader 推迟执行，否则配色和预加载都会失效 */-->
+<script id="baseScript" th:inline="javascript" data-cfasync="false">
   window.MainApp = {
     conf: {
       style_mode: /*[[${theme.config.style.mode}]]*/ null,
@@ -13,9 +14,57 @@
         shareId: /*[[${theme.config.umami?.enable ? theme.config.umami?.share_id : null}]]*/ '',
         cacheMinutes: /*[[${theme.config.umami?.cache_minutes}]]*/ 30,
       },
+      img_err: /*[[${theme.config.loading.img?.err}]]*/ '',
+      random_link: /*[[${theme.config.loading.img?.random_enable ? theme.config.loading.img?.random_link : null}]]*/ '',
+      preview: {
+        enable: /*[[${theme.config.performance?.preview_enable ?: false}]]*/ false,
+        mode: /*[[${theme.config.performance?.preview_mode ?: 'query'}]]*/ 'query',
+        query: /*[[${theme.config.performance?.preview_query}]]*/ '',
+        path_from: /*[[${theme.config.performance?.preview_path_from}]]*/ '',
+        path_to: /*[[${theme.config.performance?.preview_path_to}]]*/ '',
+        suffix: /*[[${theme.config.performance?.preview_suffix}]]*/ '',
+        hosts: /*[[${theme.config.performance?.preview_hosts}]]*/ '',
+      },
     },
     attrs: {},
     modules: {},
+  };
+  // 预览图地址：按主题设置把原图地址转换为图床生成的预览图地址，不适用时返回原地址。
+  window.MainApp.usePreview = function (src) {
+    var rule = window.MainApp.conf.preview || {};
+    if(!rule.enable || !src || /^(data|blob):/i.test(src)) return src;
+    var url;
+    try {
+      url = new URL(src, location.href);
+    } catch (_) {
+      return src;
+    }
+    var hosts = String(rule.hosts || '').split(/[\s,]+/).map(function (host) {
+      return host.replace(/^[a-z]+:\/\//i, '').replace(/\/.*$/, '').toLowerCase();
+    }).filter(Boolean);
+    if(hosts.length ? hosts.indexOf(url.host.toLowerCase()) < 0 : url.host !== location.host) return src;
+    if(rule.mode === 'query' && rule.query) {
+      var query = String(rule.query).replace(/^[?&]+/, '');
+      url.search = url.search ? url.search + '&' + query : query;
+    } else if(rule.mode === 'path' && rule.path_from && url.pathname.indexOf(rule.path_from) === 0) {
+      url.pathname = (rule.path_to || '/') + url.pathname.slice(rule.path_from.length);
+    } else if(rule.mode === 'suffix' && rule.suffix && /[^/]$/.test(url.pathname)) {
+      url.pathname = url.pathname.replace(/(\.[^./]+)?$/, rule.suffix + '$1');
+    } else {
+      return src;
+    }
+    return url.href;
+  };
+  // 正文图片：解析到正文后立即把 src 换成预览图并记录原图，正文图片已由模板设为懒加载，此时尚未开始请求。
+  window.MainApp.usePreviewImages = function (root) {
+    if(!root) return;
+    Array.prototype.forEach.call(root.querySelectorAll('img[src]:not([srcset])'), function (img) {
+      var origin = img.getAttribute('src');
+      var preview = window.MainApp.usePreview(origin);
+      if(preview === origin) return;
+      img.setAttribute('data-origin', origin);
+      img.setAttribute('src', preview);
+    });
   };
   // 首屏前按与 core/theme.js 相同的规则确定配色，避免先按默认浅色绘制再闪烁切换。
   (function () {
@@ -75,7 +124,8 @@
     --nav-dropdown-hover-font-color: /*[(${theme.config.nav.dropdown_hover_font_color.dark})]*/ transparent;
   }
 
-  body.loading {
+  /* 只在遮罩真正显示时锁定滚动；页面 300ms 内就绪时遮罩不会出现 */
+  body.loading:has(> .loading-container) {
     overflow: hidden;
   }
 
@@ -84,6 +134,13 @@
     inset: 0;
     z-index: 100000;
     background: var(--body-background);
+    opacity: 0;
+    visibility: hidden;
+    animation: butterfly-loading-in 0.2s ease 0.3s forwards;
+  }
+
+  @keyframes butterfly-loading-in {
+    to { opacity: 1; visibility: visible; }
   }
 
   body:not(.loading) > .loading-container {
@@ -93,6 +150,6 @@
 <!--/* 预加载每页必用的 ASCII/标点切片；CJK 切片由 unicode-range 按需加载 */-->
 <link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" th:if="${theme.config.style.font_family == 'CircularBody'}" th:href="${assets_link + 'font/CircularBody/CircularBody.00.woff2?v=' + theme.spec.version}">
 <link rel="preload stylesheet" as="style" th:if="${theme.config.style.font_family != 'null'}" th:href="${assets_link + 'font/' + theme.config.style.font_family + '.min.css?v=' + theme.spec.version}">
-<!--/* FontAwesome CSS 体积较大（~488KB），异步加载避免阻塞首屏渲染；页面由 loading 遮罩兜底，图标会稍后出现 */-->
+<!--/* FontAwesome CSS 异步加载，避免阻塞首屏渲染；图标会在样式加载后出现 */-->
 <link rel="stylesheet" th:href="${assets_link + 'plugins/fontawesome/fontawesome.min.css?v=' + theme.spec.version}" media="print" onload="this.media='all'">
 <link rel="preload stylesheet" as="style" th:href="${assets_link + 'plugins/cursor/' + 'simple' + '.min.css?v=' + theme.spec.version}">

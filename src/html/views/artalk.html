@@ -17,14 +17,13 @@
         : assets_link + 'plugins/artalk/Artalk.min.css?v=' + theme.spec.version)}
   "
 >
-  <div id="artalk"></div>
-  <link rel="stylesheet" th:href="${artalkCss}">
-  <link
-    rel="stylesheet"
-    th:if="${not #strings.isEmpty(theme.config.comment?.artalk_css)}"
-    th:href="${theme.config.comment?.artalk_css}"
-  >
-  <script defer th:src="${artalkJs}"></script>
+  <!--/* 评论资源在评论区接近视口时才由 ArtalkComment 加载，不与正文争抢带宽 */-->
+  <div
+    id="artalk"
+    th:data-js="${artalkJs}"
+    th:data-css="${artalkCss}"
+    th:data-custom-css="${#strings.isEmpty(theme.config.comment?.artalk_css) ? null : theme.config.comment?.artalk_css}"
+  ></div>
   <script th:inline="javascript">
     window.ArtalkConfig = {
       server: /*[[${theme.config.comment?.artalk_server}]]*/ '',

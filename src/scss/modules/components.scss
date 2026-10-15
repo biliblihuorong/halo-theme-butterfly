@@ -37,7 +37,7 @@
           @include util.wh100;
           object-fit: cover;
 
-          &[data-ll-status=loaded]:hover {
+          &.loaded:hover {
             transform: scale(1.1);
           }
         }

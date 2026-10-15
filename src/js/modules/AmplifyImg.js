@@ -27,7 +27,8 @@ export default class AmplifyImg {
     document.querySelectorAll('.main > .content img').forEach((img) => {
       const span = document.createElement('span');
       span.setAttribute('data-fancybox', 'fancyBoxImg');
-      span.setAttribute('href', img.getAttribute('src'));
+      // 启用预览图时正文显示的是预览图，灯箱始终打开原图
+      span.setAttribute('href', img.dataset.origin || img.getAttribute('src'));
       img.parentNode.insertBefore(span, img);
       span.appendChild(img);
     });

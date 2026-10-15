@@ -4,8 +4,8 @@
  * @fileName: _aside
  * @Description:common
  */
-import {useMask} from './_util';
-import LazyLoad from './_lazyLoad';
+import {useMask, useScrollBehavior} from './_util';
+import {useLazyImages, useLoadImage, useProgressiveImages} from './_image';
 
 export default class Common {
 
@@ -121,10 +121,10 @@ export default class Common {
    * 创建单一行为事件
    */
   #createSingleAction() {
-    //图片懒加载
-    new LazyLoad({
-      elements_selector: 'img', threshold: 300, data_src: 'lazy-src',
-    });
+    //图片懒加载（浏览器原生懒加载，支持预览图与失败回退）
+    useLazyImages();
+    //正文预览图加载后替换为原图
+    useProgressiveImages(document.querySelector('article.render'));
 
     //移动端侧边栏呼出图标
     const sideBar = document.querySelector('.side-bar');
@@ -145,21 +145,25 @@ export default class Common {
 
   //返回顶部
   backTop() {
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({top: 0, behavior: useScrollBehavior()});
   }
 
-  //第一屏图片预加载
+  //第一屏背景：head 中已高优先级预加载；启用预览图时先显示预览图，原图加载完成后替换
   #loadAboveBackgroundImg() {
-    const img = new Image();
-    img.decoding = 'async';
-    img.fetchPriority = 'high';
-    img.src = window.MainApp.conf.above_background;
-    img.onload = () => {
+    const origin = window.MainApp.conf.above_background;
+    const preview = window.MainApp.usePreview?.(origin) ?? origin;
+    const apply = (src) => {
       const above = document.querySelector('.header > .above');
-      if(above) above.style.backgroundImage = `url(${img.src})`;
+      if(above) above.style.backgroundImage = `url("${src.replace(/"/g, '%22')}")`;
     };
-    img.onerror = () => {
-      console.error('第一屏图片预加载失败');
-    };
+    const loadOrigin = () => useLoadImage(origin).then(apply).catch(() => {
+      console.error('第一屏图片加载失败');
+    });
+
+    if(preview === origin) {
+      loadOrigin();
+      return;
+    }
+    useLoadImage(preview).then(apply).catch(() => {}).finally(loadOrigin);
   }
 }

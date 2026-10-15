@@ -103,8 +103,8 @@ spec:
           id: loading_type
           key: loading-type
           label: 页面加载（Loading）
-          help: 内置多种加载样式
-          value: "circle"
+          help: 内置多种加载样式。页面在 300 毫秒内就绪时不会显示，默认关闭
+          value: "null"
           options:
             - label: "关闭"
               value: "null"
@@ -1241,3 +1241,65 @@ spec:
           label: DNS 预解析 (dns-prefetch)
           help: 每行一个域名(可带协议也可只写主机名),只做 DNS 解析,适合不确定会不会用到的 CDN。
           rows: 4
+        - $formkit: radio
+          name: preview_enable
+          id: preview_enable
+          key: preview_enable
+          label: 图片预览图
+          help: 图床能生成缩略图时开启。文章列表封面只加载预览图；首屏背景和正文图片先显示预览图，原图加载完成后替换；预览图加载失败时直接使用原图，点击放大始终使用原图
+          value: false
+          options:
+            - label: 启用
+              value: true
+            - label: 禁用
+              value: false
+        - $formkit: radio
+          name: preview_mode
+          id: preview_mode
+          key: preview_mode
+          label: 预览图地址规则
+          value: query
+          if: "$get(preview_enable).value"
+          options:
+            - label: 追加查询参数（a.webp → a.webp?w=400）
+              value: query
+            - label: 替换路径前缀（/i/a.webp → /thumbnails/a.webp）
+              value: path
+            - label: 文件名后缀（a.webp → a_thumb.webp）
+              value: suffix
+        - $formkit: text
+          name: preview_query
+          key: preview_query
+          label: 查询参数
+          help: 追加到原图地址的参数，例如 w=400 或 thumbnail=1；原图已有参数时自动用 & 连接
+          value: ""
+          if: "$get(preview_enable).value && $get(preview_mode).value == 'query'"
+        - $formkit: text
+          name: preview_path_from
+          key: preview_path_from
+          label: 原图路径前缀
+          help: 只处理以此开头的路径，例如 /i/
+          value: ""
+          if: "$get(preview_enable).value && $get(preview_mode).value == 'path'"
+        - $formkit: text
+          name: preview_path_to
+          key: preview_path_to
+          label: 预览图路径前缀
+          help: 替换后的前缀，例如 /thumbnails/
+          value: ""
+          if: "$get(preview_enable).value && $get(preview_mode).value == 'path'"
+        - $formkit: text
+          name: preview_suffix
+          key: preview_suffix
+          label: 文件名后缀
+          help: 插入到扩展名之前，例如 _thumb 或 .small
+          value: ""
+          if: "$get(preview_enable).value && $get(preview_mode).value == 'suffix'"
+        - $formkit: textarea
+          name: preview_hosts
+          key: preview_hosts
+          label: 应用预览图的图床域名
+          help: 每行一个域名，例如 img.example.com。留空时只处理本站域名下的图片，避免为外部图片请求不存在的预览图
+          value: ""
+          rows: 3
+          if: "$get(preview_enable).value"

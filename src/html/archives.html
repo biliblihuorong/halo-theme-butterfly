@@ -10,7 +10,7 @@
   <!--/* pin */-->
   <th:block th:fragment="pin">
     <!--/* 图表只需要每年每月的文章数；archives 已包含全部归档时直接复用，避免重复全量查询与整页文章数据内联 */-->
-    <script id="pageScript" th:inline="javascript" th:with="
+    <script id="pageScript" data-cfasync="false" th:inline="javascript" th:with="
       chartItems = ${(archives != null and #lists.size(archives.items) == (archives.total ?: 0)) ? archives.items : postFinder.archives(1, (archives?.total ?: 999)).items}">
       window.MainApp.data =  /*[[${chartItems.![T(java.util.Map).of('year', year, 'months', months.![T(java.util.Map).of('month', month, 'count', posts.size())])]}]]*/ [];
 

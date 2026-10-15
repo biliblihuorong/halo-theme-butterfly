@@ -84,6 +84,22 @@ export function useDisableScroll(bool) {
  * 判断白天还是夜晚
  * @returns {boolean}
  */
+/**
+ * 用户是否在系统中开启了“减少动态效果”
+ * @returns {boolean}
+ */
+export function useReducedMotion() {
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * 滚动行为：减少动态效果时直接跳转
+ * @returns {'auto'|'smooth'}
+ */
+export function useScrollBehavior() {
+  return useReducedMotion() ? 'auto' : 'smooth';
+}
+
 export function useIsDaytime() {
   const now = new Date();
   const currentHour = now.getHours();

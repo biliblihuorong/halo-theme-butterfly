@@ -91,14 +91,30 @@ export default class codeBlock {
 
     if(this.#conf.enable_code_line)  this.#renderDom.classList.add('line-numbers');
 
-    //重新渲染代码块
-    this.#pres.forEach((pre) => window.Prism.highlightElement(pre.querySelector('code')));
+    //重新渲染代码块（未内置的语言由 autoloader 按需加载）
+    this.#pres.forEach((pre) => {
+      const code = pre.querySelector('code');
+      this.#registerUnknownLanguage(code);
+      window.Prism.highlightElement(code);
+    });
 
     // 初始化代码块
     this.#codeTheme(MainApp.useTheme.getMode());
     
     // 代码块主题切换
     MainApp.useTheme.change((mode) => this.#codeTheme(mode));
+  }
+
+  /**
+   * Prism 不支持的语言按纯文本处理，避免 autoloader 请求不存在的语言文件
+   * @param code
+   */
+  #registerUnknownLanguage(code) {
+    const {languages, plugins} = window.Prism;
+    const lang = /(?:^|\s)lang(?:uage)?-([\w-]+)/i.exec(code?.className || '')?.[1]?.toLowerCase();
+    const known = plugins?.autoloader?.known;
+    if(!lang || languages[lang] || !Array.isArray(known) || known.includes(lang)) return;
+    languages[lang] = languages.plain;
   }
 
   /**

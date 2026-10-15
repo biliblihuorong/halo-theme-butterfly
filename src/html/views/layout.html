@@ -28,6 +28,19 @@
     <!--/* canonical、Open Graph、Twitter Card 和描述统一由 Halo 的 HeadProcessor 注入。 */-->
     <th:block th:replace="~{views/config}"/>
     <th:block th:replace="${pin}"/>
+    <!--/* 首屏背景图在解析 head 时就开始高优先级下载，不再等主题脚本执行；随机图 API 每次返回不同图片，不预加载 */-->
+    <script data-cfasync="false">
+      (function (conf) {
+        var src = conf.enable_above && conf.above_background;
+        if(!src || src === conf.random_link) return;
+        var link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = window.MainApp.usePreview(src);
+        link.setAttribute('fetchpriority', 'high');
+        document.head.appendChild(link);
+      })(window.MainApp.conf);
+    </script>
     <!--/* index 页的 page css 与上方 index.min.css 相同，跳过避免重复声明 */-->
     <th:block th:unless="${page == null or page == 'index'}">
       <link rel="preload" th:href="${assets_link + 'css/' + page + '.min.css?v=' + theme.spec.version}" as="style">
@@ -36,7 +49,7 @@
   </head>
 
   <body th:classappend="${loading_enabled ? 'loading' : ''}" th:with="stats = ${siteStatsFinder.getStats()},contributor = ${contributorFinder.getContributor(theme.config.base.metadata_name)}">
-  <script th:if="${loading_enabled}" th:inline="javascript">
+  <script th:if="${loading_enabled}" th:inline="javascript" data-cfasync="false">
     window.setTimeout(function() {
       document.body.classList.remove('loading');
     }, /*[[${loading_timeout}]]*/ 3000);

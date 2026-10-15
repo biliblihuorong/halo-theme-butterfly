@@ -17,7 +17,7 @@
     >
 
     </style>
-    <script id="pageScript" th:inline="javascript" th:with="above_background = ${not #strings.isEmpty(post.spec.cover) ? post.spec.cover : (theme.config.loading.img.random_enable ? theme.config.loading.img.random_link  : ''  )}">
+    <script id="pageScript" data-cfasync="false" th:inline="javascript" th:with="above_background = ${not #strings.isEmpty(post.spec.cover) ? post.spec.cover : (theme.config.loading.img.random_enable ? theme.config.loading.img.random_link  : ''  )}">
       Object.assign(window.MainApp.conf, {
         // 第一屏
         enable_above: /*[[${(theme.config.page_hero?.post?.enable_above ?: theme.config.index.enable_above) ?: false}]]*/ false,
@@ -121,7 +121,9 @@
   <th:block th:fragment="main">
     <section class="content card">
       <h1 class="content-title" th:unless="${(theme.config.page_hero?.post?.enable_above ?: theme.config.index.enable_above) ?: false}" th:text="${post.spec.title}"></h1>
-      <article class="render" th:utext="${post.content.content}"></article>
+      <!--/* 正文图片统一原生懒加载；启用预览图时，解析完正文立即换成预览图（此时懒加载图片尚未请求） */-->
+      <article class="render" th:utext="${#strings.replace(post.content.content, '<img ', '<img loading=&quot;lazy&quot; decoding=&quot;async&quot; ')}"></article>
+      <script data-cfasync="false" th:if="${theme.config.performance?.preview_enable ?: false}">window.MainApp.usePreviewImages(document.currentScript.previousElementSibling);</script>
 
       <div class="copy-right">
         <i class="fa-solid fa-copyright"></i>
