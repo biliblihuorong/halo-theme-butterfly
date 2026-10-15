@@ -4,9 +4,11 @@ const path = require('path');
 const fs = require('fs');
 const clean = require('gulp-clean');
 const exec = require('child_process').exec;
-const yaml = require('yamljs');
+const runCommand = require('util').promisify(exec);
 const inquirer = require('inquirer');
 const resolve = (name) => path.resolve(__dirname, name);
+const {Transform} = require('stream');
+const {versionFontUrls} = require('./scripts/cache-assets.cjs');
 
 gulp.task('clean', () => {
   return gulp.src([
@@ -39,12 +41,6 @@ gulp.task('css', function() {
   pipe(require('gulp-clean-css')({
     level: 2,
   })).
-  pipe(require('gulp-csso')()).
-  pipe(require('gulp-minify-css')({
-    compatibility: 'ie8',
-    keepSpecialComments: false,
-    restructuring: true,
-  })).
   pipe(autoPrefix({
     overrideBrowserslist: [
       '> 5%',
@@ -58,7 +54,6 @@ gulp.task('css', function() {
   pipe(gulp.dest('./templates/assets/css'));
 });
 
-const uglify = require('gulp-uglify');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack-stream');
 const zip = require('gulp-zip');
@@ -91,7 +86,7 @@ gulp.task('js', function() {
           include: resolve('src'),
           exclude: resolve('node_modules'),
           options: {
-            presets: ['@babel/preset-env'],
+            presets: [['@babel/preset-env', {modules: false}]],
             plugins: [
               ['@babel/plugin-proposal-decorators', {'legacy': true}],
               '@babel/plugin-transform-runtime',
@@ -106,6 +101,16 @@ gulp.task('js', function() {
     },
     optimization: {
       minimize: true,
+      // 提取各页面共同依赖（jQuery 等）为 common chunk，跨页面可缓存；
+      // minChunks:2 保证页面专属代码仍留在各自 bundle 中
+      splitChunks: {
+        chunks: 'initial',
+        minChunks: 2,
+        name: 'common',
+      },
+      runtimeChunk: {
+        name: 'common',
+      },
       minimizer: [
         new TerserPlugin({
           terserOptions: {
@@ -120,6 +125,7 @@ gulp.task('js', function() {
     stats: 'errors-only',
     output: {
       filename: '[name].min.js',
+      chunkFilename: '[name].[contenthash:12].chunk.min.js',
     },
   })
   // .pipe(uglify())
@@ -197,6 +203,60 @@ gulp.task('js-plugins-loading', function() {
   ).pipe(gulp.dest(outputRoot));
 });
 
+gulp.task('js-plugins-artalk', function() {
+  const entryRoot = './src/plugins/artalk/';
+  const outputRoot = './templates/assets/plugins/artalk/';
+
+  return webpack({
+    mode: 'production',
+    entry: {
+      Artalk: resolve(`${entryRoot}Artalk.js`),
+    },
+    module: {
+      rules: [],
+    },
+    optimization: {
+      minimize: true,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            format: { comments: false },
+            compress: { passes: 2, ecma: 2017 },
+            mangle: { reserved: ['Artalk'] },
+          },
+          extractComments: false,
+        }),
+      ],
+    },
+    stats: 'errors-only',
+    output: {
+      filename: '[name].min.js',
+      library: {name: 'Artalk', type: 'umd'},
+      globalObject: 'globalThis',
+    },
+  })
+    .pipe(gulp.dest(outputRoot))
+    .pipe(
+      gzip({
+        threshold: '10kb',
+      }),
+    )
+    .pipe(gulp.dest(outputRoot));
+});
+
+gulp.task('css-plugins-artalk', function() {
+  return gulp.src('./src/plugins/artalk/Artalk.css')
+    .pipe(require('gulp-clean-css')({ level: 2 }))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(gulp.dest('./templates/assets/plugins/artalk/'))
+    .pipe(
+      gzip({
+        threshold: '10kb',
+      }),
+    )
+    .pipe(gulp.dest('./templates/assets/plugins/artalk/'));
+});
+
 const htmlMin = require('gulp-htmlmin');
 gulp.task('html', function() {
   return gulp.src('./src/html/**/*.html').pipe(htmlMin({
@@ -216,19 +276,17 @@ gulp.task('html', function() {
   })).pipe(gulp.dest('./templates'));
 });
 
-gulp.task('zip', done => {
-  gulp.src([
+gulp.task('zip', () => {
+  return gulp.src([
     './templates/**/*.*',
     './settings.yaml',
     './annotation-setting.yaml',
     './theme.yaml',
+    './LICENSE',
   ], {base: '.'}).pipe(zip('theme-butterfly-dist.zip')).pipe(gulp.dest('./'));
-  done();
-  console.log(
-    '\x1B[32m打包完成,生产文件在根目录下的 theme-butterfly-dist.zip\x1B[0m');
 });
 
-gulp.task('release', async done => {
+gulp.task('release', async () => {
   const {value} = await inquirer.prompt([
     {
       type: 'list', // 交互类型 -- 单选（无序）
@@ -242,23 +300,11 @@ gulp.task('release', async done => {
     },
   ]);
 
-  await exec(`npm version ${value} --no-git-tag-version`,
-    async (error, stdout, stderr) => {
-      if(error) {
-        console.error(`执行出错: ${error}`);
-        return;
-      }
-      const version = stdout.replace('v', '').replace('\n', '');
-
-      const themeYaml = yaml.load('./theme.yaml');
-
-      themeYaml.spec.version = version;
-
-      await fs.writeFileSync('./theme.yaml',
-        yaml.dump(themeYaml, './theme.yaml'), 'utf8');
-    });
-
-  done();
+  if(!['patch', 'minor', 'major'].includes(value)) throw new Error('Invalid release type');
+  const {stdout} = await runCommand(`npm version ${value} --no-git-tag-version`);
+  const version = stdout.trim().replace(/^v/, '');
+  const themeYaml = fs.readFileSync('./theme.yaml', 'utf8');
+  fs.writeFileSync('./theme.yaml', themeYaml.replace(/^  version: .*$/m, `  version: ${version}`), 'utf8');
 });
 
 // 复制文件夹 font plugins
@@ -266,7 +312,23 @@ gulp.task('copy-folder', function() {
   return gulp.src([
     './src/font/**/*',
     './src/plugins/**/*',
+    './src/img/**/*',
+    '!./src/font/CircularBody/CircularBody.ttf',
+    '!./src/plugins/artalk/Artalk.js',
+    '!./src/plugins/artalk/Artalk.css',
+    // Font Awesome 子集化:全量字体与原始 CSS 只作生成输入,不进入构建产物
+    '!./src/plugins/fontawesome/fonts-source/**',
+    '!./src/plugins/fontawesome/fontawesome.full.min.css',
   ], {base: 'src'}) // 设置基本路径为 'src'
+  .pipe(new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if(file.isBuffer() && path.extname(file.path) === '.css') {
+        file.contents = Buffer.from(versionFontUrls(file.contents.toString(), require('./package.json').version));
+      }
+      callback(null, file);
+    },
+  }))
   .pipe(gulp.dest('./templates/assets/'));
 });
 
@@ -276,13 +338,22 @@ gulp.task(
     gulp.watch(['./src/scss/**/*.scss'], gulp.series('css'));
     gulp.watch(['./src/js/**/**/*.js'], gulp.series('js'));
     gulp.watch(['./src/html/**/**/*.html'], gulp.series('html'));
-
+    gulp.watch(['./src/plugins/artalk/Artalk.js'], gulp.series('js-plugins-artalk'));
+    gulp.watch(['./src/plugins/artalk/Artalk.css'], gulp.series('css-plugins-artalk'));
   },
 );
 
 gulp.task(
   'default',
   gulp.series(
-    gulp.parallel('copy-folder', 'css', 'js', 'html', 'js-plugins-loading'),
+    gulp.parallel(
+      'copy-folder',
+      'css',
+      'js',
+      'html',
+      'js-plugins-loading',
+      'js-plugins-artalk',
+      'css-plugins-artalk',
+    ),
   ),
 );

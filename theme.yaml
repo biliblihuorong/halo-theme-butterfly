@@ -6,15 +6,15 @@ spec:
   displayName: Butterfly-shell
   author:
     name: shell
-    website: "https://blog.ning.moe"
-  description: "一个由 shell 定制优化�?Butterfly 🦋 主题"
+    website: "https://github.com/biliblihuorong"
+  description: "一个由 shell 定制优化的 Butterfly 🦋 主题"
   logo: "https://halo.run/logo"
-  website: "https://blog.ning.moe"
+  website: "https://github.com/biliblihuorong/halo-theme-butterfly"
   repo: "https://github.com/biliblihuorong/halo-theme-butterfly.git"
   settingName: theme-butterfly-setting
   configMapName: theme-butterfly-configMap
-  version: 2.1.7
-  require: 2.0.0
+  version: 2.2.9
+  requires: ">=2.0.0"
   customTemplates:
     page:
       - name: "友情链接 (Links)"

@@ -12,8 +12,8 @@
     <script id="pageScript" th:inline="javascript">
       Object.assign(window.MainApp.conf, {
         //第一屏
-        enable_above: /*[[${theme.config.friends?.enable_above ?: theme.config.index.enable_above}]]*/ '',
-        above_background: /*[[${theme.config.friends?.above_background ?: theme.config.index.above_background}]]*/ '',
+        enable_above: /*[[${(theme.config.page_hero?.friends?.enable_above ?: theme.config.index.enable_above) ?: false}]]*/ false,
+        above_background: /*[[${theme.config.page_hero?.friends?.above_background ?: theme.config.index.above_background}]]*/ '',
         // 分页
         nextUrl: /*[[${friends?.nextUrl}]]*/ {},
         prevUrl: /*[[${friends?.prevUrl}]]*/ {},
@@ -29,14 +29,14 @@
 
   <!--/* header */-->
   <th:block th:fragment="header">
-    <header th:class="${not (theme.config.friends?.enable_above ?: theme.config.index.enable_above) ? 'header dp' : 'header'}">
+    <header th:class="${not ((theme.config.page_hero?.friends?.enable_above ?: theme.config.index.enable_above) ?: false) ? 'header dp' : 'header'}">
       <!--/* 导航栏 */-->
       <th:block th:replace="~{views/nav}"/>
 
       <!--第一屏内容-->
-      <section class="above" th:if="${theme.config.friends?.enable_above ?: theme.config.index.enable_above}">
+      <section class="above" th:if="${(theme.config.page_hero?.friends?.enable_above ?: theme.config.index.enable_above) ?: false}">
         <div class="above-info">
-          <h1 class="above-title" th:text="${title ?: '朋友圈'}">朋友圈</h1>
+          <h1 class="above-title">友链朋友圈</h1>
         </div>
       </section>
     </header>
@@ -44,7 +44,7 @@
 
 
   <!--/* 內容 */-->
-  <th:block th:fragment="main" th:with="friendLayout = ${theme.config.friends?.layout ?: 'single'}">
+  <th:block th:fragment="main" th:with="friendLayout = ${theme.config.page_hero?.friends?.layout ?: 'single'}">
     <section class="content" th:with="friendData = ${friends?.items}">
       <th:block th:if="${friendData != null and not #lists.isEmpty(friendData)}">
         <div th:class="'friend-list' + ${friendLayout == 'double' ? ' double' : ''}">
@@ -69,6 +69,13 @@
       </th:block>
 
       <th:block th:if="${friendData == null or #lists.isEmpty(friendData)}" th:insert="~{views/components:: emptyData(false)}"></th:block>
+
+      <!--/* 评论必须在 section.content 内部：.main 是 flex 布局，放在外面会被当成第三栏挤在列表和侧边栏中间 */-->
+      <th:block th:replace="~{views/artalk :: comment(
+        ${theme.config.comment?.artalk_friends_page_key ?: '/friends'},
+        ${theme.config.comment?.artalk_friends_page_title ?: (title ?: '朋友圈')},
+        ${theme.config.comment?.artalk_enable_friends ?: true}
+      )}"/>
     </section>
     <th:block th:replace="~{views/aside::common}"/>
   </th:block>

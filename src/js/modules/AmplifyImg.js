@@ -5,7 +5,6 @@
  * @Description: 图片放大
  */
 import {Fancybox} from '@fancyapps/ui';
-import $ from 'jquery';
 import {useInsertStyle} from '../core/_util';
 import fancyBoxCss from '@fancyapps/ui/dist/fancybox/fancybox.css';
 
@@ -24,11 +23,13 @@ export default class AmplifyImg {
   }
 
   #fBox() {
-    const imgs = $('.main >.content img');
-
-    imgs.each(function() {
-      const $this = $(this);
-      $this.wrap($(`<span data-fancybox="fancyBoxImg" href="${$this.attr('src')}"></span>`));
+    // 用带 data-fancybox 属性的 span 包裹正文图片，供灯箱识别
+    document.querySelectorAll('.main > .content img').forEach((img) => {
+      const span = document.createElement('span');
+      span.setAttribute('data-fancybox', 'fancyBoxImg');
+      span.setAttribute('href', img.getAttribute('src'));
+      img.parentNode.insertBefore(span, img);
+      span.appendChild(img);
     });
 
     Fancybox.bind(

@@ -7,20 +7,6 @@
 import {useChart} from '../core/_util';
 import App from '../core/App';
 import pagination from '../modules/Pagination';
-import * as echarts from 'echarts';
-import {LineChart} from 'echarts/charts';
-import {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} from 'echarts/components';
-import {CanvasRenderer} from 'echarts/renderers';
-
-// 注册所需的组件和渲染器
-echarts.use([
-  LineChart,
-  TitleComponent,
-  TooltipComponent,
-  GridComponent,
-  DataZoomComponent,
-  CanvasRenderer,
-]);
 
 @App([pagination])
 class Archives {
@@ -32,14 +18,27 @@ class Archives {
 
     if(!chartDom) return;
 
-    useChart( chartDom, () => {
+    useChart(chartDom, async (echarts) => {
+      const {LineChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
+      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
+      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts" */ 'echarts/renderers');
+      echarts.use([
+        LineChart,
+        TitleComponent,
+        TooltipComponent,
+        GridComponent,
+        DataZoomComponent,
+        CanvasRenderer,
+      ]);
+
       const data = [];
 
       for (let year of MainApp.data) {
         for (let months of year['months']) {
           data.push([
             `${year['year']}-${months['month']}`,
-            months['posts'].length,
+            //模板投影输出 {month, count}（Thymeleaf 内联 Map 字面量会被 SpEL 拒绝，见 archives.html）
+            months['count'],
           ]);
         }
       }

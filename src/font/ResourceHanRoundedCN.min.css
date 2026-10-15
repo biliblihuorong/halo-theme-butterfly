@@ -1,0 +1,11 @@
+@font-face {
+  font-family: "Resource Han Rounded CN";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("ResourceHanRoundedCN/ResourceHanRoundedCN-Regular.woff2") format("woff2");
+}
+
+:root {
+  --theme-font-family: "Resource Han Rounded CN";
+}

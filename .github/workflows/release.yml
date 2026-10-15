@@ -1,43 +1,74 @@
-name: Release
+name: Verify and release
 
 on:
+  pull_request:
   push:
     tags:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  build-and-release:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Regression tests
+        run: pnpm test
+      - name: Build and verify release artifacts
+        run: pnpm build-zip
+      - name: Check ZIP contents
+        run: |
+          unzip -t theme-butterfly-dist.zip
+          sha256sum -c theme-butterfly-dist.zip.sha256
+      - name: Package version
+        id: version
+        run: |
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          echo "tag=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: butterfly-${{ steps.version.outputs.version }}
+          path: |
+            theme-butterfly-dist.zip
+            theme-butterfly-dist.zip.sha256
+            theme-butterfly-dist.zip.manifest.json
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: verify
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
         with:
-          node-version: '18'
-
-      - name: Install Dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Build and Zip
-        run: npm run build-zip
-
-      - name: Get Version
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+          name: butterfly-${{ needs.verify.outputs.version }}
+      - name: Verify downloaded package
+        run: sha256sum -c theme-butterfly-dist.zip.sha256
+      - uses: softprops/action-gh-release@v2
         with:
-          name: Release ${{ env.VERSION }}
+          tag_name: ${{ needs.verify.outputs.tag }}
+          name: Butterfly ${{ needs.verify.outputs.tag }}
+          body_path: docs/releases/${{ needs.verify.outputs.tag }}.md
           draft: false
           prerelease: false
-          files: theme-butterfly-dist.zip
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          make_latest: true
+          files: |
+            theme-butterfly-dist.zip
+            theme-butterfly-dist.zip.sha256
+            theme-butterfly-dist.zip.manifest.json

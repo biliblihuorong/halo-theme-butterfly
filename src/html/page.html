@@ -9,13 +9,18 @@
 >
   <!--/* pin */-->
   <th:block th:fragment="pin">
-    <script id="pageScript" th:inline="javascript" th:with="above_background = ${ #strings.isEmpty(singlePage.spec.cover) ? theme.config.index.above_background : (theme.config.loading.img.random_enable ? theme.config.loading.img.random_link  : ''  )}">
+    <script id="pageScript" th:inline="javascript" th:with="above_background = ${not #strings.isEmpty(singlePage.spec.cover) ? singlePage.spec.cover : theme.config.index.above_background}">
       Object.assign(window.MainApp.conf, {
         //第一屏
         enable_above: /*[[${theme.config.index.enable_above}]]*/ '',
         above_background: /*[[${above_background}]]*/ '',
+        // 评论
+        comment: {
+          provider: /*[[${theme.config.comment?.provider ?: 'none'}]]*/ 'none',
+        },
       });
     </script>
+    <th:block th:replace="~{views/render-config :: config(${singlePage})}"/>
   </th:block>
 
 
@@ -38,13 +43,19 @@
   <!--/* 內容 */-->
   <th:block th:fragment="main">
     <section class="content card">
+      <h1 class="content-title" th:unless="${theme.config.index.enable_above}" th:text="${singlePage.spec.title}"></h1>
       <article class="render" th:utext="${singlePage.content.content}"></article>
       <halo:comment
-        th:if="${pluginFinder.available('PluginCommentWidget') && haloCommentEnabled && singlePage.spec.allowComment}"
+        th:if="${pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'none') == 'halo' && (singlePage.spec.allowComment ?: true)}"
         group="content.halo.run"
         kind="SinglePage"
         th:attr="name=${singlePage.metadata.name}"
-      />
+      ></halo:comment>
+      <th:block th:replace="~{views/artalk :: comment(
+        ${singlePage.status.permalink},
+        ${singlePage.spec.title},
+        ${(singlePage.spec.allowComment ?: true) && (theme.config.comment?.artalk_enable_page ?: true)}
+      )}"/>
     </section>
     <th:block th:replace="~{views/aside::common}"/>
   </th:block>

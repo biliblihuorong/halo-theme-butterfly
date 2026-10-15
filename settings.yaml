@@ -57,13 +57,22 @@ spec:
           name: font_family
           label: 主题字体
           value: "CircularBody"
+          help: 新增字体均已本地化；来源、版本和许可证见主题 assets/font/THIRD_PARTY_NOTICES.md
           options:
             - value: "null"
-              label: "游览器默认字体"
+              label: "浏览器默认字体"
             - value: "CircularBody"
               label: "CircularBody"
             - value: "HarmonyOS_Regular"
               label: "HarmonyOS_Regular"
+            - value: "NotoSansSC"
+              label: "Noto Sans SC（简体中文）"
+            - value: "ManropeNotoSansSC"
+              label: "Manrope + Noto Sans SC"
+            - value: "ResourceHanRoundedCN"
+              label: "Resource Han Rounded CN（简体圆体）"
+            - value: "GenSenRoundedTW"
+              label: "GenSen Rounded TW（繁体圆体）"
         - $formkit: text
           name: body_background
           label: 全局背景（浅色）
@@ -71,16 +80,34 @@ spec:
           value: "#f7f9fe"
           help: 颜色值 默认值：#f7f9fe
           validation: required
+        - $formkit: text
+          name: radius
+          label: 卡片圆角
+          placeholder: 请填写 卡片圆角
+          value: 15px
+          help: 卡片圆角，像素或百分比，默认值： 15px
+          validation: required
+        - $formkit: text
+          name: shadow
+          label: 卡片阴影
+          placeholder: 请填写 卡片阴影
+          value: 0 3px 8px 6px rgba(7,17,27,0.05)
+          help: 卡片阴影，默认值： 0 3px 8px 6px rgba(7,17,27,0.05)
+          validation: required
     #加载设置
     - group: loading
-      label: 加载设置
+      label: 加载与资源
       formSchema:
         - $formkit: radio
           name: type
+          id: loading_type
+          key: loading-type
           label: 页面加载（Loading）
           help: 内置多种加载样式
           value: "circle"
           options:
+            - label: "关闭"
+              value: "null"
             - label: "转圈"
               value: "circle"
             - label: "沙漏"
@@ -90,6 +117,16 @@ spec:
             - label: "小圆点"
               value: "dot"
           validation: required
+        - $formkit: number
+          key: loading-timeout
+          name: timeout
+          label: Loading 最长显示时间（毫秒）
+          help: 页面 DOM 就绪后会立即关闭；若脚本或远程资源异常，超过此时间也会强制显示页面
+          value: 3000
+          min: 1000
+          max: 10000
+          step: 500
+          if: "$get(loading_type).value != 'null'"
         - $formkit: group
           label: 静态资源加载（js、css）
           name: source
@@ -147,7 +184,7 @@ spec:
           value:
             preload: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
             err: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
-            random_enable: true
+            random_enable: false
             random_link: "https://api.yimian.xyz/img"
           children:
             - $formkit: attachment
@@ -184,7 +221,7 @@ spec:
               validation: required|url
     #导航设置
     - group: nav
-      label: 导航设置
+      label: 导航栏颜色
       formSchema:
         - $formkit: group
           name: font_color
@@ -444,16 +481,6 @@ spec:
             - label: 禁用
               value: false
         - $formkit: radio
-          name: enable_custom
-          label: 启用侧边栏自定义模块
-          help: 是否启用自定义模块
-          value: false
-          options:
-            - label: 启用
-              value: true
-            - label: 禁用
-              value: false
-        - $formkit: radio
           name: enable_webInfo
           label: 启用侧边栏网站资讯
           help: 是否启用侧边栏网站资讯
@@ -463,24 +490,6 @@ spec:
               value: true
             - label: 禁用
               value: false
-    #卡片设置
-    - group: card
-      label: 卡片设置
-      formSchema:
-        - $formkit: text
-          name: radius
-          label: 卡片圆角
-          placeholder: 请填写 卡片圆角
-          value: 15px
-          help: 卡片圆角，像素或百分比，默认值： 15px
-          validation: required
-        - $formkit: text
-          name: shadow
-          label: 卡片阴影
-          placeholder: 请填写 卡片阴影
-          value: 0 3px 8px 6px rgba(7,17,27,0.05)
-          help: 卡片阴影，默认值： 0 3px 8px 6px rgba(7,17,27,0.05)
-          validation: required
     #首页设置
     - group: index
       label: 首页设置
@@ -499,7 +508,7 @@ spec:
           name: above_background
           label: 第一屏背景图
           placeholder: 请填写 第一屏背景图
-          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
+          value: "/themes/theme-butterfly/assets/img/default-banner.png"
           help: 如果全局背景图设置为图片链接，则此处背景图将不生效
           validation: required
         - $formkit: textarea
@@ -541,83 +550,238 @@ spec:
               value: list
             - label: 平铺
               value: tile
-    #文章设置
-    - group: post
-      label: 文章设置
+    #页面首屏
+    - group: page_hero
+      label: 页面设置
       formSchema:
-        - $formkit: radio
-          name: enable_above
-          label: 启用第一屏
-          help: 启用首页第一屏
-          value: true
-          options:
-            - label: 启用
+        - $formkit: group
+          name: archives
+          label: 归档页
+          children:
+            - $formkit: radio
+              name: enable_above
+              label: 启用第一屏
               value: true
-            - label: 禁用
-              value: false
-    #归档设置
-    - group: archives
-      label: 归档设置
-      formSchema:
-        - $formkit: radio
-          name: enable_above
-          label: 启用第一屏
-          help: 启用首页第一屏
-          value: true
-          options:
-            - label: 启用
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
+            - $formkit: attachment
+              name: above_background
+              label: 第一屏背景图
+              placeholder: 请填写 第一屏背景图
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
+              help: 如果全局背景图设置为图片链接，则此处背景图将不生效
+              validation: required
+        - $formkit: group
+          name: tags
+          label: 标签列表页
+          children:
+            - $formkit: radio
+              name: enable_above
+              label: 启用第一屏
               value: true
-            - label: 禁用
-              value: false
-        - $formkit: attachment
-          name: above_background
-          label: 第一屏背景图
-          placeholder: 请填写 第一屏背景图
-          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
-          help: 如果全局背景图设置为图片链接，则此处背景图将不生效
-          validation: required
-    #标签设置
-    - group: tags
-      label: 标签设置
-      formSchema:
-        - $formkit: radio
-          name: enable_above
-          label: 启用第一屏
-          help: 启用首页第一屏
-          value: true
-          options:
-            - label: 启用
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
+            - $formkit: attachment
+              name: above_background
+              label: 第一屏背景图
+              placeholder: 请填写 第一屏背景图
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
+              help: 如果全局背景图设置为图片链接，则此处背景图将不生效
+              validation: required
+        - $formkit: group
+          name: categories
+          label: 分类列表页
+          children:
+            - $formkit: radio
+              name: enable_above
+              label: 启用第一屏
               value: true
-            - label: 禁用
-              value: false
-        - $formkit: attachment
-          name: above_background
-          label: 第一屏背景图
-          placeholder: 请填写 第一屏背景图
-          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
-          help: 如果全局背景图设置为图片链接，则此处背景图将不生效
-          validation: required
-    #分类设置
-    - group: categories
-      label: 分类设置
-      formSchema:
-        - $formkit: radio
-          name: enable_above
-          label: 启用第一屏
-          help: 启用首页第一屏
-          value: true
-          options:
-            - label: 启用
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
+            - $formkit: attachment
+              name: above_background
+              label: 第一屏背景图
+              placeholder: 请填写 第一屏背景图
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
+              help: 如果全局背景图设置为图片链接，则此处背景图将不生效
+              validation: required
+        - $formkit: group
+          name: friends
+          label: 朋友圈页
+          children:
+            - $formkit: radio
+              name: layout
+              label: 布局方式
+              help: 朋友圈页面的布局方式（单栏或双栏）
+              value: single
+              options:
+                - label: 单栏
+                  value: single
+                - label: 双栏
+                  value: double
+            - $formkit: radio
+              name: enable_above
+              label: 启用第一屏
+              help: 启用朋友圈页面第一屏
               value: true
-            - label: 禁用
-              value: false
-        - $formkit: attachment
-          name: above_background
-          label: 第一屏背景图
-          placeholder: 请填写 第一屏背景图
-          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
-          help: 如果全局背景图设置为图片链接，则此处背景图将不生效
-          validation: required
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
+            - $formkit: attachment
+              name: above_background
+              label: 第一屏背景图
+              placeholder: 请填写 第一屏背景图
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
+              help: 朋友圈页面的第一屏背景图
+              validation: required
+        - $formkit: group
+          name: links
+          label: 友链页
+          children:
+            - $formkit: radio
+              name: enable_above
+              label: 启用第一屏
+              help: 启用友链页面第一屏
+              value: true
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
+            - $formkit: attachment
+              name: above_background
+              label: 第一屏背景图
+              placeholder: 请填写 第一屏背景图
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
+              help: 友链页面的第一屏背景图
+              validation: required
+            - $formkit: radio
+              name: enable_site_info
+              label: 启用本站信息卡片
+              help: 在友链列表下方展示本站信息（名称、地址、头像、描述、运行天数、文章数等），方便对方添加友链
+              value: true
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
+            - $formkit: radio
+              name: footer_content_type
+              label: 申请说明格式
+              help: Markdown 会在前端渲染（支持表格、代码块、引用等 GFM 语法）；HTML 则原样输出
+              value: markdown
+              options:
+                - label: Markdown
+                  value: markdown
+                - label: HTML
+                  value: html
+            - $formkit: textarea
+              name: footer_content
+              label: 友链申请说明
+              placeholder: 请填写申请要求、本站信息或移出友链的记录
+              help: 显示在友链列表与评论之间，支持申请规则、本站信息和移出记录；格式跟随上方「申请说明格式」设置
+              rows: 18
+              value: |
+                欢迎交换签订契约（友链）（ˊᗜˋ）
+
+                有以下注意事项：
+
+                1. 请确保网站启用 `https`，友联仅添加双向友联。
+
+                2. 请确保网站内容符合中国大陆法律法规
+
+                3. 交换友链我会收集以下关键信息并保存
+
+                   - 站长昵称
+
+                   - 站点名字
+
+                   - 站点 URL
+
+                   - 站点头像
+
+                   - 站点简述
+
+                   - 以及您的邮箱地址，有了它我可以更快的联系到您，以及博客的评论回复才正常运行
+
+                   具体详细跳转到：[隐私政策](/privacy-policy/ "隐私政策")
+
+                4. 友联会在 T+7 完成（如站长繁忙可能会延期添加）。
+
+                5. 我会不定时去访问，请确保您的网站一直稳定，长时间无法访问就会被我解除契约哦。
+
+                6. 在友联列表的站点如果被清理，我会在下方的表格里面写出来，并且如果站点本身已经打不开会附带上互联网档案馆的快照链接。
+
+                7. 希望交换友链时，请保留我的头像，有可能本站图片会开启防盗链。
+
+                ★名称：某科学的贝壳
+
+                ★简述：Get busy living or get busy dying.
+
+                ★URL：https://blog.ning.moe
+
+                ★ico头像：https://img.ning.moe/i/1/23/01/30/63d755db9649a.ico
+
+                ★webp头像：https://img.ning.moe/i/1/23/01/30/63d7559a451ec.webp （推荐）
+
+                以下已经被解除契约的列表
+
+                | 网站名字           | 解除时间   | 理由             | 互联网档案馆链接 or 原站链接                                 |
+                | ------------------ | ---------- | ---------------- | ------------------------------------------------------------ |
+                | NekoX              | 2024-06-05 | 网站404          | https://web.archive.org/web/20210612142421/https://nekox.cn/ |
+                | WhatZ的小窝        | 2024-06-05 | 网站404          | https://web.archive.org/web/20201024011103/https://b.cupmoexpz.tk/ |
+                | OvORizhi           | 2024-06-05 | 网站404          | https://web.archive.org/web/20230724082931/https://ovorizhi.com/ |
+                | Leo's Blog         | 2024-06-05 | 网站404          | https://web.archive.org/web/20230401101904/https://leo.moe/  |
+                | MisakaNo の 小破站 | 2024-06-05 | 网站404          | https://web.archive.org/web/20240330024643/https://blog.misaka.rest/ |
+                | 随便的Website      | 2024-06-05 | 没有本站友联链接 | https://blog.mzkira.com/                                     |
+                | 泠风寒声の小站     | 2024-09-06 | 网站404          | https://web.archive.org/web/20231207231302/https://blog.lfhsheng.com/ |
+        - $formkit: group
+          name: bangumis
+          label: 追番页
+          help: 数据由 plugin-bilibili-bangumi 插件提供，请先安装并配置该插件
+          children:
+            - $formkit: radio
+              name: enable_above
+              label: 启用第一屏
+              help: 启用追番页面第一屏
+              value: true
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
+            - $formkit: attachment
+              name: above_background
+              label: 第一屏背景图
+              placeholder: 请填写 第一屏背景图
+              value: "/themes/theme-butterfly/assets/img/default-banner.png"
+              help: 追番页面的第一屏背景图
+              validation: required
+        - $formkit: group
+          name: post
+          label: 文章页
+          children:
+            - $formkit: radio
+              name: enable_above
+              label: 启用第一屏
+              help: 启用文章页第一屏，背景图使用文章封面
+              value: true
+              options:
+                - label: 启用
+                  value: true
+                - label: 禁用
+                  value: false
     #渲染设置
     - group: render
       label: 渲染设置
@@ -646,7 +810,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_title
-          if: $get(enable_code).value
+          key: enable-code-title
+          if: "$get(enable_code).value"
           label: 启用代码标题
           help: 启用代码块的标题，默认显示语言类型，也可自定义标题
           value: true
@@ -657,7 +822,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_hr
-          if: $get(enable_code).value
+          key: enable-code-hr
+          if: "$get(enable_code).value"
           label: 启用代码标题分割线
           help: 启用代码标题和内容之间的分割线，不展示时会更加简洁
           value: true
@@ -668,7 +834,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_line
-          if: $get(enable_code).value
+          key: enable-code-line
+          if: "$get(enable_code).value"
           label: 启用代码行号
           help: 启用代码块行号功能
           value: true
@@ -679,7 +846,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_copy
-          if: $get(enable_code).value
+          key: enable-code-copy
+          if: "$get(enable_code).value"
           label: 启用代码复制
           help: 启用代码块复制按钮
           value: true
@@ -690,7 +858,8 @@ spec:
               value: false
         - $formkit: radio
           name: enable_code_expander
-          if: $get(enable_code).value
+          key: enable-code-expander
+          if: "$get(enable_code).value"
           label: 启用代码折叠
           help: 启用代码折叠功能
           value: true
@@ -701,7 +870,8 @@ spec:
               value: false
         - $formkit: select
           name: code_theme_light
-          if: $get(enable_code).value
+          key: code-theme-light
+          if: "$get(enable_code).value"
           label: 代码块主题（浅色）随着系统主题变化
           value: one-light
           options:
@@ -779,7 +949,8 @@ spec:
               label: "z-touch"
         - $formkit: select
           name: code_theme_dark
-          if: $get(enable_code).value
+          key: code-theme-dark
+          if: "$get(enable_code).value"
           label: 代码块主题（深色）随着系统主题变化
           value: one-dark
           options:
@@ -855,37 +1026,6 @@ spec:
               label: "xonokai"
             - value: "z-touch"
               label: "z-touch"
-    #朋友圈设置
-    - group: friends
-      label: 朋友圈设置
-      formSchema:
-        - $formkit: radio
-          name: layout
-          label: 布局方式
-          help: 朋友圈页面的布局方式（单栏或双栏）
-          value: single
-          options:
-            - label: 单栏
-              value: single
-            - label: 双栏
-              value: double
-        - $formkit: radio
-          name: enable_above
-          label: 启用第一屏
-          help: 启用朋友圈页面第一屏
-          value: true
-          options:
-            - label: 启用
-              value: true
-            - label: 禁用
-              value: false
-        - $formkit: attachment
-          name: above_background
-          label: 第一屏背景图
-          placeholder: 请填写 第一屏背景图
-          value: "https://img.ning.moe/ShellBlogImg/1/2024/06/08/666418d8e8592.webp"
-          help: 朋友圈页面的第一屏背景图
-          validation: required
     #Umami 统计设置
     - group: umami
       label: Umami 统计
@@ -907,27 +1047,197 @@ spec:
           help: Umami 实例的完整地址（不含末尾斜杠）
           value: ""
         - $formkit: text
-          name: website_id
-          label: 网站 ID
-          placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-          help: 在 Umami 后台 Settings -> Websites 中查看
-          value: ""
-        - $formkit: text
-          name: username
-          label: 用户名
-          placeholder: "view-only-user"
-          help: 建议使用 View Only 权限的用户
-          value: ""
-        - $formkit: password
-          name: password
-          label: 密码
-          placeholder: "输入密码"
-          help: 上述用户的登录密码
+          name: share_id
+          label: 分享链接 ID
+          placeholder: "ICj6V0LQbbZ4XjTe"
+          help: 在 Umami 后台 网站设置 -> 分享链接（Share URL）中开启后，复制链接 /share/ 后面的 ID。使用公开 API 获取访问量，无需账号密码，凭据不会暴露给访客
           value: ""
         - $formkit: number
           name: cache_minutes
           label: 缓存时间（分钟）
-          help: Token 和访问量数据的本地缓存时间，避免频繁请求
+          help: 访问量数据的本地缓存时间，避免频繁请求
           value: 30
           min: 5
           max: 1440
+    #评论设置
+    - group: comment
+      label: 评论设置
+      formSchema:
+        - $formkit: radio
+          name: provider
+          id: comment_provider
+          key: comment-provider
+          label: 评论系统
+          value: "none"
+          options:
+            - label: 关闭
+              value: "none"
+            - label: Artalk
+              value: "artalk"
+            - label: Halo 评论插件
+              value: "halo"
+        - $formkit: switch
+          key: artalk-enable-post
+          name: artalk_enable_post
+          label: 在文章页启用 Artalk
+          help: 文章自身还需要开启“允许评论”
+          value: true
+          if: "$get(comment_provider).value == 'artalk'"
+        - $formkit: switch
+          key: artalk-enable-page
+          name: artalk_enable_page
+          label: 在普通页面启用 Artalk
+          help: 独立页面自身还需要开启“允许评论”
+          value: true
+          if: "$get(comment_provider).value == 'artalk'"
+        - $formkit: switch
+          key: artalk-enable-links
+          name: artalk_enable_links
+          label: 在友链页启用 Artalk
+          help: 友链对应的独立页面还需要开启“允许评论”
+          value: true
+          if: "$get(comment_provider).value == 'artalk'"
+        - $formkit: switch
+          key: artalk-enable-friends
+          name: artalk_enable_friends
+          id: artalk_enable_friends
+          label: 在朋友圈启用 Artalk
+          help: 朋友圈不是 Halo 独立页面，将使用下方单独配置的 pageKey
+          value: true
+          if: "$get(comment_provider).value == 'artalk'"
+        - $formkit: text
+          key: artalk-friends-page-key
+          name: artalk_friends_page_key
+          label: 朋友圈 pageKey
+          placeholder: "/friends"
+          value: "/friends"
+          help: 用于在 Artalk 中唯一标识朋友圈评论，修改后旧评论不会自动迁移
+          if: "$get(comment_provider).value == 'artalk' && $get(artalk_enable_friends).value == true"
+          validation: required
+        - $formkit: text
+          key: artalk-friends-page-title
+          name: artalk_friends_page_title
+          label: 朋友圈页面标题
+          placeholder: "朋友圈"
+          value: "朋友圈"
+          help: 显示在 Artalk 控制中心和通知中的页面名称
+          if: "$get(comment_provider).value == 'artalk' && $get(artalk_enable_friends).value == true"
+          validation: required
+        - $formkit: text
+          key: artalk-server
+          name: artalk_server
+          label: Artalk 服务端
+          placeholder: "https://artalk.example.com"
+          value: "https://artalk.example.com"
+          help: Artalk 后端 API 地址，请填写浏览器能够访问的 HTTPS 地址，末尾不要带 /
+          if: "$get(comment_provider).value == 'artalk'"
+          validation: required|url
+        - $formkit: text
+          key: artalk-site
+          name: artalk_site
+          label: Artalk 站点名
+          placeholder: "my-site"
+          value: "my-site"
+          help: 必须与 Artalk 控制中心中的站点名称完全一致，用于隔离不同站点的评论
+          if: "$get(comment_provider).value == 'artalk'"
+          validation: required
+        - $formkit: select
+          key: artalk-asset-source
+          name: artalk_asset_source
+          id: artalk_asset_source
+          label: Artalk 客户端资源
+          value: "local"
+          help: 主题内置最稳定；服务端资源使用 Artalk 后端的 /dist/Artalk.js 和 Artalk.css；自定义可填写 CDN 地址
+          if: "$get(comment_provider).value == 'artalk'"
+          options:
+            - label: 主题内置
+              value: "local"
+            - label: Artalk 服务端
+              value: "server"
+            - label: 自定义地址
+              value: "custom"
+        - $formkit: url
+          key: artalk-custom-js
+          name: artalk_custom_js
+          label: Artalk JS 地址
+          placeholder: "https://cdn.example.com/Artalk.js"
+          help: 仅在客户端资源选择“自定义地址”时使用
+          if: "$get(comment_provider).value == 'artalk' && $get(artalk_asset_source).value == 'custom'"
+          validation: url
+        - $formkit: url
+          key: artalk-custom-css
+          name: artalk_custom_css
+          label: Artalk CSS 地址
+          placeholder: "https://cdn.example.com/Artalk.css"
+          help: 仅在客户端资源选择“自定义地址”时使用
+          if: "$get(comment_provider).value == 'artalk' && $get(artalk_asset_source).value == 'custom'"
+          validation: url
+        - $formkit: select
+          key: artalk-locale
+          name: artalk_locale
+          label: Artalk 客户端语言
+          value: "zh-CN"
+          help: 只影响评论组件界面语言；选择自动时跟随访客浏览器
+          if: "$get(comment_provider).value == 'artalk'"
+          options:
+            - label: 简体中文
+              value: "zh-CN"
+            - label: 繁體中文
+              value: "zh-TW"
+            - label: 自动
+              value: "auto"
+            - label: English
+              value: "en"
+            - label: 日本語
+              value: "ja"
+            - label: 한국어
+              value: "ko"
+            - label: Français
+              value: "fr"
+            - label: Русский
+              value: "ru"
+        - $formkit: radio
+          key: artalk-prefer-remote-conf
+          name: prefer_remote_conf
+          label: 优先使用远程界面配置
+          help: 启用后优先采用 Artalk 控制中心中的界面配置；关闭时优先采用主题传入的客户端配置
+          value: false
+          if: "$get(comment_provider).value == 'artalk'"
+          options:
+            - label: 启用
+              value: true
+            - label: 禁用
+              value: false
+        - $formkit: attachment
+          key: artalk-extra-css
+          name: artalk_css
+          label: 额外 CSS 覆盖（可选）
+          help: 在 Artalk 基础样式之后加载，用于覆盖评论组件样式；留空则不加载
+          if: "$get(comment_provider).value == 'artalk'"
+        - $formkit: radio
+          key: artalk-pagekey-trailing-slash
+          name: pagekey_trailing_slash
+          label: pageKey 末尾追加 /
+          help: 用于兼容旧评论数据；新部署请根据 Artalk 中已有的页面键格式选择
+          value: true
+          if: "$get(comment_provider).value == 'artalk'"
+          options:
+            - label: 启用
+              value: true
+            - label: 禁用
+              value: false
+    #性能优化
+    - group: performance
+      label: 性能优化
+      formSchema:
+        - $formkit: textarea
+          name: preconnect
+          label: 预连接 (preconnect)
+          help: 每行一个 URL(含 https://),会插入 <link rel="preconnect"> 提前建立 TCP/TLS。建议 2~4 个,过多会适得其反。
+          value: ""
+          rows: 6
+        - $formkit: textarea
+          name: dns_prefetch
+          label: DNS 预解析 (dns-prefetch)
+          help: 每行一个域名(可带协议也可只写主机名),只做 DNS 解析,适合不确定会不会用到的 CDN。
+          rows: 4

@@ -6,9 +6,9 @@
  */
 
 import App from '../core/App';
-import Pagination from '../modules/Pagination';
+import PartialNavigation from '../modules/PartialNavigation';
 
-@App([Pagination])
+@App([PartialNavigation])
 class Steam {
 
 }

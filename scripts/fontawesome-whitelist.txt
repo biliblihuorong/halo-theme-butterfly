@@ -1,0 +1,80 @@
+# Font Awesome 图标白名单(一行一个,支持 # 注释)
+#
+# 子集化脚本(scripts/subset-fontawesome.mjs)最终生效的图标 =
+#   自动扫描 src/html、src/js、settings.yaml 中用到的图标 + 本白名单。
+#
+# 写法:
+#   fa-brands fa-telegram   # 指定字体族
+#   fa-qq                   # 不指定族 = 加入所有包含该图标的字体族(字节数差异可忽略)
+#
+# 场景:在后台"主题设置"里新增了社交图标、或改了可配置的图标项之后,
+#       把新图标名加进来,然后运行 pnpm subset:fa 重新生成,再重新构建主题。
+#
+# 注意:本主题使用 Font Awesome Free 6.6.0(npm 包 @fortawesome/fontawesome-free,
+#       字体 SIL OFL 1.1 / 图标 CC BY 4.0,随 npm 安装,仓库不放字体二进制)。
+#       fa-x-twitter(6.4.2+)可用;fa-netease-cloud-music 不在 FA 图标集内,勿添加。
+#       Pro 专属样式(light/thin/duotone/sharp)不可用:fa-list-tree 已用 fa-list-ul 替代,
+#       其余按 fa-solid 使用;子集化脚本会把 light/thin/duotone 统一按 solid 处理。
+
+# ---- 模板/JS 当前在用(由扫描自动覆盖,此处留档便于查阅) ----
+fa-solid fa-adjust
+fa-solid fa-bars
+fa-solid fa-caret-down
+fa-solid fa-chevron-down
+fa-solid fa-chevron-left
+fa-solid fa-chevron-right
+fa-solid fa-clock
+fa-solid fa-comments
+fa-solid fa-comment-dots
+fa-solid fa-copyright
+fa-solid fa-eye
+fa-solid fa-fire
+fa-solid fa-gamepad
+fa-solid fa-history
+fa-solid fa-inbox
+fa-solid fa-layer-group
+fa-solid fa-list-ol
+fa-solid fa-list-ul
+fa-solid fa-play
+fa-solid fa-search
+fa-solid fa-star
+fa-solid fa-th-large
+fa-solid fa-thumbs-up
+fa-regular fa-calendar-alt
+fa-regular fa-clock
+fa-regular fa-eye
+fa-solid fa-bullhorn
+fa-solid fa-chart-simple
+fa-solid fa-layer-group
+fa-solid fa-tags
+fa-brands fa-github
+
+# ---- 常用社交图标预留(按需增删) ----
+fa-brands fa-qq
+fa-brands fa-weibo
+fa-brands fa-bilibili
+fa-brands fa-telegram
+fa-brands fa-twitter
+fa-brands fa-discord
+fa-brands fa-youtube
+fa-brands fa-zhihu
+fa-brands fa-steam
+fa-brands fa-github-alt
+fa-solid fa-rss
+fa-solid fa-envelope
+fa-solid fa-link
+fa-solid fa-user
+fa-solid fa-home
+fa-solid fa-arrow-up
+fa-solid fa-tags
+fa-solid fa-folder
+fa-solid fa-comment
+fa-solid fa-pen
+fa-solid fa-book
+fa-solid fa-moon
+fa-solid fa-sun
+
+# ---- SCSS 裸码点图标(扫描器扫不到,需手动保留) ----
+fa-solid fa-code
+fa-solid fa-heading
+fa-solid fa-snowflake

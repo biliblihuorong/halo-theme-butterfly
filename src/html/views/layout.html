@@ -2,42 +2,52 @@
   xmlns:th="https://www.thymeleaf.org"
   th:with="
      assets_link = ${theme.config.loading.source instanceof T(java.util.Map) and theme.config.loading.source.type != null ? theme.config.loading.source[theme.config.loading.source.type] : '/themes/theme-butterfly/assets/'},
-     param_prefix = ${theme.config.loading.img != null and #strings.containsIgnoreCase(theme.config.loading.img.random_link,'?') ? '&' : '?'}
+     param_prefix = ${theme.config.loading.img != null and #strings.containsIgnoreCase(theme.config.loading.img.random_link,'?') ? '&' : '?'},
+     loading_enabled = ${theme.config.loading.type != null and theme.config.loading.type != 'null'},
+     loading_timeout = ${theme.config.loading.timeout ?: 3000}
   "
   th:fragment="layout (page,title,pin,header,main)"
 >
   <!DOCTYPE html>
-  <html lang="en" data-color-scheme="light" th:with="isDev = ${true ? #dates.createNow().time : ''} ">
+  <html lang="zh-CN" data-color-scheme="light">
   <head>
-    <title th:text="${title}"></title>
-    <link rel="preload" th:href="@{/assets/font/CircularBody/CircularBody.woff}" as="font" type="font/woff" crossorigin="anonymous" />
-    <link rel="preload" th:href="@{/assets/font/CircularBody.min.css}" as="style" />
-    <link rel="preload" th:href="@{/assets/plugins/fontawesome/fontawesome.min.css}" as="style" />
-    <link rel="stylesheet" th:href="@{/assets/font/CircularBody.min.css}" media="all" />
-    <link rel="stylesheet" th:href="@{/assets/plugins/fontawesome/fontawesome.min.css}" media="all" />
-    <link rel="stylesheet" th:href="|${assets_link}css/index.min.css?v=${theme.spec.version}|" media="all">
-    <noscript><link rel="stylesheet" th:href="|${assets_link}css/index.min.css?v=${theme.spec.version}|"></noscript>
     <meta charset="UTF-8"/>
+    <title th:text="${title}"></title>
+    <!--/* Halo 的受限 SpEL 禁止 T(java.lang.System)；&#10; 会在模板解析阶段解码为真实换行符，用于按行拆分。 */-->
+    <th:block th:each="line : ${#strings.listSplit(theme.config.performance?.preconnect, '&#10;')}">
+      <link th:if="${not #strings.isEmpty(#strings.trim(line))}" rel="preconnect" th:href="${#strings.trim(line)}" crossorigin />
+    </th:block>
+    <th:block th:each="line : ${#strings.listSplit(theme.config.performance?.dns_prefetch, '&#10;')}">
+      <link th:if="${not #strings.isEmpty(#strings.trim(line))}" rel="dns-prefetch" th:href="${#strings.startsWith(#strings.trim(line), '//') or #strings.contains(#strings.trim(line), '://') ? #strings.trim(line) : '//' + #strings.trim(line)}" />
+    </th:block>
+    <link rel="stylesheet" th:href="|${assets_link}css/index.min.css?v=${theme.spec.version}|" media="all">
+    <!--/* TemplateHeadProcessor 会自动处理标准 head；halo:head 会让浏览器提前结束 head。 */-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
-    <meta name="author" th:content="${site.title}">
     <meta name="site" th:content="${site.url}">
-    <meta name="description" th:content="${site.subtitle}"/>
-    <meta property="og:keywords" th:content="${site.seo.keywords}">
-    <meta property="og:description" th:content="${site.subtitle}">
-    <meta property="og:site_name" th:content="${site.title}">
-    <meta property="og:url" th:content="${site.url}">
-    <meta property="og:title" th:content="${site.title}">
-    <meta property="og:locale" content="zh_CN">
-    <meta property="og:type" th:content="${page}" th:value="${page}">
-    <link rel="canonical" th:href="${site.url}">
+    <!--/* canonical、Open Graph、Twitter Card 和描述统一由 Halo 的 HeadProcessor 注入。 */-->
     <th:block th:replace="~{views/config}"/>
     <th:block th:replace="${pin}"/>
-    <link rel="preload stylesheet" as="style" th:href="${assets_link + 'css/' + (page ?: 'index') + '.min.css?v=' + theme.spec.version}">
+    <!--/* index 页的 page css 与上方 index.min.css 相同，跳过避免重复声明 */-->
+    <th:block th:unless="${page == null or page == 'index'}">
+      <link rel="preload" th:href="${assets_link + 'css/' + page + '.min.css?v=' + theme.spec.version}" as="style">
+      <link rel="stylesheet" th:href="${assets_link + 'css/' + page + '.min.css?v=' + theme.spec.version}" media="print" onload="this.media='all'">
+    </th:block>
   </head>
 
-  <body th:classappend="${theme.config.loading.type != 'null' ? 'loading' : ''}" th:with="stats = ${siteStatsFinder.getStats()},contributor = ${contributorFinder.getContributor(theme.config.base.metadata_name)}">
-  <script defer type="text/javascript" th:if="${theme.config.loading.type != 'null'}" th:src="${assets_link + 'plugins/loading/' + theme.config.loading.type + '.min.js?v=' + theme.spec.version}"></script>
+  <body th:classappend="${loading_enabled ? 'loading' : ''}" th:with="stats = ${siteStatsFinder.getStats()},contributor = ${contributorFinder.getContributor(theme.config.base.metadata_name)}">
+  <script th:if="${loading_enabled}" th:inline="javascript">
+    window.setTimeout(function() {
+      document.body.classList.remove('loading');
+    }, /*[[${loading_timeout}]]*/ 3000);
+  </script>
+  <script
+    defer
+    th:if="${loading_enabled}"
+    th:src="${assets_link + 'plugins/loading/' + theme.config.loading.type + '.min.js?v=' + theme.spec.version}"
+    th:data-timeout="${loading_timeout}"
+    onerror="document.body.classList.remove('loading')"
+  ></script>
 
   <div id="Butterfly" th:class="${page}">
     <th:block th:replace="${header}"></th:block>
@@ -49,7 +59,9 @@
     <th:block th:replace="~{views/components::side}"/>
   </div>
 
-  <script defer type="text/javascript" th:src="${assets_link + 'js/' + (page ?: 'index') + '.min.js?v=' + theme.spec.version }"></script>
+  <!--/* common.min.js 为各页面共享依赖，须在页面脚本之前加载 */-->
+  <script defer th:src="${assets_link + 'js/common.min.js?v=' + theme.spec.version }"></script>
+  <script defer th:src="${assets_link + 'js/' + (page ?: 'index') + '.min.js?v=' + theme.spec.version }"></script>
   </body>
   </html>
 </th:block>

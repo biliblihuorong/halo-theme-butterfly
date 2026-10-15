@@ -4,20 +4,32 @@
  * @fileName: Render
  * @Description: 渲染html
  */
-import $ from 'jquery';
-import {useDelay} from '../core/_util';
 import tocBot from 'tocbot';
+
+export function resolveAnchorId(id, ids) {
+  if(ids.includes(id)) return id;
+  const normalize = (value) => value.replace(/^(?:user-content-)+/, '');
+  const matches = ids.filter((value) => normalize(value) === normalize(id));
+  return matches.length === 1 ? matches[0] : null;
+}
 
 export default class Render {
   name = 'Render';
 
-  #renderDom = $('article.render'); // 文章渲染区域
+  #renderDom = document.querySelector('article.render'); // 文章渲染区域
 
-  #tocStickyDom = $('.aside .is-sticky');
+  #tocStickyDom = document.querySelector('.aside .is-sticky');
 
   #conf = MainApp.conf;
 
   constructor() {
+    this.#repairAnchors();
+    if(this.#renderDom) {
+      window.addEventListener('hashchange', () => this.#repairAnchors());
+      if(document.readyState !== 'complete') {
+        window.addEventListener('load', () => this.#repairAnchors(), {once: true});
+      }
+    }
     this.#h();
     this.#domObserver();
     this.#tocBotH5();
@@ -28,11 +40,12 @@ export default class Render {
    * h标题
    */
   #h() {
-    if(this.#conf.enable_h_icon) this.#renderDom.addClass('enable_h_icon');
+    if(this.#conf.enable_h_icon) this.#renderDom?.classList.add('enable_h_icon');
   }
 
   #domObserver() {
     const renderDom = document.querySelector('article.render');
+    if(!renderDom || !this.#tocStickyDom) return;
 
     const observer = new ResizeObserver(entries => {
       for (let entry of entries) {
@@ -49,6 +62,7 @@ export default class Render {
    * 设置目录
    */
   #tocBot() {
+    if(!this.#tocStickyDom) return;
     tocBot.init({
       contentSelector: 'article.render',
       tocSelector: '.aside-toc > .toc',
@@ -69,16 +83,16 @@ export default class Render {
     MainApp.useScroll.change((max, num, scrollTop) => {
       if(scrollTop < max || window.innerWidth <= 1100) return;
       if(num <= scrollTop) {
-        this.#tocStickyDom.css('top', '');
+        this.#tocStickyDom.style.top = '';
       }
       else {
-        this.#tocStickyDom.css('top', '70px');
+        this.#tocStickyDom.style.top = '70px';
       }
     });
 
-    const toc = $('.aside-toc > .toc');
+    const toc = document.querySelector('.aside-toc > .toc');
 
-    if(!toc.html()) toc.html('暂无目录~');
+    if(toc && !toc.innerHTML) toc.textContent = '暂无目录~';
 
   }
 
@@ -86,32 +100,75 @@ export default class Render {
    * h5目录
    */
   #tocBotH5() {
-    const adeToc = this.#tocStickyDom.find('.aside-toc');
+    const adeToc = this.#tocStickyDom?.querySelector('.aside-toc');
 
-    const sideBtn = $('.side-btn');
+    const sideBtn = document.querySelector('.side-btn');
+    if(!adeToc || !sideBtn) return;
+    adeToc.id ||= 'article-toc';
 
-    const tocBtn = $(`<button  class="button h5-toc" type="button"  title="文章目录" ><i class="fa-sharp fa-solid fa-list-tree"></i></button>`);
+    const tocBtn = document.createElement('button');
+    tocBtn.className = 'button h5-toc';
+    tocBtn.type = 'button';
+    tocBtn.title = '文章目录';
+    tocBtn.setAttribute('aria-label', '文章目录');
+    tocBtn.setAttribute('aria-controls', adeToc.id);
+    tocBtn.setAttribute('aria-expanded', 'false');
+    tocBtn.innerHTML = '<i class="fa-solid fa-list-ul"></i>';
 
     sideBtn.prepend(tocBtn);
 
-    tocBtn.on('click', async () => {
-      adeToc.toggle('fast');
-
-      await useDelay(500);
-
-      adeToc.css('display') === 'none' && adeToc.attr('style', '');
+    tocBtn.addEventListener('click', () => {
+      const expanded = adeToc.classList.toggle('is-open');
+      tocBtn.setAttribute('aria-expanded', String(expanded));
     });
+  }
+
+  #repairAnchors() {
+    if(!this.#renderDom) return;
+    const ids = Array.from(this.#renderDom.querySelectorAll('[id]'), (el) => el.id);
+    if(!ids.length) return;
+    const current = new URL(window.location.href);
+    this.#renderDom.querySelectorAll('a[href*="#"]').forEach((link) => {
+      try {
+        const url = new URL(link.getAttribute('href'), current);
+        if(url.origin !== current.origin || url.pathname !== current.pathname || url.search !== current.search) return;
+        const id = decodeURIComponent(url.hash.slice(1));
+        const target = resolveAnchorId(id, ids);
+        if(!target || target === id) return;
+        url.hash = target;
+        link.setAttribute('href', url.pathname + url.search + url.hash);
+      } catch {
+        // 无效或跨页面的锚点保持原链接。
+      }
+    });
+    try {
+      const id = decodeURIComponent(current.hash.slice(1));
+      if(!id) return;
+      const target = resolveAnchorId(id, ids);
+      if(target && target !== id) {
+        current.hash = target;
+        window.history.replaceState(window.history.state, '', current);
+        document.getElementById(target)?.scrollIntoView();
+      }
+    } catch {
+      // 无法更新地址时，正文内已经修正的脚注链接仍可使用。
+    }
   }
 
   /**
    * 版权
    */
   #copyRight() {
-    const a = $('.copy-right a.permalink');
+    const a = document.querySelector('.copy-right a.permalink');
 
-    a.attr('href', window.location.href);
-
-    a.html(decodeURI(window.location.href));
+    if(a) {
+      a.setAttribute('href', window.location.href);
+      try {
+        a.textContent = decodeURI(window.location.href);
+      } catch {
+        a.textContent = window.location.href;
+      }
+    }
   }
 
 }

@@ -14,15 +14,6 @@
         //第一屏
         enable_above: /*[[${theme.config.index.enable_above}]]*/ '',
         above_background: /*[[${theme.config.index.above_background}]]*/ '',
-        // 分页
-        nextUrl: /*[[${games?.nextUrl}]]*/ {},
-        prevUrl: /*[[${games?.prevUrl}]]*/ {},
-        page: /*[[${games?.page}]]*/ {},
-        size: /*[[${games?.size}]]*/ {},
-        total: /*[[${games?.total}]]*/ {},
-        totalPages: /*[[${games?.totalPages}]]*/ {},
-        hasPrevious: /*[[${games != null ? games.hasPrevious() : false}]]*/ {},
-        hasNext: /*[[${games != null ? games.hasNext() : false}]]*/ {},
         // Steam 配置
         enableGameLink: /*[[${enableGameLink}]]*/ false,
       });
@@ -38,7 +29,7 @@
       <!--第一屏内容-->
       <section class="above" th:if="${theme.config.index.enable_above}">
         <div class="above-info">
-          <h1 class="above-title" th:text="${title ?: 'Steam'}">Steam</h1>
+          <h1 class="above-title">Steam 游戏库</h1>
         </div>
       </section>
     </header>
@@ -54,7 +45,7 @@
         <div class="steam-profile card animate__animated animate__fadeIn" th:if="${profile != null}">
           <div class="profile-main">
             <div class="profile-avatar">
-              <img th:src="${profile.summary?.avatarFull}" th:alt="${profile.summary?.personaName}" class="avatar-img"/>
+              <img th:src="${profile.summary?.avatarFull}" th:alt="${profile.summary?.personaName}" class="avatar-img" decoding="async"/>
               <span class="status-dot" th:classappend="${profile.playing ? 'playing' : (profile.summary?.personaState == 1 ? 'online' : 'offline')}"></span>
             </div>
             <div class="profile-info">
@@ -108,7 +99,7 @@
                th:target="${enableGameLink ? '_blank' : ''}"
                th:title="${game.name}">
               <div class="game-cover">
-                <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="game-img" loading="lazy"/>
+                <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="game-img" loading="lazy" decoding="async"/>
               </div>
               <div class="game-info">
                 <span class="game-name" th:text="${game.name}">游戏名</span>
@@ -128,6 +119,7 @@
         </div>
       </th:block>
 
+      <div data-partial-navigation>
       <!--/* 游戏库 */-->
       <div class="steam-section card animate__animated animate__fadeIn" th:if="${games != null and not #lists.isEmpty(games.items)}">
         <h3 class="section-title"><i class="fas fa-th-large"></i> 游戏库</h3>
@@ -138,7 +130,7 @@
              th:target="${enableGameLink ? '_blank' : ''}"
              th:title="${game.name}">
             <div class="lib-cover">
-              <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="lib-img" loading="lazy"/>
+              <img th:src="${game.headerImageUrl}" th:alt="${game.name}" class="lib-img" loading="lazy" decoding="async"/>
               <div class="lib-overlay">
                 <span class="lib-playtime" th:text="${game.playtimeFormatted}">0h</span>
               </div>
@@ -149,6 +141,25 @@
       </div>
 
       <th:block th:if="${games == null or #lists.isEmpty(games.items)}" th:insert="~{views/components:: emptyData(false)}"></th:block>
+
+      <div class="pagination"
+           th:if="${games != null and games.totalPages > 1}"
+           th:with="
+             winStart = ${games.totalPages <= 5 ? 1 : ((games.page - 2 < 1) ? 1 : ((games.page + 2 > games.totalPages) ? games.totalPages - 4 : games.page - 2))},
+             winEnd = ${games.totalPages <= 5 ? games.totalPages : (winStart + 4 > games.totalPages ? games.totalPages : winStart + 4)}
+           ">
+        <a class="page prev" th:if="${games.hasPrevious()}" th:href="@{/steam/page/{p}(p=${games.page - 1})}" rel="prev" aria-label="prev">
+          <i class="fas fa-chevron-left fa-fw"></i>
+        </a>
+        <a th:each="p : ${#numbers.sequence(winStart, winEnd)}"
+           th:href="@{/steam/page/{n}(n=${p})}"
+           th:class="'page' + ${p == games.page ? ' current' : ''}"
+           th:text="${p}"></a>
+        <a class="page next" th:if="${games.hasNext()}" th:href="@{/steam/page/{p}(p=${games.page + 1})}" rel="next" aria-label="next">
+          <i class="fas fa-chevron-right fa-fw"></i>
+        </a>
+      </div>
+      </div>
 
     </section>
     <th:block th:replace="~{views/aside::common}"/>

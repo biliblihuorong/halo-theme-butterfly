@@ -346,6 +346,14 @@ $steam-yellow: #ffc107;
     }
   }
 
+  // ===== 分页 =====
+  // 服务端分页，前端仅局部替换游戏库
+  @include components.pagination;
+
+  .pagination {
+    margin-bottom: 20px;
+  }
+
   // ===== 响应式 =====
   @include util.useResponsive(util.$w-md) {
     .steam-profile {

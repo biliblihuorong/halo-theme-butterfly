@@ -11,29 +11,29 @@
   <th:block th:fragment="pin">
     <style th:inline="css">
       .above {
-        background-image: /*[(${'url('+theme.config.categories.above_background+')'})]*/ none;
+        background-image: /*[(${'url('+(theme.config.page_hero?.categories?.above_background ?: theme.config.index.above_background)+')'})]*/ none;
       }
     </style>
 
     <script id="pageScript" th:inline="javascript">
-      window.MainApp.data =  /*[[${categories}]]*/ [];
+      window.MainApp.data =  /*[[${categories ?: categoryFinder.listAll()}]]*/ [];
 
       Object.assign(window.MainApp.conf, {
         //第一屏
-        enable_above: /*[[${theme.config.categories.enable_above}]]*/ '',
-        above_background: /*[[${theme.config.categories.above_background}]]*/ '',
+        enable_above: /*[[${(theme.config.page_hero?.categories?.enable_above ?: theme.config.index.enable_above) ?: false}]]*/ false,
+        above_background: /*[[${theme.config.page_hero?.categories?.above_background ?: theme.config.index.above_background}]]*/ '',
       });
     </script>
   </th:block>
 
   <!--/* header */-->
   <th:block th:fragment="header">
-    <header th:class="${not theme.config.categories.enable_above ? 'header dp' : 'header'}">
+    <header th:class="${not ((theme.config.page_hero?.categories?.enable_above ?: theme.config.index.enable_above) ?: false) ? 'header dp' : 'header'}">
       <!--/* 导航栏 */-->
       <th:block th:replace="~{views/nav}"/>
 
       <!--第一屏内容-->
-      <section class="above" th:if="${theme.config.categories.enable_above}">
+      <section class="above" th:if="${(theme.config.page_hero?.categories?.enable_above ?: theme.config.index.enable_above) ?: false}">
         <div class="above-info">
           <h1 class="above-title">分类</h1>
         </div>
@@ -52,7 +52,7 @@
           <ul class="category-list">
             <li class="category-list-item" th:each="category : ${categoryData}">
               <a class="category-list-link" th:href="@{${category.status.permalink}}" th:text="${category.spec.displayName}"></a>
-              <span class="category-list-count" th:text="${category.status.postCount}"></span>
+              <span class="category-list-count" th:text="${category.postCount}"></span>
             </li>
           </ul>
         </div>

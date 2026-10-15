@@ -8,8 +8,8 @@
   </div>
   <div class="nav-do">
     <!--/* 搜索 */-->
-    <div class="controls" th:if="${pluginFinder.available('PluginSearchWidget')}">
-      <a class="link" href="javascript:SearchWidget.open()" title="搜索" aria-label="搜索">
+    <div class="controls">
+      <a class="link" th:if="${pluginFinder.available('PluginSearchWidget')}" href="javascript:SearchWidget.open()" title="搜索" aria-label="搜索">
         <i class="icon fas fa-search fa-fw"></i>
         <span class="name">搜索</span>
       </a>

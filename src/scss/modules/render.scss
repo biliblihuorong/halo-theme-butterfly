@@ -188,7 +188,10 @@
 
   table {
     width: 100%;
-    display: table;
+    //宽表在窄屏下内部横向滚动，而不是撑破卡片
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
     empty-cells: show;
     border-radius: 4px !important;
     margin-bottom: 15px;
@@ -284,13 +287,13 @@
   &.enable_h_icon {
     h1, h2, h3, h4, h5, h6 {
       &:before {
-        font-family: "Font Awesome 6 Pro", serif;
+        font-family: "Font Awesome 6 Free", serif;
         display: var(--fa-display, inline-block);
         font-style: normal;
         font-variant: normal;
         line-height: 1;
         text-rendering: auto;
-        content: "\e3c2";
+        content: "\f1dc";
         color: var(--theme);
         margin-right: 7px;
         font-size: 0.9em;
@@ -383,6 +386,10 @@
       transition: transform .3s ease-in-out;
       transform-origin: right bottom;
       right: 55px;
+
+      &.is-open {
+        display: block;
+      }
     }
   }
 }

@@ -6,22 +6,7 @@
  */
 
 import App from '../core/App';
-import * as echarts from 'echarts';
 import {useChart, useRandomColor} from '../core/_util';
-import {LineChart, GaugeChart} from 'echarts/charts';
-import {CanvasRenderer} from 'echarts/renderers';
-import {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} from 'echarts/components';
-
-// 注册所需的组件和渲染器
-echarts.use([
-  LineChart,
-  TitleComponent,
-  TooltipComponent,
-  GridComponent,
-  DataZoomComponent,
-  CanvasRenderer,
-  GaugeChart,
-]);
 
 @App([])
 class Tags {
@@ -61,9 +46,24 @@ class Tags {
 
     source = source.length >= 10 ? source.slice(0, 10) : source;
 
-    useChart(chartDom, () => {
+    useChart(chartDom, async (echarts) => {
+      const {BarChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
+      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent, DatasetComponent, TransformComponent, MarkPointComponent, MarkLineComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
+      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts" */ 'echarts/renderers');
+      echarts.use([
+        BarChart,
+        TitleComponent,
+        TooltipComponent,
+        GridComponent,
+        DataZoomComponent,
+        CanvasRenderer,
+        DatasetComponent,
+        TransformComponent,
+        MarkPointComponent,
+        MarkLineComponent,
+      ]);
+
       return {
-        color: 'null',
         backgroundColor: '',
         grid: {
           left: '5%', // 调整左边距

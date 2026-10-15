@@ -3,29 +3,35 @@
   window.MainApp = {
     conf: {
       style_mode: /*[[${theme.config.style.mode}]]*/ null,
+      theme_version: /*[[${theme.spec.version}]]*/ '',
       enable_aside: /*[[${theme.config.aside.enable}]]*/ true,
       enable_webInfo: /*[[${theme.config.aside.enable_webInfo}]]*/ true,
       assets_link: /*[[${assets_link}]]*/ true,
       umami: {
         enable: /*[[${theme.config.umami?.enable}]]*/ false,
-        url: /*[[${theme.config.umami?.url}]]*/ '',
-        websiteId: /*[[${theme.config.umami?.website_id}]]*/ '',
-        username: /*[[${theme.config.umami?.username}]]*/ '',
-        password: /*[[${theme.config.umami?.password}]]*/ '',
+        url: /*[[${theme.config.umami?.enable ? theme.config.umami?.url : null}]]*/ '',
+        shareId: /*[[${theme.config.umami?.enable ? theme.config.umami?.share_id : null}]]*/ '',
         cacheMinutes: /*[[${theme.config.umami?.cache_minutes}]]*/ 30,
       },
     },
     attrs: {},
     modules: {},
   };
-  document.documentElement.dataset.colorScheme = localStorage.getItem('Butterfly-data-theme');
+  (function () {
+    try {
+      var scheme = localStorage.getItem('data-color-scheme');
+      if(scheme === 'light' || scheme === 'dark') document.documentElement.dataset.colorScheme = scheme;
+    } catch (_) {
+      // 浏览器禁止存储时使用页面默认模式。
+    }
+  })();
 </script>
 
 <!--/* style */-->
 <style th:inline="css">
   :root {
-    --card-border-radius: /*[(${theme.config.card.radius})]*/ 24px;
-    --card-box-shadow: /*[(${theme.config.card.shadow})]*/ transparent;
+    --card-border-radius: /*[(${theme.config.style.radius})]*/ 24px;
+    --card-box-shadow: /*[(${theme.config.style.shadow})]*/ transparent;
     --link-hover-color: var(--theme);
   }
 
@@ -55,10 +61,24 @@
     --nav-dropdown-hover-font-color: /*[(${theme.config.nav.dropdown_hover_font_color.dark})]*/ transparent;
   }
 
-  .loading #Butterfly {
-    display: none;
+  body.loading {
+    overflow: hidden;
+  }
+
+  .loading-container {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: var(--body-background);
+  }
+
+  body:not(.loading) > .loading-container {
+    display: none !important;
   }
 </style>
-<link rel="preload stylesheet" as="style" th:if="${theme.config.style.font_family != 'null'}" th:href="${assets_link + 'font/' + theme.config.style.font_family + '.min.css'}">
-<link rel="preload stylesheet" as="style" th:href="${assets_link + 'plugins/fontawesome/fontawesome.min.css'}">
+<!--/* 预加载每页必用的 ASCII/标点切片；CJK 切片由 unicode-range 按需加载 */-->
+<link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" th:if="${theme.config.style.font_family == 'CircularBody'}" th:href="${assets_link + 'font/CircularBody/CircularBody.00.woff2?v=' + theme.spec.version}">
+<link rel="preload stylesheet" as="style" th:if="${theme.config.style.font_family != 'null'}" th:href="${assets_link + 'font/' + theme.config.style.font_family + '.min.css?v=' + theme.spec.version}">
+<!--/* FontAwesome CSS 体积较大（~488KB），异步加载避免阻塞首屏渲染；页面由 loading 遮罩兜底，图标会稍后出现 */-->
+<link rel="stylesheet" th:href="${assets_link + 'plugins/fontawesome/fontawesome.min.css?v=' + theme.spec.version}" media="print" onload="this.media='all'">
 <link rel="preload stylesheet" as="style" th:href="${assets_link + 'plugins/cursor/' + 'simple' + '.min.css?v=' + theme.spec.version}">

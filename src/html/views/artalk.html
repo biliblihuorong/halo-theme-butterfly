@@ -1,0 +1,39 @@
+<th:block
+  xmlns:th="https://www.thymeleaf.org"
+  th:fragment="comment(pageKey,pageTitle,allowComment)"
+  th:if="${(allowComment ?: true) && (theme.config.comment?.provider ?: 'none') == 'artalk'}"
+  th:with="
+    assetSource = ${theme.config.comment?.artalk_asset_source ?: 'local'},
+    artalkServer = ${theme.config.comment?.artalk_server},
+    artalkJs = ${assetSource == 'server'
+      ? artalkServer + '/dist/Artalk.js'
+      : (assetSource == 'custom'
+        ? theme.config.comment?.artalk_custom_js
+        : assets_link + 'plugins/artalk/Artalk.min.js?v=' + theme.spec.version)},
+    artalkCss = ${assetSource == 'server'
+      ? artalkServer + '/dist/Artalk.css'
+      : (assetSource == 'custom'
+        ? theme.config.comment?.artalk_custom_css
+        : assets_link + 'plugins/artalk/Artalk.min.css?v=' + theme.spec.version)}
+  "
+>
+  <div id="artalk"></div>
+  <link rel="stylesheet" th:href="${artalkCss}">
+  <link
+    rel="stylesheet"
+    th:if="${not #strings.isEmpty(theme.config.comment?.artalk_css)}"
+    th:href="${theme.config.comment?.artalk_css}"
+  >
+  <script defer th:src="${artalkJs}"></script>
+  <script th:inline="javascript">
+    window.ArtalkConfig = {
+      server: /*[[${theme.config.comment?.artalk_server}]]*/ '',
+      site: /*[[${theme.config.comment?.artalk_site}]]*/ '',
+      pageKey: /*[[${pageKey}]]*/ '',
+      pageTitle: /*[[${pageTitle}]]*/ '',
+      trailingSlash: /*[[${theme.config.comment?.pagekey_trailing_slash ?: false}]]*/ false,
+      locale: /*[[${theme.config.comment?.artalk_locale ?: 'zh-CN'}]]*/ 'zh-CN',
+      useBackendConf: /*[[${theme.config.comment?.prefer_remote_conf ?: false}]]*/ false,
+    };
+  </script>
+</th:block>

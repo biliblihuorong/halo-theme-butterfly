@@ -1,0 +1,195 @@
+/**
+ * @date: 2026/8/29
+ * @author: shell
+ * @fileName: bangumis
+ * @Description: 追番页（数据由 plugin-bilibili-bangumi 提供）
+ */
+
+@use '../core';
+@use "../core/util";
+@use "../modules/components";
+
+$bangumi-pink: #fb7299;
+
+.bangumis {
+
+  // ===== 筛选栏 =====
+  .bangumi-filter {
+    padding: 16px 20px;
+    margin-bottom: 16px;
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+
+      & + .filter-row {
+        margin-top: 10px;
+      }
+    }
+
+    .filter-label {
+      font-size: .9rem;
+      color: var(--text-color);
+      opacity: .75;
+      flex-shrink: 0;
+    }
+
+    .filter-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      a {
+        display: inline-block;
+        padding: 3px 14px;
+        border-radius: 14px;
+        font-size: .9rem;
+        background: var(--card-background-color);
+        color: var(--text-color);
+        transition: all .25s;
+
+        &:hover {
+          color: var(--theme);
+        }
+
+        &.active {
+          color: #fff;
+          background: var(--theme);
+        }
+      }
+    }
+  }
+
+  // ===== 番剧列表 =====
+  .bangumi-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .item {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+
+      & + .item {
+        margin-top: 16px;
+      }
+
+      .cover {
+        position: relative;
+        flex-shrink: 0;
+        width: 160px;
+        aspect-ratio: 3 / 4;
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--card-background-color);
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform .35s;
+        }
+
+        &:hover img {
+          transform: scale(1.06);
+        }
+
+        .score {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 8px;
+          border-radius: 10px;
+          font-size: .8rem;
+          color: #fff;
+          background: rgba(0, 0, 0, .55);
+          backdrop-filter: blur(4px);
+
+          i {
+            color: $bangumi-pink;
+            font-size: .75rem;
+          }
+        }
+      }
+
+      .info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .title {
+          font-size: 1.05rem;
+          font-weight: 600;
+          color: var(--text-color);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          transition: color .25s;
+
+          &:hover {
+            color: var(--theme);
+          }
+        }
+
+        .meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          font-size: .85rem;
+          color: var(--text-color);
+          opacity: .8;
+
+          .wp {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+
+            i {
+              font-size: .8rem;
+            }
+          }
+        }
+
+        .des {
+          margin: 0;
+          font-size: .88rem;
+          line-height: 1.7;
+          color: var(--text-color);
+          opacity: .85;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          overflow: hidden;
+        }
+      }
+    }
+  }
+
+  // 小屏收窄封面
+  @media screen and (max-width: 640px) {
+    .bangumi-list .item {
+      gap: 12px;
+      padding: 12px;
+
+      .cover {
+        width: 110px;
+      }
+    }
+  }
+
+  // 分页与列表、侧栏之间留出间距
+  .pagination {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  @include components.pagination;
+}

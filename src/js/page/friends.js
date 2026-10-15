@@ -7,8 +7,9 @@
 
 import App from '../core/App';
 import Pagination from '../modules/Pagination';
+import ArtalkComment from '../modules/ArtalkComment';
 
-@App([Pagination])
+@App([Pagination, ArtalkComment])
 class Friends {
 
 }

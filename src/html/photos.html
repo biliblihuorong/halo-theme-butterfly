@@ -51,7 +51,7 @@
 
       </div>
       <div class="imgs">
-        <img class="img animate__animated animate__bounceIn" th:each="photo : ${photoData.items}" th:src="${photo.spec.url}" th:alt="${photo.spec.displayName}">
+        <img class="img animate__animated animate__bounceIn" th:each="photo : ${photoData.items}" th:src="${photo.spec.url}" th:alt="${photo.spec.displayName}" loading="lazy" decoding="async">
       </div>
     </section>
     <th:block th:replace="~{views/aside::common}"/>

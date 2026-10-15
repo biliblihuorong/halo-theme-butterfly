@@ -4,7 +4,6 @@
  * @fileName: index
  * @Description: 首页
  */
-import $ from 'jquery';
 import Typed from 'typed.js';
 import App from '../core/App';
 import Pagination from '../modules/Pagination';
@@ -31,29 +30,37 @@ class Index {
     };
 
     
-    // 随机文字
+    // 随机文字（先按文本接收，能解析成 JSON 则按 JSON 处理，与 $.ajax 行为一致）
     if(enable_typewriter_random_text) {
-      $.ajax({
-        url: typewriter_random_api,
-        type: 'get',
-        success: (response) => {
+      fetch(typewriter_random_api)
+        .then((res) => {
+          if(!res.ok) throw new Error(res.statusText);
+          return res.text();
+        })
+        .then((body) => {
+          let response;
+          try {
+            response = JSON.parse(body);
+          } catch(e) {
+            response = body;
+          }
+
           // 文本情况
           if(typeof response === 'string') {
             return useTyped([response]);
           }
 
-          if(typewriter_api_value_format) {
+          if(!typewriter_api_value_format) {
             return useTyped(['随机文案API返回数据格式为JSON，请配置取值格式！']);
           }
 
           //json 情况
-          const text = typewriter_api_value_format.split('.').reduce((o, i) => o[i], response);
-          useTyped([text]);
-        },
-        error: (err) => {
+          const text = typewriter_api_value_format.split('.').reduce((o, i) => o?.[i], response);
+          useTyped([typeof text === 'string' && text ? text : '随机文案取值失败，请检查取值格式是否正确！']);
+        })
+        .catch(() => {
           useTyped(['获取随机文案失败，请检查API是否正常！']);
-        },
-      });
+        });
       return;
     }
 

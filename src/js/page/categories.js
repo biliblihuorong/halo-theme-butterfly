@@ -6,20 +6,6 @@
  */
 import {useChart} from '../core/_util';
 import App from '../core/App';
-import * as echarts from 'echarts';
-import {PieChart} from 'echarts/charts';
-import {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} from 'echarts/components';
-import {CanvasRenderer} from 'echarts/renderers';
-
-// 注册所需的组件和渲染器
-echarts.use([
-  PieChart,
-  TitleComponent,
-  TooltipComponent,
-  GridComponent,
-  DataZoomComponent,
-  CanvasRenderer,
-]);
 
 @App([])
 class Categories {
@@ -28,9 +14,11 @@ class Categories {
    * 图表
    */
   run_chart() {
-    
+    const chartDom = document.querySelector('section.content > .chart');
+    if(!chartDom || !Array.isArray(MainApp.data)) return;
+
     const data = [];
-    
+
     for (let i = 0; i < MainApp.data.length; i++) {
 
       const item = MainApp.data[i];
@@ -38,9 +26,20 @@ class Categories {
       data.push({value: item.postCount, name: item.spec.displayName});
     }
 
-    const chartDom = document.querySelector('section.content > .chart');
+    useChart(chartDom, async (echarts) => {
+      const {PieChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
+      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent, LegendComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
+      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts" */ 'echarts/renderers');
+      echarts.use([
+        PieChart,
+        TitleComponent,
+        TooltipComponent,
+        GridComponent,
+        DataZoomComponent,
+        LegendComponent,
+        CanvasRenderer,
+      ]);
 
-    useChart( chartDom, () => {
       return {
         backgroundColor: '',
         title: {
@@ -78,7 +77,6 @@ class Categories {
           },
         ],
       };
-
     });
   }
 }
