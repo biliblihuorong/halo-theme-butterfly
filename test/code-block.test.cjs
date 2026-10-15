@@ -2,10 +2,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {load} = require('../test-support/load.cjs');
 
-function fixture(prism) {
+function fixture(prism, {onlyShiki = false} = {}) {
   const classes = new Set();
-  const pre = {nextElementSibling: null, classList: {add: (name) => classes.add(name)}};
-  const article = {classList: {add() {}}, querySelectorAll: (selector) => selector === 'pre' ? [pre] : [{}]};
+  const code = {};
+  const pre = {nextElementSibling: null, classList: {add: (name) => classes.add(name)}, closest: () => null, querySelector: () => code};
+  const shikiPre = {closest: (selector) => selector === 'shiki-code' ? {} : null, querySelector: () => ({}), classList: {add() {throw new Error('shiki block touched');}}};
+  const article = {classList: {add() {}}, querySelectorAll: (selector) => selector === 'pre' ? (onlyShiki ? [shikiPre] : [shikiPre, pre]) : []};
   const nodes = new Map();
   const timers = new Map();
   let script, nextTimer = 0;
@@ -21,7 +23,7 @@ function fixture(prism) {
     console: {warn() {}},
   });
   new codeBlock();
-  return {window, article, classes, timers, script};
+  return {window, article, classes, timers, script, code, nodes};
 }
 
 const settle = () => new Promise((resolve) => setImmediate(resolve));
@@ -48,10 +50,16 @@ test('Prism response without an export also falls back safely', async () => {
   assert.equal(f.classes.has('code-success'), true);
 });
 
-test('successful highlighting stays scoped to this article', async () => {
-  let highlighted;
-  const f = fixture({highlightAllUnder: (el) => {highlighted = el;}});
+test('successful highlighting only touches blocks not owned by Shiki', async () => {
+  const highlighted = [];
+  const f = fixture({highlightElement: (el) => highlighted.push(el)});
   await settle();
-  assert.equal(highlighted, f.article);
+  assert.deepEqual(highlighted, [f.code]);
   assert.equal(f.classes.has('code-success'), true);
+});
+
+test('articles rendered entirely by Shiki do not load Prism', () => {
+  const f = fixture(undefined, {onlyShiki: true});
+  assert.equal(f.script, undefined);
+  assert.equal(f.nodes.size, 0);
 });

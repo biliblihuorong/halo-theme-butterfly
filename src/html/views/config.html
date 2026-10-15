@@ -17,13 +17,27 @@
     attrs: {},
     modules: {},
   };
+  // 首屏前按与 core/theme.js 相同的规则确定配色，避免先按默认浅色绘制再闪烁切换。
   (function () {
-    try {
-      var scheme = localStorage.getItem('data-color-scheme');
-      if(scheme === 'light' || scheme === 'dark') document.documentElement.dataset.colorScheme = scheme;
-    } catch (_) {
-      // 浏览器禁止存储时使用页面默认模式。
+    var root = document.documentElement;
+    var mode = window.MainApp.conf.style_mode;
+    var scheme = 'light';
+    if(mode === 'light' || mode === 'dark') {
+      scheme = mode;
+    } else if(mode === 'auto') {
+      var hour = new Date().getHours();
+      scheme = hour >= 6 && hour < 18 ? 'light' : 'dark';
+    } else {
+      try {
+        scheme = localStorage.getItem('data-color-scheme') === 'dark' ? 'dark' : 'light';
+      } catch (_) {
+        // 浏览器禁止存储时使用页面默认模式。
+      }
     }
+    root.dataset.colorScheme = scheme;
+    // 同步 class 标记，兼容只识别 html.dark 的插件组件。
+    root.classList.remove(scheme === 'dark' ? 'light' : 'dark');
+    root.classList.add(scheme);
   })();
 </script>
 

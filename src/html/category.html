@@ -1,7 +1,7 @@
 <layout
   th:replace="~{views/layout :: layout (
   page = 'category',
-  title = ${site.title} + ' - ' + '分类列表',
+  title = ${site.title + ' - ' + category.spec.displayName + (posts?.page > 1 ? ' - 第 ' + posts.page + ' 页' : '')},
   pin = ~{::pin},
   header = ~{::header},
   main = ~{::main}

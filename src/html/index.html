@@ -1,7 +1,7 @@
 <layout
   th:replace="~{views/layout :: layout (
   page = 'index',
-  title = ${site.title +  (#strings.isEmpty(site.subtitle) ? '' : ' - ' + site.subtitle )},
+  title = ${site.title + (#strings.isEmpty(site.subtitle) ? '' : ' - ' + site.subtitle) + (posts?.page > 1 ? ' - 第 ' + posts.page + ' 页' : '')},
   pin = ~{::pin},
   header = ~{::header},
   main = ~{::main}

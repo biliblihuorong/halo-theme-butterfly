@@ -32,3 +32,8 @@ test('single-page and empty results have no pagination', () => {
 test('last page uses the previous URL and preserves query parameters', () => {
   assert.deepEqual(render({...conf, page: 3, hasNext: false, hasPrevious: true, prevUrl: '/tags/123/page/2?q=a', nextUrl: '/'}), ['/tags/123?q=a', '/tags/123/page/2?q=a', '/tags/123/page/3?q=a']);
 });
+
+test('out-of-range page still links back to valid pages', () => {
+  assert.deepEqual(render({...conf, page: 8, totalPages: 7, total: 63, hasNext: false, hasPrevious: true, prevUrl: '/page/7', nextUrl: '/page/7'}),
+    ['/page/3', '/page/4', '/page/5', '/page/6', '/page/7']);
+});

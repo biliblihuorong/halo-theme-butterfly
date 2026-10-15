@@ -2,7 +2,7 @@
  * 同页筛选和分页只替换结果区，失败时回退到普通导航。
  */
 
-function shouldHandle(event, link, origin = window.location.origin) {
+export function shouldHandle(event, link, origin = window.location.origin) {
   return !event.defaultPrevented &&
     event.button === 0 &&
     !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey &&
@@ -11,7 +11,7 @@ function shouldHandle(event, link, origin = window.location.origin) {
     !link.hasAttribute('download');
 }
 
-class PartialNavigation {
+export default class PartialNavigation {
   name = 'PartialNavigation';
 
   #page;
@@ -75,6 +75,3 @@ class PartialNavigation {
     }
   }
 }
-
-module.exports = PartialNavigation;
-module.exports.shouldHandle = shouldHandle;

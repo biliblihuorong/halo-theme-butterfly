@@ -3,7 +3,8 @@ const assert = require('node:assert/strict');
 const {load} = require('../test-support/load.cjs');
 
 function fixture(storage, mode = 'user') {
-  const document = {documentElement: {dataset: {}}};
+  const classes = new Set();
+  const document = {documentElement: {dataset: {}, classes, classList: {add: (name) => classes.add(name), remove: (name) => classes.delete(name)}}};
   const {Theme} = load('src/js/core/theme.js', ['Theme'], {
     MainApp: {conf: {style_mode: mode}}, document, localStorage: storage,
     useIsDaytime: () => true, console: {error() {}},
@@ -44,4 +45,12 @@ test('explicit dark mode works without storage and unknown settings remain usabl
   const storage = {getItem() {throw new Error('blocked');}, setItem() {throw new Error('blocked');}};
   assert.equal(fixture(storage, 'dark').theme.getMode(), 'dark');
   assert.equal(fixture(storage, 'unknown').theme.getMode(), 'light');
+});
+
+test('root carries a dark/light class for plugins that only read html.dark', () => {
+  const {theme, document} = fixture({getItem: () => 'light', setItem() {}});
+  theme.setMode('dark');
+  assert.deepEqual([...document.documentElement.classes], ['dark']);
+  theme.setMode('light');
+  assert.deepEqual([...document.documentElement.classes], ['light']);
 });

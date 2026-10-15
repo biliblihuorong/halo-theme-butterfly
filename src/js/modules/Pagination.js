@@ -12,9 +12,8 @@ export default class Pagination {
   #conf = MainApp.conf;
 
   constructor() {
+    // 页码超出范围时仍渲染分页，让空结果页可以回到有效页。
     if(!MainApp.conf.total || this.#conf.totalPages <= 1) return;
-
-    if(this.#conf.page > this.#conf.totalPages) return;
 
     this.#createPage();
   }

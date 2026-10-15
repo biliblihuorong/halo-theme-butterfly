@@ -7,7 +7,7 @@ const vm = require('node:vm');
 function fixture(initialMode = 'light', clientReady = true) {
   const el = {dataset: {}};
   const document = {
-    documentElement: {dataset: {}},
+    documentElement: {dataset: {}, classList: {add() {}, remove() {}}},
     getElementById: () => el,
   };
   const storage = new Map();
