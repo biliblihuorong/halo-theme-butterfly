@@ -8,7 +8,7 @@
   )}"
 >
   <th:block th:fragment="pin">
-    <script id="pageScript" th:inline="javascript">
+    <script id="pageScript" data-cfasync="false" th:inline="javascript">
       Object.assign(window.MainApp.conf, {
         enable_above: true,
         above_background: /*[[${theme.config.index.above_background}]]*/ '',

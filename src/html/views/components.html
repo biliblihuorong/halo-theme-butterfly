@@ -2,8 +2,8 @@
 <img
   th:fragment="lazyLoadImg(src,alt,class,random,parma)"
   th:src="${theme.config.loading.img.preload}"
-  th:attr="onerror='this.onerror=null;this.src='+${'`'+theme.config.loading.img.err+'`'}"
   th:data-lazy-src="${(#strings.isEmpty(src) && theme.config.loading.img.random_enable && random)  ? (theme.config.loading.img.random_link + parma)  : src}"
+  th:data-preview="${class == 'img' ? 'cover' : null}"
   th:alt="${alt}"
   th:class="${class}"
   loading="lazy"

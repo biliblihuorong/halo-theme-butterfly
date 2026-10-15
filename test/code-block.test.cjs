@@ -63,3 +63,20 @@ test('articles rendered entirely by Shiki do not load Prism', () => {
   assert.equal(f.script, undefined);
   assert.equal(f.nodes.size, 0);
 });
+
+test('languages Prism does not know are highlighted as plain text without a request', async () => {
+  const plain = {};
+  const languages = {plain};
+  const f = fixture({languages, plugins: {autoloader: {known: ['bash', 'yaml']}}, highlightElement() {}});
+  f.code.className = 'language-env';
+  await settle();
+  assert.equal(languages.env, plain);
+});
+
+test('known but unbundled languages are left for the autoloader', async () => {
+  const languages = {plain: {}};
+  const f = fixture({languages, plugins: {autoloader: {known: ['yaml']}}, highlightElement() {}});
+  f.code.className = 'language-yaml';
+  await settle();
+  assert.equal(languages.yaml, undefined);
+});

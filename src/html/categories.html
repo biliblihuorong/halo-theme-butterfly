@@ -15,7 +15,7 @@
       }
     </style>
 
-    <script id="pageScript" th:inline="javascript">
+    <script id="pageScript" data-cfasync="false" th:inline="javascript">
       window.MainApp.data =  /*[[${categories ?: categoryFinder.listAll()}]]*/ [];
 
       Object.assign(window.MainApp.conf, {

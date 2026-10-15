@@ -116,3 +116,18 @@ body {
   background-color: #00c4b6;
 }
 
+
+// 尊重系统“减少动态效果”设置：保留状态变化，去掉过渡和动画过程
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

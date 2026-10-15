@@ -9,6 +9,7 @@ const inquirer = require('inquirer');
 const resolve = (name) => path.resolve(__dirname, name);
 const {Transform} = require('stream');
 const {versionFontUrls} = require('./scripts/cache-assets.cjs');
+const {writePrism} = require('./scripts/build-prism.cjs');
 
 gulp.task('clean', () => {
   return gulp.src([
@@ -307,6 +308,11 @@ gulp.task('release', async () => {
   fs.writeFileSync('./theme.yaml', themeYaml.replace(/^  version: .*$/m, `  version: ${version}`), 'utf8');
 });
 
+// Prism：核心与插件打包，语言文件拆分后由 autoloader 按需加载
+gulp.task('prism', async () => {
+  writePrism(resolve('templates/assets/plugins/prism'));
+});
+
 // 复制文件夹 font plugins
 gulp.task('copy-folder', function() {
   return gulp.src([
@@ -348,6 +354,7 @@ gulp.task(
   gulp.series(
     gulp.parallel(
       'copy-folder',
+      'prism',
       'css',
       'js',
       'html',

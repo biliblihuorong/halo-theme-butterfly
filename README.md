@@ -33,9 +33,9 @@
 - 桌面端、平板和移动端响应式布局，支持左右侧边栏和移动端抽屉菜单。
 - 浅色、深色、按时间自动切换和访客手动切换四种模式。
 - 首页及多个列表页的首屏大图、打字机文案和页面加载动画。
-- 图片懒加载、失败占位、随机封面和文章图片灯箱预览。
+- 浏览器原生图片懒加载、失败占位、随机封面和文章图片灯箱预览；可选图床预览图（缩略图）渐进加载。
 - 文章目录、阅读字数与时长、版权区、结构化数据和返回顶部。
-- 内置 Prism 代码高亮，可配置标题、分割线、行号、复制、折叠及浅色/深色代码主题。
+- 内置 Prism 代码高亮，语言文件按需加载，可配置标题、分割线、行号、复制、折叠及浅色/深色代码主题；与 Shiki 等高亮插件共存时自动让出。
 - 归档趋势图、分类玫瑰图和标签 Top 10 图表；ECharts 在图表接近视口时才加载。
 - Halo 主菜单与二级菜单、搜索组件、评论组件及页脚注入点适配。
 - 链接、瞬间、图库、朋友圈、Steam 游戏库和 B 站追番插件页面适配。
@@ -133,7 +133,7 @@ Halo 中的归档、分类和标签路由前缀可在系统设置中修改。主
 
 ### 加载与资源 `loading`
 
-页面 Loading 支持关闭、转圈、沙漏、交叉线和小圆点；DOM 就绪后关闭，异常时由 `loading.timeout` 强制解除遮罩。
+页面 Loading 支持关闭、转圈、沙漏、交叉线和小圆点，默认关闭。遮罩只在页面 300 ms 内未就绪时才出现，DOM 就绪后关闭，异常时由 `loading.timeout` 强制解除遮罩。
 
 | 配置 | 说明 |
 | --- | --- |
@@ -210,7 +210,7 @@ Halo 中的归档、分类和标签路由前缀可在系统设置中修改。主
 | 配置 | 说明 |
 | --- | --- |
 | `render.enable_h_icon` | 为正文 `h1`–`h6` 添加标题图标 |
-| `render.enable_code` | 启用主题内置 Prism；安装其他代码高亮插件时应关闭 |
+| `render.enable_code` | 启用主题内置 Prism；Shiki 插件接管的代码块会自动跳过，正文全部由插件渲染时不加载 Prism |
 | `render.enable_code_title` | 显示代码语言/标题 |
 | `render.enable_code_hr` | 显示标题与代码之间的分割线 |
 | `render.enable_code_line` | 显示行号 |
@@ -219,7 +219,7 @@ Halo 中的归档、分类和标签路由前缀可在系统设置中修改。主
 | `render.code_theme_light` | 浅色模式 Prism 主题 |
 | `render.code_theme_dark` | 深色模式 Prism 主题 |
 
-代码主题下拉框已列出仓库内全部 Prism 主题。单篇文章还可以通过文章元数据“启用代码复制”覆盖全局复制按钮设置。
+Prism 核心与常用插件约 18KB（gzip），其他语言在文章用到时才从 `plugins/prism/components-<Prism 版本>/` 加载；Prism 不支持的语言按纯文本显示，不会产生请求。代码主题下拉框已列出仓库内全部 Prism 主题。单篇文章还可以通过文章元数据“启用代码复制”覆盖全局复制按钮设置。
 
 ### Umami 统计 `umami`
 
@@ -256,12 +256,34 @@ Halo 中的归档、分类和标签路由前缀可在系统设置中修改。主
 | `comment.artalk_enable_friends` | 朋友圈评论开关 |
 | `comment.artalk_friends_page_key/title` | 朋友圈在 Artalk 中的页面标识与标题 |
 
-本地 Artalk 客户端资源最稳定。执行 `npm run sync-artalk -- --server https://artalk.example.com` 可以从指定服务端同步新版客户端源码，再重新构建主题。
+评论区接近视口（或通过 `#atk-` 评论锚点进入页面）时才加载 Artalk 资源，不与正文争抢带宽。本地 Artalk 客户端资源最稳定。执行 `npm run sync-artalk -- --server https://artalk.example.com` 可以从指定服务端同步新版客户端源码，再重新构建主题。
 
 ### 性能优化 `performance`
 
 - `performance.preconnect`：每行一个完整 URL，提前建立 DNS/TCP/TLS，建议只放 2–4 个必用来源。
 - `performance.dns_prefetch`：每行一个域名或 URL，仅做 DNS 预解析，适合可能使用的第三方来源。
+
+首屏背景图在解析 `<head>` 时就以高优先级预加载（随机图 API 除外），首屏配置脚本带 `data-cfasync="false"`，在 Cloudflare Rocket Loader 下也会立即执行。访客在系统中开启“减少动态效果”时，主题关闭过渡、动画、平滑滚动和打字机效果。
+
+#### 图片预览图
+
+图床能按规则生成缩略图时开启 `performance.preview_enable`：
+
+| 位置 | 行为 |
+| --- | --- |
+| 文章列表与归档封面 | 只加载预览图，失败时回退原图 |
+| 首屏背景、正文图片 | 先显示预览图，原图加载完成后替换；预览图失败时直接加载原图 |
+| 图片灯箱 | 始终打开原图 |
+
+| 配置 | 说明 |
+| --- | --- |
+| `performance.preview_mode` | `query` 追加查询参数、`path` 替换路径前缀、`suffix` 在扩展名前插入后缀 |
+| `performance.preview_query` | 例如 `w=400`；原图已有参数时用 `&` 连接 |
+| `performance.preview_path_from/to` | 例如 `/i/` → `/thumbnails/`，只处理以前缀开头的路径 |
+| `performance.preview_suffix` | 例如 `_thumb`：`a.webp` → `a_thumb.webp` |
+| `performance.preview_hosts` | 每行一个图床域名；留空时只处理本站域名下的图片 |
+
+Halo 附件库中的本地图片已由 Halo 输出 `srcset` 缩略图，主题不会再改写带 `srcset` 的图片。
 
 ## 菜单与文章元数据
 
@@ -337,7 +359,7 @@ halo-theme-butterfly/
 │  └─ error/                404/500 页面
 ├─ src/scss/                核心、组件和页面样式
 ├─ src/js/                  核心逻辑、模块和页面入口
-├─ src/plugins/             Prism、Artalk、Font Awesome、Loading 等资源
+├─ src/plugins/             Prism 样式、Artalk、Font Awesome、Loading 等资源（Prism 脚本由 scripts/build-prism.cjs 从 prismjs 依赖生成）
 │  └─ fontawesome/            子集化产物（webfonts/CSS），全量字体由 npm 依赖提供
 ├─ templates/               构建产物；被 Git 忽略
 ├─ theme.yaml               主题元信息与自定义模板

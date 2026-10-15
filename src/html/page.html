@@ -9,7 +9,7 @@
 >
   <!--/* pin */-->
   <th:block th:fragment="pin">
-    <script id="pageScript" th:inline="javascript" th:with="above_background = ${not #strings.isEmpty(singlePage.spec.cover) ? singlePage.spec.cover : theme.config.index.above_background}">
+    <script id="pageScript" data-cfasync="false" th:inline="javascript" th:with="above_background = ${not #strings.isEmpty(singlePage.spec.cover) ? singlePage.spec.cover : theme.config.index.above_background}">
       Object.assign(window.MainApp.conf, {
         //第一屏
         enable_above: /*[[${theme.config.index.enable_above}]]*/ '',
@@ -44,7 +44,9 @@
   <th:block th:fragment="main">
     <section class="content card">
       <h1 class="content-title" th:unless="${theme.config.index.enable_above}" th:text="${singlePage.spec.title}"></h1>
-      <article class="render" th:utext="${singlePage.content.content}"></article>
+      <!--/* 正文图片统一原生懒加载；启用预览图时，解析完正文立即换成预览图（此时懒加载图片尚未请求） */-->
+      <article class="render" th:utext="${#strings.replace(singlePage.content.content, '<img ', '<img loading=&quot;lazy&quot; decoding=&quot;async&quot; ')}"></article>
+      <script data-cfasync="false" th:if="${theme.config.performance?.preview_enable ?: false}">window.MainApp.usePreviewImages(document.currentScript.previousElementSibling);</script>
       <halo:comment
         th:if="${pluginFinder.available('PluginCommentWidget') && (theme.config.comment?.provider ?: 'none') == 'halo' && (singlePage.spec.allowComment ?: true)}"
         group="content.halo.run"

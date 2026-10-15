@@ -1,3 +1,5 @@
+import {useScrollBehavior} from '../core/_util';
+
 /**
  * 同页筛选和分页只替换结果区，失败时回退到普通导航。
  */
@@ -60,7 +62,7 @@ export default class PartialNavigation {
 
       current.replaceWith(next);
       if(pushState) history.pushState({partialNavigation: this.#page}, '', url);
-      next.scrollIntoView({behavior: 'smooth', block: 'start'});
+      next.scrollIntoView({behavior: useScrollBehavior(), block: 'start'});
     }
     catch(error) {
       if(error.name !== 'AbortError') window.location.assign(url);

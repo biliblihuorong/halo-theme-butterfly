@@ -37,8 +37,40 @@ export default class ArtalkComment {
     }
   };
 
+  // 评论区接近视口（或通过评论锚点进入页面）时才加载 Artalk 资源
   constructor() {
-    if(!window.ArtalkConfig || !document.getElementById('artalk')) return;
-    this.#tryInit();
+    const el = document.getElementById('artalk');
+    if(!window.ArtalkConfig || !el) return;
+
+    const start = () => {
+      this.#loadAssets(el);
+      this.#tryInit();
+    };
+    if(typeof IntersectionObserver === 'undefined' || /^#atk-/.test(location.hash || '')) {
+      start();
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if(!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      start();
+    }, {rootMargin: '600px 0px'});
+    observer.observe(el);
+  }
+
+  #loadAssets(el) {
+    const {js, css, customCss} = el.dataset;
+    [css, customCss].filter(Boolean).forEach((href) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      document.head.appendChild(link);
+    });
+    if(!js || typeof window.Artalk?.init === 'function') return;
+    const script = document.createElement('script');
+    script.src = js;
+    script.async = true;
+    script.onload = () => this.#tryInit();
+    document.head.appendChild(script);
   }
 }

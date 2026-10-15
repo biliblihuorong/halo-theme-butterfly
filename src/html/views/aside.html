@@ -2,7 +2,6 @@
 <section xmlns:th="https://www.thymeleaf.org" th:fragment="user" class="aside-user card">
   <img
     th:src="${theme.config.loading.img.preload}"
-    onerror="this.src='data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs='"
     th:data-lazy-src="${#strings.isEmpty(contributor.avatar) ?  '/' : contributor.avatar}"
     th:alt="${contributor.displayName}"
     class="avatar"

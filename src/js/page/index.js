@@ -7,6 +7,7 @@
 import Typed from 'typed.js';
 import App from '../core/App';
 import Pagination from '../modules/Pagination';
+import {useReducedMotion} from '../core/_util';
 
 @App([Pagination])
 class Index {
@@ -20,6 +21,11 @@ class Index {
 
     // 创建打字鸡
     const useTyped = (strings) => {
+      // 减少动态效果时直接显示第一条文案，不做打字动画
+      if(useReducedMotion()) {
+        document.querySelector('.above-subtitle--text').textContent = strings[0] ?? '';
+        return;
+      }
       new Typed('.above-subtitle--text', {
         strings,
         startDelay: 300,
