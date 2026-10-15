@@ -1,6 +1,6 @@
 {
   "name": "halo-theme-butterfly",
-  "version": "2.2.9",
+  "version": "2.2.10",
   "packageManager": "pnpm@11.20.0",
   "engines": {
     "node": ">=22.13.0"

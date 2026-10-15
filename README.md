@@ -11,7 +11,7 @@
 
 ![主题预览](docs/renderings.png)
 
-> 当前文档对应主题 `2.2.9`。本项目基于 [dhjddcn/halo-theme-butterfly](https://github.com/dhjddcn/halo-theme-butterfly) 深度定制，视觉与交互灵感来自 Jerry 的 [Hexo Butterfly](https://github.com/jerryc127/hexo-theme-butterfly)。原版文档中的 Hexo 命令、`_config.yml`、Front-matter 和标签外挂不能直接用于本主题，实际能力以本仓库代码和本文档为准。
+> 当前文档对应主题 `2.2.10`。本项目基于 [dhjddcn/halo-theme-butterfly](https://github.com/dhjddcn/halo-theme-butterfly) 深度定制，视觉与交互灵感来自 Jerry 的 [Hexo Butterfly](https://github.com/jerryc127/hexo-theme-butterfly)。原版文档中的 Hexo 命令、`_config.yml`、Front-matter 和标签外挂不能直接用于本主题，实际能力以本仓库代码和本文档为准。
 
 ## 目录
 
@@ -303,7 +303,7 @@ fa-solid fa-images
 - 朋友圈：当前模板只集成 Artalk。
 - 瞬间、图库、Steam、追番：当前主题模板未放置评论区域。
 
-本次完整修复和升级步骤见 [v2.2.9 发布说明](docs/releases/v2.2.9.md)。发行包同时附带 ZIP SHA-256 与逐文件 manifest，版本号、提交和资源可互相核对。
+最新修复见 [v2.2.10 发布说明](docs/releases/v2.2.10.md)，2.2.9 的完整修复和升级步骤见 [v2.2.9 发布说明](docs/releases/v2.2.9.md)。发行包同时附带 ZIP SHA-256 与逐文件 manifest，版本号、提交和资源可互相核对。
 
 ## 升级与配置迁移
 
