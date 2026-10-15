@@ -123,3 +123,32 @@ test('a comment anchor in the URL loads comments immediately', () => {
   assert.equal(f.observers.length, 0);
   assert.equal(f.appended[0].src, '/artalk.js');
 });
+
+test('explicit loading before intersection loads assets and initializes comments only once', () => {
+  const f = fixture('light', false, {observer: true, dataset: {js: '/artalk.js', css: '/artalk.css', customCss: '/extra.css'}});
+  const comments = new f.ArtalkComment();
+  comments.start();
+  comments.start();
+  assert.equal(f.observers[0].disconnected, true);
+  assert.deepEqual(f.appended.map((node) => node.href || node.src), ['/artalk.css', '/extra.css', '/artalk.js']);
+  assert.equal(f.timers.length, 1);
+  f.observers[0].callback([{isIntersecting: true}]);
+  assert.equal(f.appended.length, 3);
+  assert.equal(f.timers.length, 1);
+
+  f.window.Artalk = f.client;
+  f.appended[2].onload();
+  comments.start();
+  f.timers.shift()();
+  assert.equal(f.initializations.length, 1);
+});
+
+test('explicit loading after the scroll observer does not restart comments', () => {
+  const f = fixture('light', true, {observer: true, dataset: {css: '/artalk.css'}});
+  const comments = new f.ArtalkComment();
+  f.observers[0].callback([{isIntersecting: true}]);
+  comments.start();
+  f.observers[0].callback([{isIntersecting: true}]);
+  assert.equal(f.appended.length, 1);
+  assert.equal(f.initializations.length, 1);
+});

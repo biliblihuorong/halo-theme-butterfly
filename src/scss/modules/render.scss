@@ -378,10 +378,12 @@
     .aside-toc {
       display: none;
       position: fixed;
-      bottom: 133px;
+      bottom: 24px;
       z-index: 200;
       max-width: 380px;
-      max-height: calc(100% - 60px);
+      max-height: calc(100vh - 48px);
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
       width: calc(100% - 80px);
       transition: transform .3s ease-in-out;
       transform-origin: right bottom;

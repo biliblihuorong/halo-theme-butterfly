@@ -197,8 +197,13 @@ a:hover {
     transition: opacity .5s, transform .5s;
     position: fixed;
     z-index: 80;
+    max-height: calc(100vh - 56px);
+    max-height: calc(100dvh - 56px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 4px;
 
-    &.active {
+    &.active, &:focus-within {
       opacity: 1;
       transform: translateX(-58px)
     }
@@ -209,6 +214,29 @@ a:hover {
       height: 35px;
       font-size: .9rem;
       transition: .3s ease 0s;
+    }
+
+    > .button[hidden] {
+      display: none;
+    }
+
+    > .button[aria-pressed='true'] {
+      box-shadow: inset 0 0 0 2px currentColor;
+    }
+
+    > .button:focus-visible {
+      outline: 2px solid var(--theme);
+      outline-offset: 3px;
+    }
+
+    .script-label {
+      font-weight: 600;
+    }
+
+    @include util.useResponsive(1100px) {
+      > .wide-toggle {
+        display: none;
+      }
     }
   }
 }

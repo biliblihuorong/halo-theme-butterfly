@@ -5,6 +5,10 @@
 export default class ArtalkComment {
   name = 'artalkComment';
 
+  #started = false;
+
+  #observer;
+
   #tryInit = (attempts = 0) => {
     const cfg = window.ArtalkConfig;
     const el = document.getElementById('artalk');
@@ -42,20 +46,25 @@ export default class ArtalkComment {
     const el = document.getElementById('artalk');
     if(!window.ArtalkConfig || !el) return;
 
-    const start = () => {
-      this.#loadAssets(el);
-      this.#tryInit();
-    };
     if(typeof IntersectionObserver === 'undefined' || /^#atk-/.test(location.hash || '')) {
-      start();
+      this.start();
       return;
     }
-    const observer = new IntersectionObserver((entries) => {
+    this.#observer = new IntersectionObserver((entries) => {
       if(!entries.some((entry) => entry.isIntersecting)) return;
-      observer.disconnect();
-      start();
+      this.start();
     }, {rootMargin: '600px 0px'});
-    observer.observe(el);
+    this.#observer.observe(el);
+  }
+
+  // 快捷按钮和滚动懒加载共用同一个入口，避免重复加载资源或启动初始化轮询。
+  start() {
+    const el = document.getElementById('artalk');
+    if(this.#started || !window.ArtalkConfig || !el) return;
+    this.#started = true;
+    this.#observer?.disconnect();
+    this.#loadAssets(el);
+    this.#tryInit();
   }
 
   #loadAssets(el) {

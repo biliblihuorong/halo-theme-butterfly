@@ -10,6 +10,9 @@ import Message from './_message';
 import Theme from './theme';
 import Scroll from './scroll';
 import Common from './common';
+import ReadingLayout from '../modules/ReadingLayout';
+import ChineseConversion from '../modules/ChineseConversion';
+import CommentShortcut from '../modules/CommentShortcut';
 /**
  * @desc: 注册应用
  * @returns function(*): *
@@ -38,8 +41,9 @@ export default function App(modules = []) {
       }
     }
 
-    for (let i = 0; i < modules.length; i++) {
-      const mods = new modules[i]();
+    const pageModules = [...modules, ReadingLayout, CommentShortcut, ChineseConversion];
+    for (let i = 0; i < pageModules.length; i++) {
+      const mods = new pageModules[i]();
       window.MainApp.modules[mods.name] = mods;
     }
 

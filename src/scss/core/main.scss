@@ -106,3 +106,17 @@
   }
 
 }
+
+// 桌面阅读模式复用主容器宽度，退出时恢复原有侧栏与左右布局。
+@media (min-width: 1101px) {
+  html.reading-wide #Butterfly:is(.post, .single) .main {
+    > .aside {
+      display: none;
+    }
+
+    > .content {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+}

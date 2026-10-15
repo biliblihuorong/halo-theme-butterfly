@@ -89,6 +89,10 @@
     // 同步 class 标记，兼容只识别 html.dark 的插件组件。
     root.classList.remove(scheme === 'dark' ? 'light' : 'dark');
     root.classList.add(scheme);
+    // 在首屏绘制前恢复阅读宽度；样式只作用于桌面文章和独立页面。
+    try {
+      if(localStorage.getItem('butterfly-reading-wide') === '1') root.classList.add('reading-wide');
+    } catch (_) { /* 存储不可用时保留默认布局 */ }
   })();
 </script>
 
