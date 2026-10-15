@@ -1,7 +1,7 @@
 <layout
   th:replace="~{views/layout :: layout (
   page = 'friends',
-  title = ${site.title} + ' - ' + ${title ?: '朋友圈'},
+  title = ${site.title + ' - ' + (title ?: '朋友圈') + (friends?.page > 1 ? ' - 第 ' + friends.page + ' 页' : '')},
   pin = ~{::pin},
   header = ~{::header},
   main = ~{::main}

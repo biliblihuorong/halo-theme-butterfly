@@ -16,9 +16,14 @@ export default class codeBlock {
   
   #attrs = MainApp.attrs;
   
+  #pres = []; // 由主题负责高亮的代码块（Shiki 等插件已接管的除外）
+
   constructor() {
     if(!this.#conf?.enable_code) return;
-    if(!this.#renderDom || this.#renderDom.querySelectorAll('pre code').length === 0) return;
+    if(!this.#renderDom) return;
+    this.#pres = Array.from(this.#renderDom.querySelectorAll('pre'))
+      .filter((pre) => !pre.closest('shiki-code') && pre.querySelector('code'));
+    if(this.#pres.length === 0) return;
     this.#addCss();
     this.#loadPrism().then(() => {
       this.#code();
@@ -26,7 +31,7 @@ export default class codeBlock {
     }).catch((error) => {
       console.warn('[CodeBlock] highlighting unavailable:', error.message);
     }).finally(() => {
-      this.#renderDom.querySelectorAll('pre').forEach((pre) => pre.classList.add('code-success'));
+      this.#pres.forEach((pre) => pre.classList.add('code-success'));
     });
   }
 
@@ -73,7 +78,7 @@ export default class codeBlock {
    * 添加样式
    */
   #addCss(){
-    const cssStr = `.render code[class*=language-] {opacity: 0;transition: opacity .3s;}.render pre[class*=language-]:before, .render pre[class*=language-]:after {animation-name: fa-spin;animation-duration: var(--fa-animation-duration, 2s);animation-iteration-count: var(--fa-animation-iteration-count, infinite);animation-timing-function: var(--fa-animation-timing, linear);animation-direction: var(--fa-animation-direction, normal);animation-delay: var(--fa-animation-delay, 0s);font-family: "Font Awesome 6 Free";font-weight: 900;letter-spacing: normal;-webkit-font-smoothing: antialiased;display: var(--fa-display, inline-block);font-style: normal;font-variant: normal;line-height: 1;text-rendering: auto;font-size: 30px;width: 33px;height: 33px;position: absolute;top: 50%;left: 50%;right: 0;bottom: 0;z-index: 88;transform: translate(-50%, -50%);}.render pre[class*=language-]:before {color: var(--fa-primary-color, inherit);opacity: var(--fa-primary-opacity, 1);content: "\\f121";}.render pre[class*=language-]:after {content: "";opacity: var(--fa-secondary-opacity, 0.4);color: var(--fa-secondary-color, inherit);}.render pre[class*=language-].code-success:before, .render pre[class*=language-].code-success:after {display: none;}.render pre[class*=language-].code-success code {opacity: 1;}.render .code-toolbar {margin: 12px 0;overflow: hidden;box-shadow: var(--code-toolbar-box-shadow);border-radius: 5px;}.render .code-toolbar:before {content: "";position: absolute;top: 9px;left: 12px;z-index: 1;width: 12px;height: 12px;border-radius: 50%;background-color: #fc625d;box-shadow: 20px 0 #fdbc40, 40px 0 #35cd4b;}.render .code-toolbar .toolbar {position: absolute;pointer-events: none;opacity: 1;left: 0;right: 0;top: 0;z-index: unset;height: 30px;line-height: 30px;text-align: center;}.render .code-toolbar .toolbar-item:first-child {display: none;}.render .code-toolbar .toolbar-item:first-child span {background-color: transparent;box-shadow: none;}.render .code-toolbar .toolbar .custom-item {position: absolute;top: 0;user-select: none;font-size: 1rem;right: 12px;color: #999;pointer-events: all;}.render .code-toolbar .toolbar .custom-item > i {cursor: var(--cursor-pointer);margin-left: 15px;transition: transform 0.2s;}.render .code-toolbar .toolbar .custom-item > i:hover {filter: brightness(1.2);}.render .code-toolbar .toolbar .custom-item > i.code-copy {font-size: .9rem;}.render .code-toolbar .toolbar.enable-expander i.code-expander {transform: rotate(90deg);}.render .code-toolbar .toolbar.enable-title .toolbar-item:first-child {display: block;}.render .code-toolbar .toolbar.enable-hr {border-bottom: 1px solid #b2a8a84d;}.render .code-toolbar pre[class*=language-] {position: relative;margin: 0;padding: 30px 0 0;overflow: hidden;white-space: pre;text-shadow: none;border-radius: 5px;}.render .code-toolbar pre[class*=language-] .line-numbers-rows {border-right: none;left: 0;top: 0;bottom: 0;padding-top: 12px;}.render .code-toolbar pre[class*=language-] code[class*=language-] {display: block;margin-bottom: 0;overflow-x: auto;padding: 5px 18px 10px;border-radius: 0 0 8px 8px;text-shadow: none;}.render .code-toolbar pre[class*=language-] code[class*=language-]::-webkit-scrollbar {width: 5px;height: 5px;}.render .code-toolbar pre[class*=language-] code[class*=language-] .token.string, .render .code-toolbar pre[class*=language-] code[class*=language-] .style .token.string, .render .code-toolbar pre[class*=language-] code[class*=language-] .token.entity, .render .code-toolbar pre[class*=language-] code[class*=language-] .token.operator, .render .code-toolbar pre[class*=language-] code[class*=language-] .token.url {background-color: transparent;}.render .code-toolbar pre[class*=language-].line-numbers code[class*=language-] {padding: 10px 20px 10px 50px;}`;
+    const cssStr = `.render :not(shiki-code) > pre > code[class*=language-] {opacity: 0;transition: opacity .3s;}.render pre[class*=language-]:before, .render pre[class*=language-]:after {animation-name: fa-spin;animation-duration: var(--fa-animation-duration, 2s);animation-iteration-count: var(--fa-animation-iteration-count, infinite);animation-timing-function: var(--fa-animation-timing, linear);animation-direction: var(--fa-animation-direction, normal);animation-delay: var(--fa-animation-delay, 0s);font-family: "Font Awesome 6 Free";font-weight: 900;letter-spacing: normal;-webkit-font-smoothing: antialiased;display: var(--fa-display, inline-block);font-style: normal;font-variant: normal;line-height: 1;text-rendering: auto;font-size: 30px;width: 33px;height: 33px;position: absolute;top: 50%;left: 50%;right: 0;bottom: 0;z-index: 88;transform: translate(-50%, -50%);}.render pre[class*=language-]:before {color: var(--fa-primary-color, inherit);opacity: var(--fa-primary-opacity, 1);content: "\\f121";}.render pre[class*=language-]:after {content: "";opacity: var(--fa-secondary-opacity, 0.4);color: var(--fa-secondary-color, inherit);}.render pre[class*=language-].code-success:before, .render pre[class*=language-].code-success:after {display: none;}.render pre[class*=language-].code-success code {opacity: 1;}.render .code-toolbar {margin: 12px 0;overflow: hidden;box-shadow: var(--code-toolbar-box-shadow);border-radius: 5px;}.render .code-toolbar:before {content: "";position: absolute;top: 9px;left: 12px;z-index: 1;width: 12px;height: 12px;border-radius: 50%;background-color: #fc625d;box-shadow: 20px 0 #fdbc40, 40px 0 #35cd4b;}.render .code-toolbar .toolbar {position: absolute;pointer-events: none;opacity: 1;left: 0;right: 0;top: 0;z-index: unset;height: 30px;line-height: 30px;text-align: center;}.render .code-toolbar .toolbar-item:first-child {display: none;}.render .code-toolbar .toolbar-item:first-child span {background-color: transparent;box-shadow: none;}.render .code-toolbar .toolbar .custom-item {position: absolute;top: 0;user-select: none;font-size: 1rem;right: 12px;color: #999;pointer-events: all;}.render .code-toolbar .toolbar .custom-item > i {cursor: var(--cursor-pointer);margin-left: 15px;transition: transform 0.2s;}.render .code-toolbar .toolbar .custom-item > i:hover {filter: brightness(1.2);}.render .code-toolbar .toolbar .custom-item > i.code-copy {font-size: .9rem;}.render .code-toolbar .toolbar.enable-expander i.code-expander {transform: rotate(90deg);}.render .code-toolbar .toolbar.enable-title .toolbar-item:first-child {display: block;}.render .code-toolbar .toolbar.enable-hr {border-bottom: 1px solid #b2a8a84d;}.render .code-toolbar pre[class*=language-] {position: relative;margin: 0;padding: 30px 0 0;overflow: hidden;white-space: pre;text-shadow: none;border-radius: 5px;}.render .code-toolbar pre[class*=language-] .line-numbers-rows {border-right: none;left: 0;top: 0;bottom: 0;padding-top: 12px;}.render .code-toolbar pre[class*=language-] code[class*=language-] {display: block;margin-bottom: 0;overflow-x: auto;padding: 5px 18px 10px;border-radius: 0 0 8px 8px;text-shadow: none;}.render .code-toolbar pre[class*=language-] code[class*=language-]::-webkit-scrollbar {width: 5px;height: 5px;}.render .code-toolbar pre[class*=language-] code[class*=language-] .token.string, .render .code-toolbar pre[class*=language-] code[class*=language-] .style .token.string, .render .code-toolbar pre[class*=language-] code[class*=language-] .token.entity, .render .code-toolbar pre[class*=language-] code[class*=language-] .token.operator, .render .code-toolbar pre[class*=language-] code[class*=language-] .token.url {background-color: transparent;}.render .code-toolbar pre[class*=language-].line-numbers code[class*=language-] {padding: 10px 20px 10px 50px;}`;
     useInsertStyle(cssStr);
   }
 
@@ -87,7 +92,7 @@ export default class codeBlock {
     if(this.#conf.enable_code_line)  this.#renderDom.classList.add('line-numbers');
 
     //重新渲染代码块
-    window.Prism.highlightAllUnder(this.#renderDom);
+    this.#pres.forEach((pre) => window.Prism.highlightElement(pre.querySelector('code')));
 
     // 初始化代码块
     this.#codeTheme(MainApp.useTheme.getMode());
@@ -113,7 +118,7 @@ export default class codeBlock {
    * 代码块工具栏
    */
   #codeToolbar() {
-    const pres = this.#renderDom.querySelectorAll('pre');
+    const pres = this.#pres;
 
     pres.forEach((pre) => {
       // 代码块工具栏（Prism 生成在 pre 的下一个兄弟节点）

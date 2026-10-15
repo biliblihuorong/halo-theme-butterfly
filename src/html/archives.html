@@ -1,7 +1,7 @@
 <layout
   th:replace="~{views/layout :: layout (
   page = 'archives',
-  title = ${site.title} + ' - ' + '归档',
+  title = ${site.title + ' - 归档' + (archives?.page > 1 ? ' - 第 ' + archives.page + ' 页' : '')},
   pin = ~{::pin},
   header = ~{::header},
   main = ~{::main}

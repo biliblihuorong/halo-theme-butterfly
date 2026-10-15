@@ -32,7 +32,11 @@ export default class Theme {
   // 设置主题模式
   setMode(theme) {
     this.mode = theme === 'dark' ? 'dark' : 'light';
-    document.documentElement.dataset[this.#ATTR_KEY] = this.mode;
+    const root = document.documentElement;
+    root.dataset[this.#ATTR_KEY] = this.mode;
+    // Halo 插件配色约定同时接受 data-color-scheme 和 dark/light class，部分插件只识别后者。
+    root.classList.remove(this.mode === 'dark' ? 'light' : 'dark');
+    root.classList.add(this.mode);
     try {
       localStorage.setItem(this.#LOCALSTORAGE_KEY, this.mode);
     } catch {
