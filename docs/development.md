@@ -107,6 +107,14 @@ pnpm build-zip
 
 图标、字体和代码分别遵循 CC BY 4.0、SIL OFL 1.1 和 MIT，见 [Font Awesome 说明](../src/plugins/fontawesome/README.md)与[许可文件](../src/plugins/fontawesome/LICENSE.txt)。其他字体来源见[字体许可声明](../src/font/THIRD_PARTY_NOTICES.md)。
 
+## 简繁转换资源
+
+简繁切换使用精确锁定的 `opencc-js`，采用简体到台湾正体的 `s2tw` 配置。转换词库单独构建为带内容哈希的异步 JS；默认简体浏览时不加载，首次切换或恢复已保存的繁体偏好时才请求主题本地资源。
+
+转换仅作用于页面显示层，原始文本保存在当前页面内存中，切回时精确恢复。新增可编辑组件、代码渲染组件或第三方插件区域时，请检查其是否需要 `translate="no"` 标记，避免处理用户输入或插件维护的 DOM。
+
+OpenCC 的 MIT、Apache-2.0 与第三方许可声明位于 [`src/plugins/opencc/`](../src/plugins/opencc/)，完整构建会将这些文件一并复制到安装包中。更新依赖后需同步核对这些声明，并回归动态内容、目录生成与简繁来回切换。
+
 ## Artalk 客户端资源同步
 
 主题自带 Artalk 客户端。需要从指定 Artalk 服务端同步新版源码时，在已安装依赖的源码目录执行：

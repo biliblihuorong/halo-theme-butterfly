@@ -143,6 +143,18 @@
 
   <!--/* 侧边按钮 */-->
   <div class="side-btn">
+    <button class="button script-toggle" type="button" title="切换为繁体中文" aria-label="切换为繁体中文" aria-pressed="false">
+      <span class="script-label" translate="no">繁</span>
+    </button>
+
+    <button class="button wide-toggle" hidden type="button" title="开启宽屏阅读" aria-label="开启宽屏阅读" aria-pressed="false">
+      <i class="fa-solid fa-expand" aria-hidden="true"></i>
+    </button>
+
+    <button class="button comment-shortcut" hidden type="button" title="前往评论" aria-label="前往评论">
+      <i class="fa-solid fa-comments" aria-hidden="true"></i>
+    </button>
+
     <button class="button switch-model" th:if="${theme.config.style.mode == 'user'}" onclick="MainApp.useTheme.toggleMode()" type="button" title="浅色和深色模式转换" aria-label="切换浅色和深色模式">
       <i class="fas fa-adjust"></i>
     </button>
