@@ -12,15 +12,15 @@
   <div class="desc" th:text="${contributor.bio}"></div>
 
   <div class="data w-100">
-    <a class="item" title="文章" href="/archives">
+    <a class="item" title="文章" href="/archives" data-site-route="archivesUri">
       <div class="headline">文章</div>
       <div class="num" th:text="${stats.post}"></div>
     </a>
-    <a class="item" href="/categories" title="分类">
+    <a class="item" href="/categories" title="分类" data-site-route="categoriesUri">
       <div class="headline">分类</div>
       <div class="num" th:text="${stats.category}"></div>
     </a>
-    <a class="item" title="标签" href="/tags">
+    <a class="item" title="标签" href="/tags" data-site-route="tagsUri">
       <div class="headline">标签</div>
       <div class="num" th:text="${tagFinder.list(1,1).total}"></div>
     </a>

@@ -10,6 +10,8 @@ import {useLazyImages, useLoadImage, useProgressiveImages} from './_image';
 export default class Common {
 
   constructor() {
+    this.#updateSiteRoutes();
+
     if(window.MainApp.conf.enable_above && window.MainApp.conf.above_background) this.#loadAboveBackgroundImg(); //第一屏图片预加载
 
     this.#createSingleAction(); //创建单一行为事件
@@ -18,6 +20,16 @@ export default class Common {
 
     if(MainApp.conf.umami?.enable) this.#fetchUmamiVisits(); //Umami 总访问量
 
+  }
+
+  // 同时更新桌面和移动侧栏；旧版 Halo 没有 routes 时保留默认入口。
+  #updateSiteRoutes() {
+    const routes = MainApp.conf.site?.routes;
+    if(!routes) return;
+    document.querySelectorAll('[data-site-route]').forEach((link) => {
+      const route = routes[link.dataset.siteRoute];
+      if(typeof route === 'string' && route.trim()) link.setAttribute('href', route);
+    });
   }
 
   // 站点运行时间
@@ -91,8 +103,10 @@ export default class Common {
 
       const pageviews = data.pageviews?.value ?? data.pageviews ?? 0;
 
-      // 缓存结果
-      localStorage.setItem(cacheKey, JSON.stringify({ pageviews, time: Date.now() }));
+      // 缓存只是性能优化，存储不可用时仍展示本次取得的访问量。
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({ pageviews, time: Date.now() }));
+      } catch(e) { /* 缓存失败不影响显示 */ }
 
       this.#updateVisitsDom(pageviews);
     } catch(e) {

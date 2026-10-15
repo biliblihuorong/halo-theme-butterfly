@@ -82,15 +82,15 @@
     <img th:replace="~{views/components:: lazyLoadImg(${contributor.avatar},${contributor.displayName},'avatar',false,'')}"/>
 
     <div class="site-data">
-      <a class="item" title="文章" href="/archives">
+      <a class="item" title="文章" href="/archives" data-site-route="archivesUri">
         <h2 class="title">文章</h2>
         <span class="num" th:text="${stats.post}"></span>
       </a>
-      <a class="item" href="/categories" title="分类">
+      <a class="item" href="/categories" title="分类" data-site-route="categoriesUri">
         <h2 class="title">分类</h2>
         <span class="num" th:text="${stats.category}"></span>
       </a>
-      <a class="item" title="标签" href="/tags">
+      <a class="item" title="标签" href="/tags" data-site-route="tagsUri">
         <h2 class="title">标签</h2>
         <span class="num" th:text="${tagFinder.list(1,1).total}"></span>
       </a>
