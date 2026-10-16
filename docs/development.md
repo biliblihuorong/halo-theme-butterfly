@@ -66,7 +66,9 @@ pnpm dev
 
 前端交互使用原生 DOM API，已经移除 jQuery 依赖。二次开发请沿用 `addEventListener`、`closest`、`fetch` 和现有模块约定。
 
-在 Halo 工作目录中以源码挂载时，主题文件夹应命名为 `theme-butterfly`，与 [`theme.yaml`](../theme.yaml) 的 `metadata.name` 一致。仓库目录可使用 `halo-theme-butterfly`；放入 Halo 的 themes 目录时需要改名。当前 fork 保留了原主题标识、配置名称和默认资源路径。
+在 Halo 工作目录中以源码挂载时，主题文件夹应命名为 `theme-butterfly-shell`，与 [`theme.yaml`](../theme.yaml) 的 `metadata.name` 一致。仓库目录仍可使用 `halo-theme-butterfly`；放入 Halo 的 themes 目录时需要改名。v2.3.4 起，本分支使用独立的 Theme、Setting、ConfigMap 和 AnnotationSetting 名称，与上游主题隔离。
+
+本站资源根路径根据 `theme.metadata.name` 生成，Prism 回退和旧默认首屏背景使用同一个本站根路径，cursor CSS 使用相对路径。旧 `loading.source.site` 默认值会映射到当前主题路径；自定义 CDN、npm 来源、非默认本站地址及外部图片保持原值。修改主题标识时须同时检查资源与配置迁移，不能只修改 `theme.yaml` 的一个字段。
 
 侧栏自定义路由读取 Halo 2.22+ 公开站点模型中的 `routes`。配置模板序列化整个公开 `site` 对象，前端初始化后更新桌面和移动侧栏；这样旧版 Halo 缺少 `routes` 时也能保留默认链接，不必提高主题最低版本。请避免在服务端模板中直接访问旧版可能不存在的 Bean 属性。
 

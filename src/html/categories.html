@@ -9,12 +9,6 @@
 >
   <!--/* pin */-->
   <th:block th:fragment="pin">
-    <style th:inline="css">
-      .above {
-        background-image: /*[(${'url('+(theme.config.page_hero?.categories?.above_background ?: theme.config.index.above_background)+')'})]*/ none;
-      }
-    </style>
-
     <script id="pageScript" data-cfasync="false" th:inline="javascript">
       window.MainApp.data =  /*[[${categories ?: categoryFinder.listAll()}]]*/ [];
 

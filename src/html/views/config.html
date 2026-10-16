@@ -4,10 +4,12 @@
   window.MainApp = {
     conf: {
       style_mode: /*[[${theme.config.style.mode}]]*/ null,
+      theme_name: /*[[${theme.metadata.name}]]*/ '',
       theme_version: /*[[${theme.spec.version}]]*/ '',
       enable_aside: /*[[${theme.config.aside.enable}]]*/ true,
       enable_webInfo: /*[[${theme.config.aside.enable_webInfo}]]*/ true,
-      assets_link: /*[[${assets_link}]]*/ true,
+      assets_site: /*[[${assets_site}]]*/ '',
+      assets_link: /*[[${assets_link}]]*/ '',
       // routes 自 Halo 2.22 提供；序列化公开站点模型，避免旧版访问不存在的属性。
       site: /*[[${site}]]*/ {},
       umami: {

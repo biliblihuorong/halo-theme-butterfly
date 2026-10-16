@@ -1,7 +1,11 @@
 <th:block
   xmlns:th="https://www.thymeleaf.org"
   th:with="
-     assets_link = ${theme.config.loading.source instanceof T(java.util.Map) and theme.config.loading.source.type != null ? theme.config.loading.source[theme.config.loading.source.type] : '/themes/theme-butterfly/assets/'},
+     assets_site = ${'/themes/' + theme.metadata.name + '/assets/'},
+     assets_source = ${theme.config.loading?.source},
+     assets_type = ${assets_source?.type ?: 'site'},
+     assets_selected = ${assets_type == 'site' ? assets_source?.site : (assets_type == 'custom' ? assets_source?.custom : (assets_type == 'npm' ? assets_source?.npm : null))},
+     assets_link = ${#strings.isEmpty(assets_selected) or (assets_type == 'site' and (assets_selected == '/themes/theme-butterfly/assets/' or assets_selected == '/themes/theme-butterfly-shell/assets/')) ? assets_site : assets_selected},
      param_prefix = ${theme.config.loading.img != null and #strings.containsIgnoreCase(theme.config.loading.img.random_link,'?') ? '&' : '?'},
      loading_enabled = ${theme.config.loading.type != null and theme.config.loading.type != 'null'},
      loading_timeout = ${theme.config.loading.timeout ?: 3000}
@@ -31,6 +35,10 @@
     <!--/* 首屏背景图在解析 head 时就开始高优先级下载，不再等主题脚本执行；随机图 API 每次返回不同图片，不预加载 */-->
     <script data-cfasync="false">
       (function (conf) {
+        // 旧配置中的内置默认图跟随当前主题目录；自定义图片和 CDN 地址保持原值。
+        if(conf.above_background === '/themes/theme-butterfly/assets/img/default-banner.png') {
+          conf.above_background = conf.assets_site + 'img/default-banner.png';
+        }
         var src = conf.enable_above && conf.above_background;
         if(!src || src === conf.random_link) return;
         var link = document.createElement('link');
