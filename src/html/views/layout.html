@@ -48,7 +48,7 @@
     </th:block>
   </head>
 
-  <body th:classappend="${loading_enabled ? 'loading' : ''}" th:with="stats = ${siteStatsFinder.getStats()},contributor = ${contributorFinder.getContributor(theme.config.base.metadata_name)}">
+  <body th:classappend="${loading_enabled ? 'loading' : ''}" th:with="stats = ${siteStatsFinder.getStats()},contributor = ${contributorFinder.getContributor(theme.config.base.metadata_name)},menuItems = ${menuFinder.getPrimary().menuItems},tagTotal = ${tagFinder.list(1,1).total}">
   <script th:if="${loading_enabled}" th:inline="javascript" data-cfasync="false">
     window.setTimeout(function() {
       document.body.classList.remove('loading');

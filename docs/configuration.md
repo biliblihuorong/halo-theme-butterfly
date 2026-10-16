@@ -1,6 +1,6 @@
 # 主题配置与使用
 
-本文介绍 Butterfly-shell 的安装与配置，配置项与当前 `2.3.2` 版本的设置结构对应。
+本文介绍 Butterfly-shell 的安装与配置，配置项与当前 `2.3.3` 版本的设置结构对应。
 
 [项目介绍](../README.md) · [开发与构建](development.md) · [更新记录](releases/)
 
@@ -203,7 +203,9 @@
 
 瞬间、图库、Steam 和普通独立页面目前复用首页首屏配置。
 
-友链交换规则、本站信息和移出记录的编辑入口为 **主题设置 → 页面设置 → 友链页 → 友链申请说明**，格式由上方“申请说明格式”选择。原入口名为“友链底部内容”，保存字段仍是 `page_hero.links.footer_content`，已有内容会继续使用。这个入口属于主题，链接管理插件负责维护友链条目；页面标题会跟随插件设置中的“页面标题”，插件未提供标题时使用“友情链接”。升级后若看不到这些设置，请在主题详情页的 `···` 菜单执行“重载主题配置”。
+友链交换规则、本站信息和移出记录的编辑入口为 **主题设置 → 页面设置 → 友链页 → 友链申请说明**，格式由上方“申请说明格式”选择。原入口名为“友链底部内容”，保存字段仍是 `page_hero.links.footer_content`，已有内容会继续使用。这个入口属于主题，链接管理插件负责维护友链条目。升级后若看不到这些设置，请在主题详情页的 `···` 菜单执行“重载主题配置”。
+
+友链页的浏览器标题和首屏标题跟随链接管理插件的“页面标题”。插件的默认值是“链接”，因此通常不会触发主题的“友情链接”回退值。需要显示“友情链接”时，进入 **Console → 插件 → 链接管理 → 基本设置 → 页面标题**，修改并保存；主题首屏设置和主菜单名称不会修改该标题。字段与默认值见[插件官方配置](https://github.com/halo-sigs/plugin-links/blob/v2.5.0/src/main/resources/extensions/settings.yaml#L7-L14)。
 
 ### 正文与代码块 `render`
 
@@ -291,7 +293,26 @@ Prism 核心与常用插件约 18KB（gzip），其他语言在文章用到时�
 | `performance.preview_suffix` | 例如 `_thumb`：`a.webp` → `a_thumb.webp` |
 | `performance.preview_hosts` | 每行一个图床域名；留空时只处理本站域名下的图片 |
 
-Halo 附件库中的本地图片已由 Halo 输出 `srcset` 缩略图，主题不会再改写带 `srcset` 的图片。
+#### Halo 附件响应式图片
+
+Halo 2.22+ 会为具有有效 `src`、且存储策略支持缩略图的图片自动添加 `srcset`。关闭图床预览时，文章列表与归档封面直接输出真实地址，并按列表、网格、侧栏和屏幕尺寸提供 `sizes`，让浏览器选择合适的候选；归档小封面使用 `96px`。封面缩略图加载失败时先移除候选、重试原图，再失败才显示错误占位图。
+
+正文已有的 `srcset` 会保留，不经过图床预览改写，也不会在后台额外下载原图。旧版 Halo 或无法生成缩略图的图片仍使用原图，无需提高主题最低版本。Halo 2.19–2.21 虽提供缩略图 Finder，本主题依赖的自动添加行为需要 2.22+。启用图床预览时，封面继续使用占位图与预览规则，避免先请求原图再重复下载预览图。
+
+此能力取决于 Halo 附件及其存储策略，不会自动为任意外部图床链接生成多档图片，CSS 首屏背景也不在自动处理范围内。参见 [Halo 图片优化说明](https://docs.halo.run/developer-guide/theme/image-optimization)。
+
+#### ImgNest 图床
+
+[ImgNest](https://github.com/biliblihuorong/imgnest) 当前在上传时生成一份同目录的 `_thumbs.webp`，可使用专用预设：
+
+1. 在 ImgNest 上传规则中启用缩略图，并确认图片已经生成云端缩略图。
+2. 主题设置 → 性能优化 → 图片预览图：选择“启用”。
+3. “预览图地址规则”选择 **ImgNest（a.webp → a_thumbs.webp）**。
+4. “应用预览图的图床域名”填写实际的 ImgNest 图片域名；留空只处理本站域名。
+
+例如 `https://img.example.com/i/1/2026/a.png` 会使用 `https://img.example.com/i/1/2026/a_thumbs.webp`，`.webp` 主图也使用同名缩略图。规则保留本机存储与 S3/CDN 的目录前缀；已经是缩略图、未知扩展名或含查询参数的地址保持原样，以免破坏签名链接。没有缩略图的历史图片会回退原图；主题不会修改文章保存的图片链接，也不需要图床 API Token。
+
+ImgNest 目前只有一档缩略图，默认长边 400px，纵图实际宽度可能更小；不能将同一文件标成 400/800/1200/1600 四档 `srcset`。文章正文和首屏仍按上表渐进恢复原图，灯箱也打开原图。多档响应式图片需要图床提供对应文件和准确尺寸后再扩展。
 
 ## 菜单与文章元数据
 
@@ -338,6 +359,16 @@ fa-solid fa-book
 各版本变化见[更新记录](releases/)，其中 [v2.3.0](releases/v2.3.0.md) 介绍图片预览与按需资源加载，[v2.2.9](releases/v2.2.9.md) 记录该版本的修复与升级步骤。发行包附带 ZIP SHA-256 和逐文件 manifest，校验方式见[开发文档](development.md#发行包与校验)。
 
 ## 升级与配置迁移
+
+### 更新提示与手动升级
+
+本仓库目前通过 [GitHub Releases](https://github.com/biliblihuorong/halo-theme-butterfly/releases) 分发安装包。`theme.yaml` 的 `repo` 是项目地址；仅填写该地址或发布 GitHub Release，不会接入 Halo 的原生更新提示。
+
+Halo 的原生更新提示由应用市场插件提供。主题需要先上架应用市场，并在 `metadata.annotations` 中声明自己的真实 `store.halo.run/app-id`；应用市场发布新版本后，后台主题列表会提示更新，由用户点击升级。现阶段请在主题详情页右上角 **··· → 升级** 上传新的 `theme-butterfly-dist.zip`。参见 [Halo 主题升级说明](https://docs.halo.run/guide/use/themes#升级主题)和[应用市场发布指南](https://docs.halo.run/developer-guide/app-store/publish-app)。
+
+后续接入时，维护者需要申请开发者、创建本主题的应用并完成首版审核，再将获得的应用 ID 加入主题元信息。之后可在现有 GitHub Actions 的制品校验成功后增加应用市场发布步骤，使 GitHub Release 与市场版本同步。请使用本 fork 的应用 ID，保留当前 `metadata.name: theme-butterfly`，并确保市场版本、`theme.yaml` 和 `package.json` 版本一致。
+
+### 升级检查与旧配置迁移
 
 1. 升级前备份 Halo 数据库和主题配置。
 2. 上传新发行包并执行“重载主题配置”。重载只更新设置结构，不等于重置已有设置。

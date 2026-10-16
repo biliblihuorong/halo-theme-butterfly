@@ -63,16 +63,19 @@ test('article images switch to previews and remember the original', () => {
   app.usePreviewImages({querySelectorAll: () => images.filter((el) => !el.attrs.srcset)});
   assert.deepEqual(images[0].attrs, {src: `${img}?w=400`, 'data-origin': img});
   assert.deepEqual(images[1].attrs, {src: 'https://other.example.net/a.webp'});
+  assert.deepEqual(images[2].attrs, {src: img, srcset: 'a 2x'});
 });
 
 // 模拟 <img>：设置 src 后由测试决定派发 load 或 error
 function fakeImage(attrs = {}) {
   const listeners = {load: new Set(), error: new Set()};
   const classes = new Set();
+  const attributes = {...attrs};
   return {
     dataset: {...attrs}, src: attrs.src || 'data:placeholder', complete: false, naturalWidth: 0,
     classList: {add: (name) => classes.add(name), has: (name) => classes.has(name)},
-    getAttribute(name) {return name === 'src' ? this.src : undefined;},
+    getAttribute(name) {return name === 'src' ? this.src : attributes[name];},
+    removeAttribute(name) {delete attributes[name];},
     addEventListener(type, fn) {listeners[type].add(fn);},
     removeEventListener(type, fn) {listeners[type].delete(fn);},
     fire(type) {[...listeners[type]].forEach((fn) => fn());},
@@ -116,6 +119,70 @@ test('a late placeholder load event does not mark the real image as loaded', () 
   avatar.src = img;
   avatar.fire('load');
   assert.equal(avatar.classes.has('loaded'), true);
+});
+
+test('native responsive covers keep srcset and do not request a separate preview', () => {
+  const {useLazyImages} = imageModule({
+    usePreview() {throw new Error('Native responsive covers should not use a preview rule');}, conf: {},
+  });
+  const cover = fakeImage({src: img, lazySrc: img, preview: 'cover', srcset: 'small.webp 400w, large.webp 800w'});
+  useLazyImages({querySelectorAll: () => [cover]});
+  assert.equal(cover.src, img);
+  assert.equal(cover.getAttribute('srcset'), 'small.webp 400w, large.webp 800w');
+  cover.fire('load');
+  assert.equal(cover.classes.has('loaded'), true);
+});
+
+test('a failed responsive candidate retries the original before the error image', () => {
+  const {useLazyImages} = imageModule({conf: {img_err: 'err.gif'}});
+  const cover = fakeImage({src: img, lazySrc: img, preview: 'cover', srcset: 'broken.webp 400w'});
+  useLazyImages({querySelectorAll: () => [cover]});
+  cover.fire('error');
+  assert.equal(cover.getAttribute('srcset'), undefined);
+  assert.equal(cover.src, img);
+  assert.equal(cover.classes.has('error'), false);
+  cover.fire('load');
+  assert.equal(cover.classes.has('loaded'), true);
+
+  const broken = fakeImage({src: img, lazySrc: img, preview: 'cover', srcset: 'broken.webp 400w'});
+  useLazyImages({querySelectorAll: () => [broken]});
+  broken.fire('error');
+  broken.fire('error');
+  assert.equal(broken.src, 'err.gif');
+  assert.equal(broken.getAttribute('srcset'), undefined);
+  assert.equal(broken.classes.has('error'), true);
+});
+
+test('responsive attributes belonging to a placeholder cannot override the real preview', () => {
+  const {useLazyImages} = imageModule({usePreview: (src) => `${src}?w=400`, conf: {}});
+  const cover = fakeImage({lazySrc: img, preview: 'cover', srcset: 'placeholder.png 400w'});
+  useLazyImages({querySelectorAll: () => [cover]});
+  assert.equal(cover.getAttribute('srcset'), undefined);
+  assert.equal(cover.src, `${img}?w=400`);
+});
+
+test('a responsive candidate selected after a successful load can still fall back', () => {
+  const {useLazyImages} = imageModule({conf: {img_err: 'err.gif'}});
+  const cover = fakeImage({src: img, lazySrc: img, preview: 'cover', srcset: 'small.webp 400w, broken-large.webp 1200w'});
+  useLazyImages({querySelectorAll: () => [cover]});
+  cover.fire('load');
+  cover.fire('error');
+  assert.equal(cover.getAttribute('srcset'), undefined);
+  assert.equal(cover.src, img);
+  cover.fire('load');
+  assert.equal(cover.classes.has('loaded'), true);
+  assert.equal(cover.listeners.error.size, 0);
+});
+
+test('an image loaded before the deferred script still receives its loaded state', () => {
+  const {useLazyImages} = imageModule({conf: {}});
+  const cover = fakeImage({src: img, lazySrc: img, preview: 'cover', srcset: 'small.webp 400w'});
+  cover.complete = true;
+  cover.naturalWidth = 400;
+  useLazyImages({querySelectorAll: () => [cover]});
+  assert.equal(cover.classes.has('loaded'), true);
+  assert.equal(cover.listeners.error.size, 1, 'future responsive candidates retain failure handling');
+  assert.equal(cover.getAttribute('srcset'), 'small.webp 400w');
 });
 
 test('images are not reset or re-requested once loading started', () => {

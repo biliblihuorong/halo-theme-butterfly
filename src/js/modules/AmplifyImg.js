@@ -4,27 +4,35 @@
  * @fileName: AmplifyImg
  * @Description: 图片放大
  */
-import {Fancybox} from '@fancyapps/ui';
 import {useInsertStyle} from '../core/_util';
-import fancyBoxCss from '@fancyapps/ui/dist/fancybox/fancybox.css';
 
 export default class AmplifyImg {
   name = 'AmplifyImg';
 
-  constructor() {
-    this.#addCss();
-    this.#fBox();
+  constructor(loadFancybox = () => Promise.all([
+    import(/* webpackChunkName: "fancybox" */ '@fancyapps/ui'),
+    import(/* webpackChunkName: "fancybox" */ '@fancyapps/ui/dist/fancybox/fancybox.css'),
+  ])) {
+    const images = document.querySelectorAll('.main > .content img');
+    if(!images.length) return;
+    this.#init(images, loadFancybox);
   }
 
-  #addCss() {
-    let cssStr = ``;
-    cssStr += fancyBoxCss.toString();
-    useInsertStyle(cssStr);
+  async #init(images, loadFancybox) {
+    try {
+      const [{Fancybox}, {default: fancyBoxCss}] = await loadFancybox();
+      useInsertStyle(fancyBoxCss.toString());
+      this.#fBox(Fancybox, images);
+    } catch(error) {
+      // 灯箱资源不可用时保留普通图片，不影响其他页面模块。
+      console.warn('[AmplifyImg] lightbox unavailable:', error);
+    }
   }
 
-  #fBox() {
+  #fBox(Fancybox, images) {
     // 用带 data-fancybox 属性的 span 包裹正文图片，供灯箱识别
-    document.querySelectorAll('.main > .content img').forEach((img) => {
+    images.forEach((img) => {
+      if(!img.isConnected || !img.parentNode) return;
       const span = document.createElement('span');
       span.setAttribute('data-fancybox', 'fancyBoxImg');
       // 启用预览图时正文显示的是预览图，灯箱始终打开原图
