@@ -10,7 +10,17 @@ const root = path.resolve(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const version = JSON.parse(read('package.json')).version;
 assert.match(version, /^\d+\.\d+\.\d+$/);
-assert.equal(yaml.load(read('theme.yaml')).spec.version, version, 'package.json and theme.yaml versions differ');
+const theme = yaml.load(read('theme.yaml'));
+assert.equal(theme.spec.version, version, 'package.json and theme.yaml versions differ');
+assert.equal(theme.metadata.name, 'theme-butterfly-shell', 'The fork must use its independent Halo theme identity');
+assert.equal(theme.spec.settingName, `${theme.metadata.name}-setting`);
+assert.equal(theme.spec.configMapName, `${theme.metadata.name}-configmap`);
+assert.equal(yaml.load(read('settings.yaml')).metadata.name, theme.spec.settingName, 'Setting resource identity differs from theme metadata');
+for (const resource of yaml.loadAll(read('annotation-setting.yaml'))) {
+  assert.ok(resource.metadata.name?.startsWith(`${theme.metadata.name}-`), 'Theme annotations must use stable names owned by this fork');
+  assert.ok(!resource.metadata.generateName, 'Theme annotations must not be regenerated on reload');
+}
+assert.ok(theme.spec.homepage && theme.spec.issues && theme.spec.license?.length, 'Missing application-market metadata');
 if (process.env.GITHUB_REF?.startsWith('refs/tags/')) {
   assert.equal(process.env.GITHUB_REF, `refs/tags/v${version}`, 'Release tag does not match the package');
 }

@@ -40,7 +40,9 @@ export default class codeBlock {
    */
   #loadPrism() {
     return new Promise((resolve, reject) => {
-      const base = (this.#conf.assets_link || '/themes/theme-butterfly/assets/') + 'plugins/prism/';
+      const assets = this.#conf.assets_link || this.#conf.assets_site ||
+        '/themes/' + encodeURIComponent(this.#conf.theme_name || 'theme-butterfly-shell') + '/assets/';
+      const base = assets + 'plugins/prism/';
       const lightTheme = this.#conf.code_theme_light;
       const darkTheme = this.#conf.code_theme_dark;
       const version = this.#conf.theme_version ? '?v=' + encodeURIComponent(this.#conf.theme_version) : '';

@@ -1,6 +1,6 @@
 # 主题配置与使用
 
-本文介绍 Butterfly-shell 的安装与配置，配置项与当前 `2.3.3` 版本的设置结构对应。
+本文介绍 Butterfly-shell 的安装与配置，配置项与当前 `2.3.4` 版本的设置结构对应。
 
 [项目介绍](../README.md) · [开发与构建](development.md) · [更新记录](releases/)
 
@@ -23,6 +23,8 @@
 2. 进入 Halo Console → 外观 → 主题 → 主题管理 → 安装主题。
 3. 上传压缩包，选中 `Butterfly-shell` 并点击启用。
 4. 升级主题或发现设置项缺失时，在主题详情页右上角 `···` 中执行“重载主题配置”。
+
+v2.3.4 起的主题标识为 `theme-butterfly-shell`。如果已经安装 v2.3.3 及以前的 `theme-butterfly`，先按[标识迁移说明](#从旧主题标识迁移到-v234)安装新主题并复制设置，再启用；新标识无法作为旧主题的覆盖升级包。
 
 不要直接把源码目录压缩后上传。Halo 运行时需要 `templates/`，而该目录是构建产物，不提交到 Git；请使用 Release 包或按[开发文档](development.md)执行 `pnpm build-zip` 自行生成。
 
@@ -118,7 +120,7 @@
 | `loading.type` | Loading 类型，`null` 表示关闭 |
 | `loading.timeout` | 最长显示时间，范围 1000–10000 ms |
 | `loading.source.type` | 静态资源来源：本站、npm 或自定义 |
-| `loading.source.site` | 本站资源根路径，默认 `/themes/theme-butterfly/assets/`，由主题预设 |
+| `loading.source.site` | 本站资源根路径，默认 `/themes/theme-butterfly-shell/assets/`；空值和旧默认值映射到当前主题标识对应的路径 |
 | `loading.source.custom` | 自定义静态资源根地址；目录内容必须与主题 `assets/` 完全一致 |
 | `loading.source.npm` | unpkg/jsDelivr 等 npm CDN 根地址 |
 | `loading.img.preload` | 图片真实地址加载前的占位图 |
@@ -366,12 +368,31 @@ fa-solid fa-book
 
 Halo 的原生更新提示由应用市场插件提供。主题需要先上架应用市场，并在 `metadata.annotations` 中声明自己的真实 `store.halo.run/app-id`；应用市场发布新版本后，后台主题列表会提示更新，由用户点击升级。现阶段请在主题详情页右上角 **··· → 升级** 上传新的 `theme-butterfly-dist.zip`。参见 [Halo 主题升级说明](https://docs.halo.run/guide/use/themes#升级主题)和[应用市场发布指南](https://docs.halo.run/developer-guide/app-store/publish-app)。
 
-后续接入时，维护者需要申请开发者、创建本主题的应用并完成首版审核，再将获得的应用 ID 加入主题元信息。之后可在现有 GitHub Actions 的制品校验成功后增加应用市场发布步骤，使 GitHub Release 与市场版本同步。请使用本 fork 的应用 ID，保留当前 `metadata.name: theme-butterfly`，并确保市场版本、`theme.yaml` 和 `package.json` 版本一致。
+后续接入时，维护者需要申请开发者、创建本主题的应用，再将获得的应用 ID 加入主题元信息，并完成应用上架。之后可在现有 GitHub Actions 的制品校验成功后增加应用市场发布步骤，使 GitHub Release 与市场版本同步。请使用本 fork 的应用 ID，保持 `metadata.name: theme-butterfly-shell` 稳定，并确保市场版本、`theme.yaml` 和 `package.json` 版本一致；不能使用上游 Butterfly 的市场应用 ID。
+
+### 从旧主题标识迁移到 v2.3.4
+
+v2.3.3 及以前沿用上游 `theme-butterfly` 标识，该名称已被上游应用占用。v2.3.4 改为独立主题 `theme-butterfly-shell`，使用 `theme-butterfly-shell-setting` 和 `theme-butterfly-shell-configmap`。Halo 按标识识别主题，新旧版本在这一边界不能通过“升级”互相覆盖。不要先卸载旧主题或重置旧配置。
+
+1. 备份 Halo 数据。在已授权的后台请求中，使用 `GET /apis/api.console.halo.run/v1alpha1/themes/theme-butterfly/json-config` 导出旧设置，保存为私密的 `old-theme-config.json`。
+2. 从发行版下载新包，通过 **主题管理 → 安装主题** 安装 `theme-butterfly-shell`，暂时保留原主题启用。
+3. 使用源码中的离线工具转换设置。JSON 输入只需要 Node.js；YAML 输入另需安装项目已有的 `js-yaml` 依赖：
+
+   ```bash
+   node scripts/migrate-theme-identity.cjs old-theme-config.json -o new-theme-config.json
+   ```
+
+4. 检查输出后，用 `PUT /apis/api.console.halo.run/v1alpha1/themes/theme-butterfly-shell/json-config` 将 `new-theme-config.json` 的完整 JSON 对象写入新主题，并用同一路径的 `GET` 回读核对。这些接口需要后台授权或个人访问令牌；Halo 2.24.2 的主题设置页没有配置文件导入/导出按钮。
+5. 预览并启用新主题，检查首页、文章、菜单、封面、评论和自定义 CDN。确认新主题正常使用后，再决定是否卸载旧主题；新旧主题的设置表单和配置互相独立。
+
+迁移工具只转换文件，不连接站点。它会将以 `/themes/theme-butterfly/assets/` 开头的内部资源地址改为新路径，保留外部图床、CDN 地址及其他设置，不改写原文件，也不覆盖已经存在的输出文件。还支持完整 ConfigMap 的 YAML/JSON 备份，输出会使用新 ConfigMap 名称并去除旧资源身份；该格式不能直接作为 `json-config` 接口的请求体。已有菜单图标、文章代码复制开关、自定义页面模板名称和访客浏览器偏好不需要迁移。
+
+本节的 JSON 工具只处理身份与内部资源路径。已经使用 `page_hero`、`style` 的 v2.3.x 配置可直接转换。如果更老的配置仍使用 `card` 或顶层 `post`、`links` 等分组，需要另取完整 ConfigMap 备份，按下节先做页面分组迁移，再转换身份；`migrate-page-hero.js` 不接受上面导出的纯 `old-theme-config.json` 对象。
 
 ### 升级检查与旧配置迁移
 
 1. 升级前备份 Halo 数据库和主题配置。
-2. 上传新发行包并执行“重载主题配置”。重载只更新设置结构，不等于重置已有设置。
+2. 同一主题标识下上传新发行包并执行“重载主题配置”；从旧标识迁移需先完成上一节。重载只更新设置结构，不等于重置已有设置。
 3. 检查新增设置的默认值、静态资源来源和浏览器缓存。
 4. 逐页检查首页、文章、归档、分类、标签及已安装插件页面。
 
