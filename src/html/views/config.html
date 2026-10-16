@@ -41,11 +41,15 @@
     } catch (_) {
       return src;
     }
+    if(rule.mode === 'imgnest' && (!/^https?:$/.test(url.protocol) || url.username || url.password || url.href.split('#')[0].indexOf('?') >= 0)) return src;
     var hosts = String(rule.hosts || '').split(/[\s,]+/).map(function (host) {
       return host.replace(/^[a-z]+:\/\//i, '').replace(/\/.*$/, '').toLowerCase();
     }).filter(Boolean);
     if(hosts.length ? hosts.indexOf(url.host.toLowerCase()) < 0 : url.host !== location.host) return src;
-    if(rule.mode === 'query' && rule.query) {
+    if(rule.mode === 'imgnest') {
+      if(/_thumbs\.webp$/i.test(url.pathname) || !/\.(avif|bmp|gif|heic|heif|jpe?g|png|tiff?|webp)$/i.test(url.pathname)) return src;
+      url.pathname = url.pathname.replace(/\.[^./]+$/, '_thumbs.webp');
+    } else if(rule.mode === 'query' && rule.query) {
       var query = String(rule.query).replace(/^[?&]+/, '');
       url.search = url.search ? url.search + '&' + query : query;
     } else if(rule.mode === 'path' && rule.path_from && url.pathname.indexOf(rule.path_from) === 0) {

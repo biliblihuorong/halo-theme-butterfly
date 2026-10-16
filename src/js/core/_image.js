@@ -29,6 +29,7 @@ export function useImageCandidates(img, candidates, fallback) {
   const list = candidates.filter((src, index) => src && candidates.indexOf(src) === index);
   let index = 0;
   let current = '';
+  let responsive = Boolean(img.getAttribute('srcset')?.trim());
 
   // 占位图的 load/error 事件可能晚于监听注册才派发，只处理当前候选地址的事件
   const isCurrent = () => img.src === current;
@@ -40,6 +41,8 @@ export function useImageCandidates(img, candidates, fallback) {
     if(index < list.length) {
       img.src = list[index++];
       current = img.src;
+      // 原生图片可能已在 defer 脚本运行前命中缓存；此时没有后续 load 事件可等。
+      if(img.complete && img.naturalWidth > 0) onLoad();
       return;
     }
     done();
@@ -48,11 +51,19 @@ export function useImageCandidates(img, candidates, fallback) {
   };
   const onLoad = () => {
     if(!isCurrent()) return;
-    done();
+    // 保留响应式图片的监听，窗口变化后选择的新档位也需要失败回退。
+    if(!responsive) done();
     img.classList.add('loaded');
   };
   const onError = () => {
-    if(isCurrent()) next();
+    if(!isCurrent()) return;
+    if(responsive) {
+      // srcset 优先于 src；失败时先撤下候选，再重试当前原图。
+      responsive = false;
+      img.removeAttribute('srcset');
+      index = Math.max(0, index - 1);
+    }
+    next();
   };
 
   img.addEventListener('load', onLoad);
@@ -70,7 +81,11 @@ export function useLazyImages(root = document) {
   root.querySelectorAll('img[data-lazy-src]:not([data-lazy-state])').forEach((img) => {
     img.dataset.lazyState = '1';
     const origin = img.dataset.lazySrc;
-    const candidates = img.dataset.preview === 'cover' ? [usePreview(origin), origin] : [origin];
+    // 占位图自身可能被 Halo 增加 srcset，不能把它带到真实图片上。
+    if(img.getAttribute('srcset') && img.getAttribute('src') !== origin) img.removeAttribute('srcset');
+    const candidates = img.getAttribute('srcset')?.trim()
+      ? [origin]
+      : (img.dataset.preview === 'cover' ? [usePreview(origin), origin] : [origin]);
     useImageCandidates(img, candidates, conf.img_err);
   });
 }

@@ -1,9 +1,11 @@
 <!--/* 图片加载 */-->
 <img
   th:fragment="lazyLoadImg(src,alt,class,random,parma)"
-  th:src="${theme.config.loading.img.preload}"
-  th:data-lazy-src="${(#strings.isEmpty(src) && theme.config.loading.img.random_enable && random)  ? (theme.config.loading.img.random_link + parma)  : src}"
+  th:with="imageSrc=${(#strings.isEmpty(src) && theme.config.loading.img.random_enable && random) ? (theme.config.loading.img.random_link + parma) : src}"
+  th:src="${class == 'img' and not #strings.isEmpty(imageSrc) and not (theme.config.performance?.preview_enable ?: false) ? imageSrc : theme.config.loading.img.preload}"
+  th:data-lazy-src="${imageSrc}"
   th:data-preview="${class == 'img' ? 'cover' : null}"
+  th:sizes="${class == 'img' ? (coverSizes ?: '96px') : null}"
   th:alt="${alt}"
   th:class="${class}"
   loading="lazy"
@@ -15,7 +17,14 @@
   xmlns:th="https://www.thymeleaf.org"
   th:fragment="list(data,layout)"
   th:class="${'essay ' + layout}"
-  th:with="noData = ${not #lists.isEmpty(data)}"
+  th:with="noData = ${not #lists.isEmpty(data)},
+    coverSizes = ${layout == 'tile'
+      ? (theme.config.aside.enable
+        ? '(max-width: 768px) calc(100vw - 16px), (max-width: 1100px) calc(50vw - 25px), (max-width: 1200px) calc(37vw - 21px), (min-width: 2000px) 15vw, 288px'
+        : '(max-width: 768px) calc(100vw - 16px), (max-width: 1200px) calc(50vw - 25px), (min-width: 2000px) 20vw, 394px')
+      : (theme.config.aside.enable
+        ? '(max-width: 768px) calc(100vw - 16px), (max-width: 1100px) calc(40vw - 12px), (min-width: 2000px) 18vw, 362px'
+        : '(max-width: 768px) calc(100vw - 16px), (max-width: 1250px) calc(40vw - 12px), (min-width: 2000px) 24vw, 488px')}"
 >
   <th:block th:if="${noData}">
     <li class="item card" th:each="post : ${data}">
@@ -92,12 +101,12 @@
       </a>
       <a class="item" title="标签" href="/tags" data-site-route="tagsUri">
         <h2 class="title">标签</h2>
-        <span class="num" th:text="${tagFinder.list(1,1).total}"></span>
+        <span class="num" th:text="${tagTotal}"></span>
       </a>
     </div>
     <hr/>
 
-    <menu class="bar" th:with="menuItems = ${menuFinder.getPrimary().menuItems}">
+    <menu class="bar">
       <th:block th:each="menuItem : ${menuItems}" th:with="isChildren = ${#lists.isEmpty(menuItem.children)} ">
         <li th:if="${isChildren}" class="bar-item">
           <a

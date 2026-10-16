@@ -1261,6 +1261,8 @@ spec:
           value: query
           if: "$get(preview_enable).value"
           options:
+            - label: ImgNest（a.webp → a_thumbs.webp）
+              value: imgnest
             - label: 追加查询参数（a.webp → a.webp?w=400）
               value: query
             - label: 替换路径前缀（/i/a.webp → /thumbnails/a.webp）

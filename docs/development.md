@@ -70,6 +70,19 @@ pnpm dev
 
 侧栏自定义路由读取 Halo 2.22+ 公开站点模型中的 `routes`。配置模板序列化整个公开 `site` 对象，前端初始化后更新桌面和移动侧栏；这样旧版 Halo 缺少 `routes` 时也能保留默认链接，不必提高主题最低版本。请避免在服务端模板中直接访问旧版可能不存在的 Bean 属性。
 
+## 性能约定
+
+对照 [Halo 性能最佳实践](https://docs.halo.run/developer-guide/theme/performance)，维护时保留以下行为：
+
+- Gulp/Webpack/Sass 构建并压缩发布资源；公共与页面脚本按顺序使用 `defer`，同步执行的短脚本用于配色、首屏和页面配置。
+- 主题静态资源带版本参数，异步包带内容哈希。Prism 按文章代码需要加载，Artalk 在接近评论区或点击按钮时加载，ECharts 在图表接近视口时加载，OpenCC 在选择繁体时加载，Fancybox 仅在主内容区存在图片时加载。
+- 菜单和标签总数在 `layout` 的 `body th:with` 中各查询一次，桌面与移动侧栏共享；文章列表使用 Halo 提供的分页模型，循环内不额外查询作者、分类或统计。侧栏分类最多 5 条、标签最多 25 条。
+- 封面按实际布局提供 `sizes`，尊重 Halo 生成的 `srcset`；图床预览与原图回退见[图片配置](configuration.md#halo-附件响应式图片)。
+
+生产环境的 Thymeleaf 缓存、HTTP 压缩、缓存响应头和 CDN 由 Halo 与部署配置控制；主题无法替代这些设置。验证时保持模板缓存开启，检查真实页面的图片 `currentSrc` 与 Network 请求，确认响应式图片没有额外无条件加载原图，也没有下载未用到的大包。构建产物大小只能用于比较包体积，不等同于线上加载时间或 Lighthouse 分数。
+
+仍可继续优化的地方：当前部分正文模块仍进入公共包，页面 CSS 也包含重复的基础样式；归档图表为展示全站统计需要读取全部归档数据。瞬间、图库自定义模板的历史大分页回退尚待独立优化，不应将上述常见页面检查视为所有插件路径已经优化完毕。
+
 ## Font Awesome 图标子集化
 
 主题使用 Font Awesome Free `6.6.0`（`@fortawesome/fontawesome-free`）。构建会扫描 `src/html`、`src/js`、`settings.yaml` 中出现的图标类，再合并 [`scripts/fontawesome-whitelist.txt`](../scripts/fontawesome-whitelist.txt)，生成：

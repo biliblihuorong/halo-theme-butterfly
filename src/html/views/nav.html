@@ -22,7 +22,7 @@
 
 
     <!--/* 菜单 */-->
-    <menu class="menu" th:with="menuItems = ${menuFinder.getPrimary().menuItems}">
+    <menu class="menu">
       <th:block th:each="menuItem : ${menuItems}" th:with="isChildren = ${#lists.isEmpty(menuItem.children)} ">
         <li th:if="${isChildren}" class="menu-item">
           <a

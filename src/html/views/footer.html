@@ -27,9 +27,10 @@
     <a class="halo" href="https://halo.run/" target="_blank">Halo</a>&nbsp;|&nbsp;🌈 Theme by&nbsp;
     <a class="theme"
        th:title="'当前主题：' + ${theme.spec.displayName}"
-       th:href="${theme.spec.author.website}"
+       href="https://github.com/biliblihuorong/halo-theme-butterfly"
        target="_blank"
-       th:text="${theme.spec.author.name} + ' v' + ${theme.spec.version}"></a>
+       rel="noopener noreferrer"
+       th:text="'halo-theme-butterfly v' + ${theme.spec.version}"></a>
   </div>
   <halo:footer></halo:footer>
 </footer>
