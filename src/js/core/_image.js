@@ -82,7 +82,9 @@ export function useLazyImages(root = document) {
     img.dataset.lazyState = '1';
     const origin = img.dataset.lazySrc;
     // 占位图自身可能被 Halo 增加 srcset，不能把它带到真实图片上。
-    if(img.getAttribute('srcset') && img.getAttribute('src') !== origin) img.removeAttribute('srcset');
+    // 响应式图片插件为真实图片写入 srcset 时会用 data-responsive-src 标明原图，这种要保留。
+    const ownSrcset = img.getAttribute('data-responsive-src') === origin;
+    if(!ownSrcset && img.getAttribute('srcset') && img.getAttribute('src') !== origin) img.removeAttribute('srcset');
     const candidates = img.getAttribute('srcset')?.trim()
       ? [origin]
       : (img.dataset.preview === 'cover' ? [usePreview(origin), origin] : [origin]);
