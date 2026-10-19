@@ -60,15 +60,14 @@ jobs:
           name: butterfly-${{ needs.verify.outputs.version }}
       - name: Verify downloaded package
         run: sha256sum -c theme-butterfly-dist.zip.sha256
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.verify.outputs.tag }}
-          name: Butterfly ${{ needs.verify.outputs.tag }}
-          body_path: docs/releases/${{ needs.verify.outputs.tag }}.md
-          draft: false
-          prerelease: false
-          make_latest: true
-          files: |
-            theme-butterfly-dist.zip
-            theme-butterfly-dist.zip.sha256
+      - name: Create a release without replacing existing versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.verify.outputs.tag }}
+        run: |
+          gh release create "$RELEASE_TAG" --verify-tag --latest \
+            --title "Butterfly-shell $RELEASE_TAG" \
+            --notes-file "docs/releases/$RELEASE_TAG.md" \
+            theme-butterfly-dist.zip \
+            theme-butterfly-dist.zip.sha256 \
             theme-butterfly-dist.zip.manifest.json

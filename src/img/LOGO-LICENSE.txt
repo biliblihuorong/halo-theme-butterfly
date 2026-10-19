@@ -1,0 +1,14 @@
+Butterfly-shell application icon
+Copyright (C) 2026 shell
+
+logo.svg is the editable source for logo.png (512 x 512).
+The geometric butterfly was drawn for this project with AI coding assistance.
+It does not incorporate the Halo logo or upstream Butterfly logo artwork.
+Both files are distributed under the project's GNU GPL version 3 license;
+see the LICENSE file in the theme package.
+
+Use logo.png unchanged for both the Halo theme metadata and application-market
+icon so that the installed theme and listing show the same artwork.
+
+Regenerate with librsvg:
+  rsvg-convert -w 512 -h 512 src/img/logo.svg -o src/img/logo.png

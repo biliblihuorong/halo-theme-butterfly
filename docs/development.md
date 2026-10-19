@@ -155,7 +155,7 @@ pnpm build-zip
 | --- | --- |
 | `theme-butterfly-dist.zip` | 上传到 Halo 安装 |
 | `theme-butterfly-dist.zip.sha256` | ZIP 的 SHA-256 校验值 |
-| `theme-butterfly-dist.zip.manifest.json` | 版本、源码提交、生成时间与构建文件的大小及摘要 |
+| `theme-butterfly-dist.zip.manifest.json` | 版本、源码提交、工作区是否有未提交改动、生成时间与构建文件的大小及摘要 |
 
 ZIP 包含 `templates/`、`theme.yaml`、`settings.yaml`、`annotation-setting.yaml` 和 `LICENSE`。`pnpm zip` 只打包当前已有的 `templates/`，不会预先构建，正式交付请使用 `pnpm build-zip`。
 
@@ -165,11 +165,13 @@ ZIP 包含 `templates/`、`theme.yaml`、`settings.yaml`、`annotation-setting.y
 sha256sum -c theme-butterfly-dist.zip.sha256
 ```
 
-`verify-release` 检查包版本与主题版本、标签版本、异步资源文件名、关键模板和 Artalk 的浏览器导出，并生成摘要文件。它不能代替真实 Halo 环境与浏览器验证。发布前还需检查首页、文章、普通独立页面、归档、分类、标签、分页、错误页及已安装的插件页面，并覆盖移动端、深浅色和评论行为。
+`verify-release` 检查包版本与主题版本、标签版本、对应版本说明、随包分发的自有图标、ZIP 内元信息与源码的一致性、异步资源文件名、关键模板和 Artalk 的浏览器导出，并生成摘要文件。运行环境需提供 `unzip`。它不能代替真实 Halo 环境与浏览器验证。发布前还需检查首页、文章、普通独立页面、归档、分类、标签、分页、错误页及已安装的插件页面，并覆盖移动端、深浅色和评论行为。
 
 修改 `th:inline="javascript"` 配置模板后，还要检查 Halo 实际渲染出的脚本，确认对象序列化与内联表达式有效；自然模板的默认值可执行，并不等于服务端渲染已通过。路由相关验证需覆盖桌面与移动侧栏、自定义路径，以及没有 `routes` 的旧版站点模型。
 
 GitHub Actions 对 PR 执行锁定依赖安装、回归测试、构建与 ZIP 校验。推送 `v版本号` 标签时，发布流程复用通过验证的产物，并读取 `docs/releases/v版本号.md` 作为发布说明。发布说明需要与版本同步维护；工作流也支持手动触发验证。
+
+应用市场版本、上传制品及版本说明需由发布者在市场后台同步核对。市场图标请上传 `src/img/logo.png`，它与安装包 `templates/assets/img/logo.png` 使用相同文件；可编辑源文件与再生成命令见 `src/img/logo.svg` 和 `src/img/LOGO-LICENSE.txt`。主题简介应保留社区派生身份。向市场重新提交的材料和开发者人工验收项目见[应用市场说明](marketplace.md)。已经发布的旧标签与制品保持不变，整改使用新的补丁版本。
 
 `pnpm release` 是交互式版本更新命令，仅更新 `package.json` 与 `theme.yaml` 中的版本，不会自动完成测试、创建标签或发布。版本变更后应检查锁文件及发布说明，再执行上述验证流程。
 

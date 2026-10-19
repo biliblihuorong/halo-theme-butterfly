@@ -25,7 +25,9 @@
 
 </details>
 
-本项目 fork 自 [dhjddcn/halo-theme-butterfly](https://github.com/dhjddcn/halo-theme-butterfly)，视觉与交互源于 Jerry 的 [Hexo Butterfly](https://github.com/jerryc127/hexo-theme-butterfly)。在 Halo 移植版的基础上，持续调整页面布局、主题配置、图片加载、代码高亮、评论与插件页面。
+本项目是由 shell 维护的**社区派生版本**，不代表 Halo 官方、Halo 移植版上游维护者或 Hexo Butterfly 原作者。项目 fork 自 [dhjddcn/halo-theme-butterfly](https://github.com/dhjddcn/halo-theme-butterfly) 的 v2.0.7，视觉与交互源于 Jerry 的 [Hexo Butterfly](https://github.com/jerryc127/hexo-theme-butterfly)。在 Halo 移植版的基础上，持续调整页面布局、主题配置、图片加载、代码高亮、评论与插件页面。
+
+派生基点、[上游市场页面](https://www.halo.run/store/apps/app-UeCsJ)、具体差异、贡献状态与维护流程见[派生与应用市场说明](docs/marketplace.md)。
 
 ## 主要能力
 
@@ -51,7 +53,7 @@
 
 升级或设置项缺失时，在主题详情页的 `···` 菜单执行“重载主题配置”。请使用发行包安装，GitHub 的源码 ZIP 不包含运行所需的 `templates/`。
 
-从 **v2.3.4** 起，本分支使用独立标识 `theme-butterfly-shell`，避免与上游主题冲突。v2.3.3 及以前的 `theme-butterfly` 需要先安装新主题、迁移配置再启用，不能直接在旧主题上点“升级”；操作见[标识迁移说明](docs/configuration.md#从旧主题标识迁移到-v234)。文章、菜单和页面内容无需重建。
+从 **v2.3.4** 起，本分支使用独立标识 `theme-butterfly-shell`，避免与上游主题冲突。v2.3.3 及以前的 `theme-butterfly` 需要先安装新主题、迁移配置再启用，不能直接在旧主题上点“升级”；操作见[标识迁移说明](docs/configuration.md#从旧主题标识迁移到-v234)。文章、菜单和页面内容无需重建。迁移或升级前请保留原安装包与配置备份，出现问题时按[回退步骤](docs/configuration.md#回退到升级或迁移前的版本)恢复。
 
 内置 npm CDN 地址不能保证提供本 fork 的对应资源。需要 CDN 时，请使用自定义地址托管同版本的完整主题资源；后台菜单与社交图标也受内置 Font Awesome 子集范围限制，具体方法见文档。
 
@@ -62,6 +64,7 @@
 | [配置与使用](docs/configuration.md) | 安装、完整主题设置、页面路由、插件、配置迁移和常见问题 |
 | [开发与构建](docs/development.md) | 开发环境、源码结构、资源与图标维护、测试、打包和发布校验 |
 | [版本更新记录](docs/releases/) | 各版本新增功能、修复与升级说明 |
+| [派生与应用市场说明](docs/marketplace.md) | 上游基点、差异与贡献方向、维护计划、上架材料及待完成人工验收 |
 
 反馈问题时，请附上主题版本、Halo 版本、相关插件版本，以及可复现的页面或操作步骤：[提交 Issue](https://github.com/biliblihuorong/halo-theme-butterfly/issues)。
 

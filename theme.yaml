@@ -7,8 +7,8 @@ spec:
   author:
     name: shell
     website: "https://github.com/biliblihuorong"
-  description: "一个由 shell 定制优化的 Butterfly 🦋 主题"
-  logo: "https://halo.run/logo"
+  description: "基于 Butterfly Halo 移植版的社区派生主题，由 shell 独立维护，不代表 Halo 官方或上游维护者。"
+  logo: "/themes/theme-butterfly-shell/assets/img/logo.png"
   homepage: "https://github.com/biliblihuorong/halo-theme-butterfly"
   repo: "https://github.com/biliblihuorong/halo-theme-butterfly.git"
   issues: "https://github.com/biliblihuorong/halo-theme-butterfly/issues"
@@ -17,7 +17,7 @@ spec:
       url: "https://github.com/biliblihuorong/halo-theme-butterfly/blob/master/LICENSE"
   settingName: theme-butterfly-shell-setting
   configMapName: theme-butterfly-shell-configmap
-  version: 2.3.4
+  version: 2.3.5
   requires: ">=2.0.0"
   customTemplates:
     page:

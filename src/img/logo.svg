@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Butterfly-shell 蝴蝶图标</title>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1">
+      <stop stop-color="#152344"/>
+      <stop offset="1" stop-color="#28234c"/>
+    </linearGradient>
+    <linearGradient id="wing" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#72e4ed"/>
+      <stop offset="1" stop-color="#7094ff"/>
+    </linearGradient>
+    <linearGradient id="lower" x2="1" y2="1">
+      <stop stop-color="#a7acff"/>
+      <stop offset="1" stop-color="#dfb8ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#background)"/>
+  <path d="M243 254C217 187 156 112 109 119C63 126 82 220 116 253C153 290 206 280 243 254Z" fill="url(#wing)"/>
+  <path d="M269 254C295 187 356 112 403 119C449 126 430 220 396 253C359 290 306 280 269 254Z" fill="url(#wing)"/>
+  <path d="M242 277C195 267 142 280 139 322C135 366 182 400 212 376C236 357 244 314 242 277Z" fill="url(#lower)"/>
+  <path d="M270 277C317 267 370 280 373 322C377 366 330 400 300 376C276 357 268 314 270 277Z" fill="url(#lower)"/>
+  <path d="M241 198C238 183 231 173 220 169M271 198C274 183 281 173 292 169" fill="none" stroke="#f5f7ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M256 207C240 231 241 321 256 347C271 321 272 231 256 207Z" fill="#f5f7ff"/>
+</svg>

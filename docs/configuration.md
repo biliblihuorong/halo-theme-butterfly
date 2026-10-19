@@ -1,6 +1,6 @@
 # 主题配置与使用
 
-本文介绍 Butterfly-shell 的安装与配置，配置项与当前 `2.3.4` 版本的设置结构对应。
+本文介绍 Butterfly-shell 的安装与配置，配置项与当前 `2.3.5` 版本的设置结构对应。
 
 [项目介绍](../README.md) · [开发与构建](development.md) · [更新记录](releases/)
 
@@ -299,7 +299,7 @@ Prism 核心与常用插件约 18KB（gzip），其他语言在文章用到时�
 
 Halo 2.22+ 会为具有有效 `src`、且存储策略支持缩略图的图片自动添加 `srcset`。关闭图床预览时，文章列表与归档封面直接输出真实地址，并按列表、网格、侧栏和屏幕尺寸提供 `sizes`，让浏览器选择合适的候选；归档小封面使用 `96px`。封面缩略图加载失败时先移除候选、重试原图，再失败才显示错误占位图。
 
-正文已有的 `srcset` 会保留，不经过图床预览改写，也不会在后台额外下载原图。旧版 Halo 或无法生成缩略图的图片仍使用原图，无需提高主题最低版本。Halo 2.19–2.21 虽提供缩略图 Finder，本主题依赖的自动添加行为需要 2.22+。启用图床预览时，封面继续使用占位图与预览规则，避免先请求原图再重复下载预览图。
+正文已有的 `srcset` 会保留，不经过图床预览改写，也不会在后台额外下载原图。旧版 Halo 或无法生成缩略图的图片仍使用原图，无需提高主题最低版本。Halo 2.19–2.21 虽提供缩略图 Finder，本主题依赖的自动添加行为需要 2.22+。启用图床预览时，封面通常使用占位图与预览规则，避免先请求原图再重复下载预览图；从 v2.3.5 起，若响应式图片插件通过 `data-responsive-src` 标明 `srcset` 属于同一真实封面，主题会保留这些候选并交给浏览器选图，跳过主题预览规则。占位图自身或错误标记的候选仍会清除。
 
 此能力取决于 Halo 附件及其存储策略，不会自动为任意外部图床链接生成多档图片，CSS 首屏背景也不在自动处理范围内。参见 [Halo 图片优化说明](https://docs.halo.run/developer-guide/theme/image-optimization)。
 
@@ -372,9 +372,9 @@ Halo 的原生更新提示由应用市场插件提供。主题需要先上架应
 
 ### 从旧主题标识迁移到 v2.3.4
 
-v2.3.3 及以前沿用上游 `theme-butterfly` 标识，该名称已被上游应用占用。v2.3.4 改为独立主题 `theme-butterfly-shell`，使用 `theme-butterfly-shell-setting` 和 `theme-butterfly-shell-configmap`。Halo 按标识识别主题，新旧版本在这一边界不能通过“升级”互相覆盖。不要先卸载旧主题或重置旧配置。
+v2.3.3 及以前沿用上游 `theme-butterfly` 标识，该名称已被上游应用占用。v2.3.4 改为独立主题 `theme-butterfly-shell`，使用 `theme-butterfly-shell-setting` 和 `theme-butterfly-shell-configmap`。本节也适用于从旧标识直接迁移到 v2.3.5 或之后的版本。Halo 按标识识别主题，新旧版本在这一边界不能通过“升级”互相覆盖。不要先卸载旧主题或重置旧配置。
 
-1. 备份 Halo 数据。在已授权的后台请求中，使用 `GET /apis/api.console.halo.run/v1alpha1/themes/theme-butterfly/json-config` 导出旧设置，保存为私密的 `old-theme-config.json`。
+1. 备份 Halo 数据，并保留当前正在使用的主题版本安装包。在已授权的后台请求中，使用 `GET /apis/api.console.halo.run/v1alpha1/themes/theme-butterfly/json-config` 导出旧设置，保存为私密的 `old-theme-config.json`。这是回退时使用的原始备份，请与转换后的文件分开保存。
 2. 从发行版下载新包，通过 **主题管理 → 安装主题** 安装 `theme-butterfly-shell`，暂时保留原主题启用。
 3. 使用源码中的离线工具转换设置。JSON 输入只需要 Node.js；YAML 输入另需安装项目已有的 `js-yaml` 依赖：
 
@@ -388,6 +388,26 @@ v2.3.3 及以前沿用上游 `theme-butterfly` 标识，该名称已被上游应
 迁移工具只转换文件，不连接站点。它会将以 `/themes/theme-butterfly/assets/` 开头的内部资源地址改为新路径，保留外部图床、CDN 地址及其他设置，不改写原文件，也不覆盖已经存在的输出文件。还支持完整 ConfigMap 的 YAML/JSON 备份，输出会使用新 ConfigMap 名称并去除旧资源身份；该格式不能直接作为 `json-config` 接口的请求体。已有菜单图标、文章代码复制开关、自定义页面模板名称和访客浏览器偏好不需要迁移。
 
 本节的 JSON 工具只处理身份与内部资源路径。已经使用 `page_hero`、`style` 的 v2.3.x 配置可直接转换。如果更老的配置仍使用 `card` 或顶层 `post`、`links` 等分组，需要另取完整 ConfigMap 备份，按下节先做页面分组迁移，再转换身份；`migrate-page-hero.js` 不接受上面导出的纯 `old-theme-config.json` 对象。
+
+### 回退到升级或迁移前的版本
+
+升级前应保留原版本 ZIP、Halo 数据备份和原主题的纯 JSON 设置备份。`theme-butterfly-shell` 的设置可通过 `GET /apis/api.console.halo.run/v1alpha1/themes/theme-butterfly-shell/json-config` 导出。配置可能含私人信息，请私密保存。不要把转换后的新配置当作旧配置备份，也不要在回退前选择“重置”或“卸载并删除配置”。
+
+**从旧标识迁移后回退（v2.3.3 及以前 → v2.3.4 或之后）：**
+
+1. 在主题管理中选中保留的原 `theme-butterfly`，点击“启用”，即可切回原主题。不要把旧主题安装包上传到新 `theme-butterfly-shell` 的“升级”入口。
+2. 若旧主题仍保留且设置未被修改，无需反向转换配置。若旧主题已卸载，先安装迁移前实际使用版本的 ZIP；不要以同名上游版本替代本分支原安装包。
+3. 只有旧设置缺失或变化时，才用 `PUT /apis/api.console.halo.run/v1alpha1/themes/theme-butterfly/json-config` 写回原始 `old-theme-config.json`，并用同一路径的 `GET` 回读核对。不要把 `new-theme-config.json` 写入旧主题。完整 ConfigMap 备份不能直接作为该接口的请求体。
+4. 还原原版本对应的自定义 CDN 资源，清理页面与浏览器缓存，检查首页、文章、菜单、封面和评论。新主题及其配置可暂时保留，待确认恢复后再处理。
+
+**同一标识内回退（例如 v2.3.5 → v2.3.4）：**
+
+1. 先启用另一个已验证可用的主题，保留当前配置副本及升级前备份。
+2. 对 `theme-butterfly-shell` 选择普通“卸载”，保留配置，再通过“安装主题”上传升级前的原版本 ZIP。普通卸载与“卸载并删除配置”的区别见 [Halo 主题说明](https://docs.halo.run/guide/use/themes#卸载主题)。
+3. 按需要重载原版本的主题配置表单；用 `PUT /apis/api.console.halo.run/v1alpha1/themes/theme-butterfly-shell/json-config` 恢复升级前的完整纯 JSON 设置，并用 `GET` 回读核对。安装旧包只恢复主题文件，不会自动把设置恢复到过去的值。
+4. 同步恢复原版本的自定义 CDN 资源，清理缓存，预览确认正常后启用 `theme-butterfly-shell`。如果无法恢复或备份缺失，先保持备用主题启用并在[项目 Issue](https://github.com/biliblihuorong/halo-theme-butterfly/issues)附上版本与复现步骤，不要反复重置配置。
+
+以上步骤恢复主题文件与主题设置。若同时更改了 Halo、插件或业务数据，应分别按对应组件的备份与恢复流程处理。新旧主题的实际回退操作仍需在待发布制品的人工验收中验证，记录见[派生与应用市场说明](marketplace.md#重新提交前的验收记录)。
 
 ### 升级检查与旧配置迁移
 

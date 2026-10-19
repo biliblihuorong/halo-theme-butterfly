@@ -1,11 +1,11 @@
 {
   "name": "halo-theme-butterfly",
-  "version": "2.3.4",
+  "version": "2.3.5",
   "packageManager": "pnpm@11.20.0",
   "engines": {
     "node": ">=22.13.0"
   },
-  "description": "一个由 shell 定制优化的 Butterfly 🦋 主题",
+  "description": "基于 Butterfly Halo 移植版的社区派生主题，由 shell 独立维护。",
   "scripts": {
     "dev": "gulp watch",
     "clean": "gulp clean",
@@ -46,11 +46,6 @@
     {
       "name": "shell",
       "url": "https://github.com/biliblihuorong"
-    },
-    {
-      "name": "小红",
-      "url": "https://github.com/dhjddcn",
-      "email": "dhjddcn@qq.com"
     }
   ],
   "license": "GPL-3.0",
