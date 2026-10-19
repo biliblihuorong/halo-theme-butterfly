@@ -208,3 +208,25 @@ test('article previews upgrade to the original after loading, or fall back on er
   await new Promise((resolve) => setImmediate(resolve));
   assert.equal(ok.src, img);
 });
+
+test('srcset marked for the real image survives a placeholder src and skips the preview', () => {
+  const {useLazyImages} = imageModule({
+    usePreview() {throw new Error('Marked responsive covers should not use a preview rule');}, conf: {},
+  });
+  const cover = fakeImage({
+    lazySrc: img, preview: 'cover', srcset: 'a_w400.webp 400w, a_w800.webp 800w', 'data-responsive-src': img,
+  });
+  useLazyImages({querySelectorAll: () => [cover]});
+  assert.equal(cover.getAttribute('srcset'), 'a_w400.webp 400w, a_w800.webp 800w');
+  assert.equal(cover.src, img);
+});
+
+test('a marker for another image does not protect the placeholder srcset', () => {
+  const {useLazyImages} = imageModule({usePreview: (src) => `${src}?w=400`, conf: {}});
+  const cover = fakeImage({
+    lazySrc: img, preview: 'cover', srcset: 'placeholder.png 400w', 'data-responsive-src': 'https://img.example.com/other.webp',
+  });
+  useLazyImages({querySelectorAll: () => [cover]});
+  assert.equal(cover.getAttribute('srcset'), undefined);
+  assert.equal(cover.src, `${img}?w=400`);
+});
