@@ -76,6 +76,8 @@ pnpm dev
 
 对照 [Halo 性能最佳实践](https://docs.halo.run/developer-guide/theme/performance)，维护时保留以下行为：
 
+- 所有页面共用的样式输出为 `common.min.css`，各页面的 `page/*.scss` 只输出差异部分，两者都在 `<head>` 里同步加载；新增页面样式时不要再 `@use '../core'`，否则会把公共样式重复打包进页面 CSS。
+- ECharts 的动态 import 用 `webpackExports` 列出用到的图表和组件，新增图表时要同步补上，否则不会被打包进去。
 - Gulp/Webpack/Sass 构建并压缩发布资源；公共与页面脚本按顺序使用 `defer`，同步执行的短脚本用于配色、首屏和页面配置。
 - 主题静态资源带版本参数，异步包带内容哈希。Prism 按文章代码需要加载，Artalk 在接近评论区或点击按钮时加载，ECharts 在图表接近视口时加载，OpenCC 在选择繁体时加载，Fancybox 仅在主内容区存在图片时加载。
 - 菜单和标签总数在 `layout` 的 `body th:with` 中各查询一次，桌面与移动侧栏共享；文章列表使用 Halo 提供的分页模型，循环内不额外查询作者、分类或统计。侧栏分类最多 5 条、标签最多 25 条。

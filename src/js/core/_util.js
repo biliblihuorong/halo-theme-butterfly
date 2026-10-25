@@ -197,7 +197,8 @@ export async function useChart(dom, register) {
     obs.observe(dom);
   });
 
-  const echarts = await import(/* webpackChunkName: "echarts" */ 'echarts/core');
+  // webpackExports 列出实际用到的导出，让 webpack 只打包这些；页面注册图表时同样按名导入。
+  const echarts = await import(/* webpackChunkName: "echarts", webpackExports: ["init", "use", "graphic"] */ 'echarts/core');
   const options = await register(echarts);
 
   let es = null;

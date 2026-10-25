@@ -19,9 +19,9 @@ class Archives {
     if(!chartDom) return;
 
     useChart(chartDom, async (echarts) => {
-      const {LineChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
-      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
-      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts" */ 'echarts/renderers');
+      const {LineChart} = await import(/* webpackChunkName: "echarts", webpackExports: ["LineChart"] */ 'echarts/charts');
+      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent} = await import(/* webpackChunkName: "echarts", webpackExports: ["TitleComponent", "TooltipComponent", "GridComponent", "DataZoomComponent"] */ 'echarts/components');
+      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts", webpackExports: ["CanvasRenderer"] */ 'echarts/renderers');
       echarts.use([
         LineChart,
         TitleComponent,

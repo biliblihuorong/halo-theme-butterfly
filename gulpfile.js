@@ -31,7 +31,8 @@ const autoPrefix = require('gulp-autoprefixer');
 
 const postcss = require('gulp-postcss');
 gulp.task('css', function() {
-  return gulp.src('./src/scss/page/*.scss').
+  // common.scss 输出所有页面共用的核心样式，page/*.scss 只输出各页面的差异部分
+  return gulp.src(['./src/scss/common.scss', './src/scss/page/*.scss']).
   pipe(sass({}, {})).
   pipe(postcss([
     require('postcss-import')({

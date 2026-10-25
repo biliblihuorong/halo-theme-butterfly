@@ -27,9 +27,9 @@ class Categories {
     }
 
     useChart(chartDom, async (echarts) => {
-      const {PieChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
-      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent, LegendComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
-      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts" */ 'echarts/renderers');
+      const {PieChart} = await import(/* webpackChunkName: "echarts", webpackExports: ["PieChart"] */ 'echarts/charts');
+      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent, LegendComponent} = await import(/* webpackChunkName: "echarts", webpackExports: ["TitleComponent", "TooltipComponent", "GridComponent", "DataZoomComponent", "LegendComponent"] */ 'echarts/components');
+      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts", webpackExports: ["CanvasRenderer"] */ 'echarts/renderers');
       echarts.use([
         PieChart,
         TitleComponent,
