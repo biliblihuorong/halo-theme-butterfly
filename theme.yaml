@@ -17,7 +17,7 @@ spec:
       url: "https://github.com/biliblihuorong/halo-theme-butterfly/blob/master/LICENSE"
   settingName: theme-butterfly-shell-setting
   configMapName: theme-butterfly-shell-configmap
-  version: 2.3.5
+  version: 2.3.6
   requires: ">=2.0.0"
   customTemplates:
     page:

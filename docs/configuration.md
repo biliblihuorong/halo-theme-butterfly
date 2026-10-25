@@ -1,6 +1,6 @@
 # 主题配置与使用
 
-本文介绍 Butterfly-shell 的安装与配置，配置项与当前 `2.3.5` 版本的设置结构对应。
+本文介绍 Butterfly-shell 的安装与配置，配置项与当前 `2.3.6` 版本的设置结构对应。
 
 [项目介绍](../README.md) · [开发与构建](development.md) · [更新记录](releases/)
 
