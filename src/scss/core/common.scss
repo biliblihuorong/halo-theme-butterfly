@@ -229,6 +229,15 @@ a:hover {
       outline-offset: 3px;
     }
 
+    // 触屏设备上放大到 44px，方便手指点按。
+    @media (pointer: coarse) {
+      & > .button {
+        width: 44px;
+        height: 44px;
+        font-size: 1rem;
+      }
+    }
+
     .script-label {
       font-weight: 600;
     }
