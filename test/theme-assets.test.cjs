@@ -123,3 +123,10 @@ test('cursor files resolve beside the stylesheet under either a renamed theme or
     }
   }
 });
+
+test('cursor variables use absolute asset URLs so stylesheets in css/ do not resolve them relative to themselves', () => {
+  const config = read('src/html/views/config.html');
+  for(const name of ['default', 'pointer']) {
+    assert.match(config, new RegExp(`--cursor-${name}: url\\(\\[\\[\\$\\{assets_link \\+ 'plugins/cursor/simple/${name}\\.cur`));
+  }
+});

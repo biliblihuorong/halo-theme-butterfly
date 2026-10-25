@@ -165,3 +165,10 @@
 <!--/* FontAwesome CSS 异步加载，避免阻塞首屏渲染；图标会在样式加载后出现 */-->
 <link rel="stylesheet" th:href="${assets_link + 'plugins/fontawesome/fontawesome.min.css?v=' + theme.spec.version}" media="print" onload="this.media='all'">
 <link rel="preload stylesheet" as="style" th:href="${assets_link + 'plugins/cursor/' + 'simple' + '.min.css?v=' + theme.spec.version}">
+<!--/* 主题样式在 css/ 目录里通过 var(--cursor-pointer) 使用指针，浏览器会按 css/ 解析相对路径而 404；这里用完整地址覆盖两个变量 */-->
+<style th:inline="css">
+  body {
+    --cursor-default: url([[${assets_link + 'plugins/cursor/simple/default.cur?v=' + theme.spec.version}]]), auto;
+    --cursor-pointer: url([[${assets_link + 'plugins/cursor/simple/pointer.cur?v=' + theme.spec.version}]]), auto;
+  }
+</style>
