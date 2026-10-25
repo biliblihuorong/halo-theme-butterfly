@@ -1,7 +1,7 @@
 <th:block
   xmlns:th="https://www.thymeleaf.org"
   th:with="
-     assets_site = ${'/themes/' + theme.metadata.name + '/assets/'},
+     assets_site = ${#strings.endsWith(#theme.assets('/'), '/') ? #theme.assets('/') : #theme.assets('/') + '/'},
      assets_source = ${theme.config.loading?.source},
      assets_type = ${assets_source?.type ?: 'site'},
      assets_selected = ${assets_type == 'site' ? assets_source?.site : (assets_type == 'custom' ? assets_source?.custom : (assets_type == 'npm' ? assets_source?.npm : null))},
@@ -24,7 +24,9 @@
     <th:block th:each="line : ${#strings.listSplit(theme.config.performance?.dns_prefetch, '&#10;')}">
       <link th:if="${not #strings.isEmpty(#strings.trim(line))}" rel="dns-prefetch" th:href="${#strings.startsWith(#strings.trim(line), '//') or #strings.contains(#strings.trim(line), '://') ? #strings.trim(line) : '//' + #strings.trim(line)}" />
     </th:block>
-    <link rel="stylesheet" th:href="|${assets_link}css/index.min.css?v=${theme.spec.version}|" media="all">
+    <!--/* 公共样式和页面样式都同步加载，首屏直接按当前页面样式绘制，避免先按首页样式画出再切换 */-->
+    <link rel="stylesheet" th:href="|${assets_link}css/common.min.css?v=${theme.spec.version}|">
+    <link th:unless="${page == null}" rel="stylesheet" th:href="${assets_link + 'css/' + page + '.min.css?v=' + theme.spec.version}">
     <!--/* TemplateHeadProcessor 会自动处理标准 head；halo:head 会让浏览器提前结束 head。 */-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
@@ -49,11 +51,6 @@
         document.head.appendChild(link);
       })(window.MainApp.conf);
     </script>
-    <!--/* index 页的 page css 与上方 index.min.css 相同，跳过避免重复声明 */-->
-    <th:block th:unless="${page == null or page == 'index'}">
-      <link rel="preload" th:href="${assets_link + 'css/' + page + '.min.css?v=' + theme.spec.version}" as="style">
-      <link rel="stylesheet" th:href="${assets_link + 'css/' + page + '.min.css?v=' + theme.spec.version}" media="print" onload="this.media='all'">
-    </th:block>
   </head>
 
   <body th:classappend="${loading_enabled ? 'loading' : ''}" th:with="stats = ${siteStatsFinder.getStats()},contributor = ${contributorFinder.getContributor(theme.config.base.metadata_name)},menuItems = ${menuFinder.getPrimary().menuItems},tagTotal = ${tagFinder.list(1,1).total}">

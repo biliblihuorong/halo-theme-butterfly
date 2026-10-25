@@ -9,7 +9,7 @@ function load(file, names, globals = {}) {
     .replace(/^@App\([^\n]*\)\r?\n/gm, '')
     .replace(/^export default /gm, '')
     .replace(/^export /gm, '')
-    .replace(/import\(\/\* webpackChunkName: "echarts" \*\/ '([^']+)'\)/g, "loadChartModule('$1')");
+    .replace(/import\(\/\* webpackChunkName: "echarts"[^*]*\*\/ '([^']+)'\)/g, "loadChartModule('$1')");
   return vm.runInNewContext(`${source}\n({${names.join(',')}})`, {
     URL, setTimeout, clearTimeout, console, ...globals,
   }, {filename});

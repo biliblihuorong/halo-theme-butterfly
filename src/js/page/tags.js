@@ -47,9 +47,9 @@ class Tags {
     source = source.length >= 10 ? source.slice(0, 10) : source;
 
     useChart(chartDom, async (echarts) => {
-      const {BarChart} = await import(/* webpackChunkName: "echarts" */ 'echarts/charts');
-      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent, DatasetComponent, TransformComponent, MarkPointComponent, MarkLineComponent} = await import(/* webpackChunkName: "echarts" */ 'echarts/components');
-      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts" */ 'echarts/renderers');
+      const {BarChart} = await import(/* webpackChunkName: "echarts", webpackExports: ["BarChart"] */ 'echarts/charts');
+      const {TitleComponent, TooltipComponent, GridComponent, DataZoomComponent, DatasetComponent, TransformComponent, MarkPointComponent, MarkLineComponent} = await import(/* webpackChunkName: "echarts", webpackExports: ["TitleComponent", "TooltipComponent", "GridComponent", "DataZoomComponent", "DatasetComponent", "TransformComponent", "MarkPointComponent", "MarkLineComponent"] */ 'echarts/components');
+      const {CanvasRenderer} = await import(/* webpackChunkName: "echarts", webpackExports: ["CanvasRenderer"] */ 'echarts/renderers');
       echarts.use([
         BarChart,
         TitleComponent,

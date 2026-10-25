@@ -1,0 +1,6 @@
+/**
+ * @fileName: common
+ * @Description: 所有页面共用的核心样式，单独输出为 common.min.css 并同步加载；
+ * 页面样式（page/*.scss）只包含各自的差异部分，不再重复打包 core。
+ */
+@use 'core';
