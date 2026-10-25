@@ -109,6 +109,19 @@
 
 // 桌面阅读模式复用主容器宽度，退出时恢复原有侧栏与左右布局。
 @media (min-width: 1101px) {
+  // 右侧留白不够放下浮动按钮时，给主容器右侧让出位置，避免按钮压住侧栏或正文。
+  // 65px = 按钮距右边 10px + 按钮 43px + 间隙 12px；百分比按 #Butterfly 宽度计算，不含滚动条。
+  .main {
+    --side-btn-reserve: 65px;
+    padding-right: max(15px, min(var(--side-btn-reserve), calc(var(--side-btn-reserve) - (100% - 1250px) / 2)));
+  }
+
+  @media (pointer: coarse) {
+    .main {
+      --side-btn-reserve: 74px;
+    }
+  }
+
   html.reading-wide #Butterfly:is(.post, .single) .main {
     > .aside {
       display: none;
