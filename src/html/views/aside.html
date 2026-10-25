@@ -46,7 +46,7 @@
 </section>
 
 <!--/* 分类 */-->
-<section xmlns:th="https://www.thymeleaf.org" th:fragment="category" th:if="${theme.config.aside.enable_category}" class="aside-category card">
+<section xmlns:th="https://www.thymeleaf.org" th:fragment="category" th:if="${theme.config.aside.enable_category and asideHide != 'category'}" class="aside-category card">
   <h1 class="title">
     <i class="fa-solid fa-layer-group"></i>
     <span class="name">分类</span>
@@ -65,7 +65,7 @@
 </section>
 
 <!--/* 标签 */-->
-<section xmlns:th="https://www.thymeleaf.org" th:fragment="tags" th:if="${theme.config.aside.enable_tags}" class="aside-tags card">
+<section xmlns:th="https://www.thymeleaf.org" th:fragment="tags" th:if="${theme.config.aside.enable_tags and asideHide != 'tags'}" class="aside-tags card">
   <h1 class="title">
     <i class="fa-solid fa-tags"></i>
     <span class="name">标签</span>
@@ -106,7 +106,7 @@
   </div>
 </section>
 
-<!--/* 侧边栏 */-->
+<!--/* 侧边栏；页面可用 asideHide 隐藏和正文重复的小部件（category / tags） */-->
 <aside xmlns:th="https://www.thymeleaf.org" th:fragment="common" th:if="${theme.config.aside.enable}" class="aside">
   <th:block th:replace="~{::user}"/>
   <th:block th:replace="~{::notice}"/>

@@ -53,6 +53,9 @@
 
       <th:block th:unless="${noData}" th:insert="~{views/components:: emptyData(false)}"></th:block>
     </section>
-    <th:block th:replace="~{views/aside::common}"/>
+    <!--/* 正文已列出全部标签，侧栏不再重复 */-->
+    <th:block th:with="asideHide='tags'">
+      <th:block th:replace="~{views/aside::common}"/>
+    </th:block>
   </th:block>
 </layout>

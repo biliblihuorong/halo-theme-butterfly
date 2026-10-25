@@ -34,19 +34,23 @@
 
       <div class="info">
         <a class="title" th:href="${post.status.permalink}" th:title="${post.spec.title}" th:text="${post.spec.title}"></a>
-        <div class="data">
-          <div class="row">
-          <span class="wp comment">
+        <div class="data"
+             th:with="commentCount = ${post.stats?.comment ?: 0},
+               upvoteCount = ${post.stats?.upvote ?: 0},
+               visitCount = ${post.stats?.visit ?: 0}">
+          <!--/* 计数为 0 时不显示，三项都为 0 时整行不输出 */-->
+          <div class="row" th:if="${commentCount > 0 || upvoteCount > 0 || visitCount > 0}">
+          <span class="wp comment" th:if="${commentCount > 0}">
               <i class="fa-solid fa-comments"></i>
-              <span th:text="'评论 '+${post.stats.comment}"></span>
+              <span th:text="'评论 '+${commentCount}"></span>
           </span>
-            <span class="wp upvote">
+            <span class="wp upvote" th:if="${upvoteCount > 0}">
               <i class="fa-solid fa-thumbs-up"></i>
-              <span th:text="'点赞 '+${post.stats.upvote}"></span>
+              <span th:text="'点赞 '+${upvoteCount}"></span>
           </span>
-            <span class="wp visit">
+            <span class="wp visit" th:if="${visitCount > 0}">
               <i class="fa-solid fa-eye"></i>
-              <span th:text="'预览 '+${post.stats.visit}"></span>
+              <span th:text="'预览 '+${visitCount}"></span>
           </span>
           </div>
 
